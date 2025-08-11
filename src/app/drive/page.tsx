@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { Input, Button, Popover, Progress } from 'antd';
-import { Search, Upload, MoreVertical, FileText, FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet, Presentation } from 'lucide-react';
+import { Input, Button, Progress, Breadcrumb } from 'antd';
+import { Search, Upload, Folder, FileText, FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet, Presentation, Home, ChevronRight, Download } from 'lucide-react';
 import styles from "./page.module.scss";
 
 interface FileItem {
@@ -13,16 +13,65 @@ interface FileItem {
   type: 'pdf' | 'pptx' | 'jpg' | 'mp4' | 'xlsx' | 'mp3' | 'docx' | 'zip';
 }
 
-const files: FileItem[] = [
-  { id: '1', name: 'Relatório Mensal.pdf', size: '2.4 MB', date: '15/01/2024', modified: '10:30', type: 'pdf' },
-  { id: '2', name: 'Apresentação Cliente.pptx', size: '5.7 MB', date: '14/01/2024', modified: '16:45', type: 'pptx' },
-  { id: '3', name: 'Banner Campanha.jpg', size: '1.2 MB', date: '13/01/2024', modified: '14:20', type: 'jpg' },
-  { id: '4', name: 'Video Institucional.mp4', size: '45.8 MB', date: '12/01/2024', modified: '09:15', type: 'mp4' },
-  { id: '5', name: 'Planilha Vendas.xlsx', size: '892 KB', date: '11/01/2024', modified: '11:30', type: 'xlsx' },
-  { id: '6', name: 'Audio Reunião.mp3', size: '12.3 MB', date: '10/01/2024', modified: '15:45', type: 'mp3' },
-  { id: '7', name: 'Contrato Fornecedor.docx', size: '456 KB', date: '09/01/2024', modified: '13:20', type: 'docx' },
-  { id: '8', name: 'Fotos Evento.zip', size: '78.2 MB', date: '08/01/2024', modified: '17:10', type: 'zip' },
-];
+interface DirectoryItem {
+  id: string;
+  name: string;
+  type: 'month' | 'client' | 'service';
+  date: string;
+  modified: string;
+}
+
+type DriveItem = FileItem | DirectoryItem;
+
+// Dados mockados para demonstração
+const mockData = {
+  months: [
+    { id: '1', name: 'Janeiro 2024', type: 'month' as const, date: '31/01/2024', modified: '18:30' },
+    { id: '2', name: 'Fevereiro 2024', type: 'month' as const, date: '29/02/2024', modified: '19:15' },
+    { id: '3', name: 'Março 2024', type: 'month' as const, date: '31/03/2024', modified: '20:00' },
+  ],
+  clients: {
+    '1': [
+      { id: 'c1', name: 'Empresa ABC Ltda', type: 'client' as const, date: '31/01/2024', modified: '18:30' },
+      { id: 'c2', name: 'Comércio XYZ S.A.', type: 'client' as const, date: '30/01/2024', modified: '17:45' },
+      { id: 'c3', name: 'Indústria 123 Ltda', type: 'client' as const, date: '29/01/2024', modified: '16:20' },
+    ],
+    '2': [
+      { id: 'c4', name: 'Loja Virtual Pro', type: 'client' as const, date: '29/02/2024', modified: '19:15' },
+      { id: 'c5', name: 'Consultoria Tech', type: 'client' as const, date: '28/02/2024', modified: '18:30' },
+    ],
+    '3': [
+      { id: 'c6', name: 'Startup Inovação', type: 'client' as const, date: '31/03/2024', modified: '20:00' },
+    ]
+  },
+  services: {
+    'c1': [
+      { id: 's1', name: 'Notas Fiscais', type: 'service' as const, date: '31/01/2024', modified: '18:30' },
+      { id: 's2', name: 'Planilhas', type: 'service' as const, date: '31/01/2024', modified: '18:30' },
+      { id: 's3', name: 'Contratos', type: 'service' as const, date: '31/01/2024', modified: '18:30' },
+    ],
+    'c2': [
+      { id: 's4', name: 'Relatórios', type: 'service' as const, date: '30/01/2024', modified: '17:45' },
+      { id: 's5', name: 'Documentos', type: 'service' as const, date: '30/01/2024', modified: '17:45' },
+    ],
+    'c3': [
+      { id: 's6', name: 'Faturamento', type: 'service' as const, date: '29/01/2024', modified: '16:20' },
+    ]
+  },
+  files: {
+    's1': [
+      { id: 'f1', name: 'NF-001-2024.pdf', size: '2.4 MB', date: '15/01/2024', modified: '10:30', type: 'pdf' as const },
+      { id: 'f2', name: 'NF-002-2024.pdf', size: '1.8 MB', date: '22/01/2024', modified: '14:15', type: 'pdf' as const },
+    ],
+    's2': [
+      { id: 'f3', name: 'Vendas-Q1-2024.xlsx', size: '892 KB', date: '11/01/2024', modified: '11:30', type: 'xlsx' as const },
+      { id: 'f4', name: 'Controle-Estoque.xlsx', size: '1.2 MB', date: '13/01/2024', modified: '14:20', type: 'xlsx' as const },
+    ],
+    's3': [
+      { id: 'f5', name: 'Contrato-Fornecedor.docx', size: '456 KB', date: '09/01/2024', modified: '13:20', type: 'docx' as const },
+    ]
+  }
+} as const;
 
 const getFileIcon = (type: string) => {
   switch (type) {
@@ -48,94 +97,209 @@ const getFileIcon = (type: string) => {
 
 export default function Drive() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPath, setCurrentPath] = useState<Array<{id: string, name: string, type: string}>>([]);
+  const [currentLevel, setCurrentLevel] = useState<'months' | 'clients' | 'services' | 'files'>('months');
 
-  const handleEdit = (fileId: string) => {
-    console.log('Editar arquivo:', fileId);
-    // Implementar lógica de edição
+  const handleDirectoryClick = (item: DirectoryItem) => {
+    if (item.type === 'month') {
+      setCurrentPath([{ id: item.id, name: item.name, type: item.type }]);
+      setCurrentLevel('clients');
+    } else if (item.type === 'client') {
+      setCurrentPath(prev => [...prev, { id: item.id, name: item.name, type: item.type }]);
+      setCurrentLevel('services');
+    } else if (item.type === 'service') {
+      setCurrentPath(prev => [...prev, { id: item.id, name: item.name, type: item.type }]);
+      setCurrentLevel('files');
+    }
   };
 
-  const handleDownload = (fileId: string) => {
-    console.log('Baixar arquivo:', fileId);
-    // Implementar lógica de download
+  const handleBreadcrumbClick = (index: number) => {
+    if (index === 0) {
+      setCurrentPath([]);
+      setCurrentLevel('months');
+    } else if (index === 1) {
+      setCurrentPath(prev => prev.slice(0, 1));
+      setCurrentLevel('clients');
+    } else if (index === 2) {
+      setCurrentPath(prev => prev.slice(0, 2));
+      setCurrentLevel('services');
+    }
   };
 
-  const filteredFiles = files.filter(file =>
-    file.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getCurrentItems = () => {
+    if (currentLevel === 'months') {
+      return mockData.months;
+    } else if (currentLevel === 'clients') {
+      const monthId = currentPath[0]?.id;
+      return monthId ? mockData.clients[monthId as keyof typeof mockData.clients] || [] : [];
+    } else if (currentLevel === 'services') {
+      const clientId = currentPath[1]?.id;
+      return clientId ? mockData.services[clientId as keyof typeof mockData.services] || [] : [];
+    } else if (currentLevel === 'files') {
+      const serviceId = currentPath[2]?.id;
+      return serviceId ? mockData.files[serviceId as keyof typeof mockData.files] || [] : [];
+    }
+    return [];
+  };
 
-  const popoverContent = (fileId: string) => (
-    <div className={styles.popoverContent}>
-      <button onClick={() => handleEdit(fileId)} className={styles.popoverOption}>
-        Editar
-      </button>
-      <button onClick={() => handleDownload(fileId)} className={styles.popoverOption}>
-        Baixar documento
-      </button>
-    </div>
-  );
+  const getBreadcrumbItems = () => {
+    const items = [
+      {
+        title: (
+          <button className={styles.breadcrumbHome} onClick={() => handleBreadcrumbClick(0)}>
+            <Home size={16} />
+            Drive
+          </button>
+        )
+      }
+    ];
+
+    currentPath.forEach((item, index) => {
+      items.push({
+        title: (
+          <button 
+            className={styles.breadcrumbItem} 
+            onClick={() => handleBreadcrumbClick(index + 1)}
+          >
+            {item.name}
+          </button>
+        )
+      });
+    });
+
+    return items;
+  };
+
+  const handleDownload = (file: FileItem) => {
+    console.log('Baixar arquivo:', file.name);
+    // Implementar lógica de download real aqui
+    // Por exemplo, criar um link temporário e clicar nele
+    const link = document.createElement('a');
+    link.href = `#download-${file.id}`; // Placeholder - substituir por URL real
+    link.download = file.name;
+    link.click();
+  };
+
+  const renderContent = () => {
+    const items = getCurrentItems();
+
+    if (currentLevel === 'files') {
+      return (
+        <div className={styles.filesGrid}>
+          {items.map((item: DriveItem) => {
+            if ('size' in item) {
+              const file = item as FileItem;
+              return (
+                <div key={file.id} className={styles.fileCard}>
+                  <div className={styles.fileHeader}>
+                    <div className={styles.fileIcon}>
+                      {getFileIcon(file.type)}
+                    </div>
+                    <button 
+                      className={styles.downloadButton}
+                      onClick={() => handleDownload(file)}
+                      title="Baixar arquivo"
+                    >
+                      <Download size={16} />
+                    </button>
+                  </div>
+                  <div className={styles.fileInfo}>
+                    <h3 className={styles.fileName}>{file.name}</h3>
+                    <div className={styles.fileDetails}>
+                      <p>Tamanho: {file.size}</p>
+                      <p>Data: {file.date}</p>
+                      <p>Modificado: {file.modified}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.directoriesGrid}>
+        {items.map((item: DriveItem) => {
+          if (!('size' in item)) {
+            const directory = item as DirectoryItem;
+            return (
+              <div 
+                key={directory.id} 
+                className={styles.directoryCard}
+                onClick={() => handleDirectoryClick(directory)}
+              >
+                <div className={styles.directoryIcon}>
+                  <Folder size={24} />
+                </div>
+                <div className={styles.directoryInfo}>
+                  <h3 className={styles.directoryName}>{directory.name}</h3>
+                  <p className={styles.directoryType}>
+                    {directory.type === 'month' ? 'Mês' : 
+                     directory.type === 'client' ? 'Cliente' : 'Serviço'}
+                  </p>
+                  <div className={styles.directoryDetails}>
+                    <p>Data: {directory.date}</p>
+                    <p>Modificado: {directory.modified}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <div className={styles.titleSection}>
-          <h1 className={styles.title}>Drive</h1>
-          <p className={styles.subtitle}>Conteúdo do Drive será exibido aqui</p>
-        </div>
-        <div className={styles.headerActions}>
-          <Input
-            placeholder="Buscar documentos..."
-            prefix={<Search size={16} />}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-          <Button type="primary" icon={<Upload size={16} />} className={styles.uploadButton}>
-            Upload de arquivo
-          </Button>
-        </div>
-      </div>
-
-      <div className={styles.filesGrid}>
-        {filteredFiles.map((file) => (
-          <div key={file.id} className={styles.fileCard}>
-            <div className={styles.fileHeader}>
-              <div className={styles.fileIcon}>
-                {getFileIcon(file.type)}
-              </div>
-              <Popover
-                content={popoverContent(file.id)}
-                trigger="click"
-                placement="bottomRight"
-                overlayClassName={styles.popover}
-              >
-                <button className={styles.moreButton}>
-                  <MoreVertical size={16} />
-                </button>
-              </Popover>
-            </div>
-            <div className={styles.fileInfo}>
-              <h3 className={styles.fileName}>{file.name}</h3>
-              <div className={styles.fileDetails}>
-                <p>Tamanho: {file.size}</p>
-                <p>Data: {file.date}</p>
-                <p>Modificado: {file.modified}</p>
-              </div>
-            </div>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <div className={styles.titleSection}>
+            <h1 className={styles.title}>Drive</h1>
+            <p className={styles.subtitle}>Documentos organizados por mês, cliente e categoria</p>
           </div>
-        ))}
-      </div>
+          <div className={styles.headerActions}>
+            <Input
+              placeholder="Buscar documentos..."
+              prefix={<Search size={16} />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            <Button type="primary" icon={<Upload size={16} />} className={styles.uploadButton}>
+              Upload de arquivo
+            </Button>
+          </div>
+        </div>
 
-      <div className={styles.storageSection}>
-        <h3 className={styles.storageTitle}>Armazenamento</h3>
-        <div className={styles.storageInfo}>
-          <span>Usado</span>
-          <Progress 
-            percent={14.72} 
-            showInfo={false} 
-            strokeColor="#2463eb"
-            className={styles.progressBar}
-          />
-          <span className={styles.storageText}>147.2 GB de 1 TB</span>
+        {currentPath.length > 0 && (
+          <div className={styles.breadcrumbSection}>
+            <Breadcrumb 
+              items={getBreadcrumbItems()}
+              separator={<ChevronRight size={16} />}
+              className={styles.breadcrumb}
+            />
+          </div>
+        )}
+
+        {renderContent()}
+
+        <div className={styles.storageSection}>
+          <h3 className={styles.storageTitle}>Armazenamento</h3>
+          <div className={styles.storageInfo}>
+            <span>Usado</span>
+            <Progress
+              percent={14.72}
+              showInfo={false}
+              strokeColor="#2463eb"
+              className={styles.progressBar}
+            />
+            <span className={styles.storageText}>147.2 GB de 1 TB</span>
+          </div>
         </div>
       </div>
     </div>
