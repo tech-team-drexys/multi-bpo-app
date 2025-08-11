@@ -1,0 +1,185 @@
+'use client';
+import { useRef, useState } from 'react';
+import {
+  History,
+  Search,
+  ChevronLeft,
+  SquarePen,
+  Images,
+} from 'lucide-react';
+import Image from 'next/image';
+import { ChevronDown } from "lucide-react";
+import { useRouter, usePathname } from 'next/navigation';
+import styles from './sidebar.module.scss';
+import { Button, Popover } from 'antd';
+import { HistoryModal } from '../modal/HistoryModal';
+
+interface SidebarProps {
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+}
+
+export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
+  const [open, setOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  
+  const [conversations] = useState([
+    { id: 1, title: 'Saudação amigável e oferta de ajuda', time: 'Today', isActive: true },
+    { id: 2, title: 'Clarifying "Teste" Meaning in Context', time: 'Yesterday' },
+    { id: 3, title: 'Cumprimento amigável em português', time: 'Yesterday' },
+    { id: 4, title: 'AI Technology Image Factivity Analysis', time: 'Yesterday' },
+  ]);
+
+  const menuItems = [
+    { icon: Search, label: 'Buscar em chats', isSearch: true },
+    { icon: SquarePen, label: 'Novo chat', path: '/lucaIA', isNewChat: true },
+    { icon: Images, label: 'Galeria', path: '/lucaIA/galeria' },
+    { icon: History, label: 'Histórico', isHistory: true },
+  ];
+
+  const isItemActive = (item: any) => {
+    if (item.isSearch) {
+      return false;
+    }
+    if (item.isNewChat) {
+      return false;
+    }
+    if (item.isHistory) {
+      return open || pathname.includes('conversation=');
+    }
+    if (item.path) {
+      return pathname === item.path;
+    }
+    return false;
+  };
+
+  const handleMenuClick = (path: string) => {
+    router.push(path);
+  };
+
+  const handleConversationClick = (conversationId: number) => {
+    router.push(`/lucaIA?conversation=${conversationId}`);
+  };
+
+  const content = (
+    <>
+      <div className={`${styles.group} ${!open ? styles.groupClosed : ''}`}>
+        <div className={styles.label}>Today</div>
+                 {conversations
+           .filter((conv) => conv.time === 'Today')
+           .map((conversation) => (
+             <div 
+               key={conversation.id} 
+               className={styles.conversationItem}
+               onClick={() => handleConversationClick(conversation.id)}
+             >
+               <p className={styles.conversationText}>
+                 {conversation.title}
+               </p>
+             </div>
+           ))}
+      </div>
+
+      <div className={styles.group}>
+        <div className={styles.label}>Yesterday</div>
+                 {conversations
+           .filter((conv) => conv.time === 'Yesterday')
+           .map((conversation) => (
+             <div 
+               key={conversation.id} 
+               className={styles.conversationItem}
+               onClick={() => handleConversationClick(conversation.id)}
+             >
+               <p className={styles.conversationText}>
+                 {conversation.title}
+               </p>
+             </div>
+           ))}
+        <button 
+          className={styles.viewAll}
+          onClick={() => setIsHistoryModalOpen(true)}
+        >
+          Ver todos
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : styles.expanded}`}>
+      <div className={styles.header}>
+        <div className={styles.headerInner}>
+          {!isCollapsed && (
+            <div className={styles.logo}>
+              <Image src="/logo-multi-bpo.png" alt="Luca IA" width={30} height={30} />
+              <span className={styles.logoText}>Luca IA</span>
+            </div>
+          )}
+          <button onClick={onToggleCollapse} className={styles.toggleButton}>
+            {isCollapsed ? (
+              <Image src="/logo-multi-bpo.png" alt="Luca IA" width={30} height={30} />
+            ) : (
+              <ChevronLeft className={styles.toggleIcon} />
+            )}
+          </button>
+        </div>
+      </div>
+      
+      <div className={styles.menu}>
+        {menuItems.map((item) =>
+          item.isHistory ? (
+            <div key={item.label} className={styles.wrapper} ref={ref}>
+              {!isCollapsed ? (
+                <div
+                  className={`${styles.menuItem} ${isItemActive(item) ? styles.menuItemActive : ''}`}
+                  onClick={() => setOpen(!open)}
+                >
+                  <span className={styles.iconContainer}>
+                    <item.icon size={18} className={styles.clockIcon} />
+                    <ChevronDown size={18} className={styles.chevronIcon} />
+                  </span>
+                  <span>Histórico</span>
+                </div>
+              ) : (
+                <Popover placement="right" title={<span>Histórico</span>} content={content} arrow={false}>
+                  <Button className={`${styles.menuItemButton} ${isItemActive(item) ? styles.menuItemActive : ''}`}>
+                    <item.icon size={20} className={styles.clockIcon} />
+                  </Button>
+                </Popover>
+              )}
+
+              {open && !isCollapsed && (
+                <div className={styles.dropdown}>
+                  {content}
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              key={item.label}
+              className={`${styles.menuItem} ${isCollapsed ? styles.menuItemCollapsed : ''} ${isItemActive(item) ? styles.menuItemActive : ''}`}
+              onClick={() => {
+                if (item.isSearch) {
+                  setIsHistoryModalOpen(true);
+                } else if (item.path) {
+                  handleMenuClick(item.path);
+                }
+              }}
+            >
+              <item.icon className={styles.menuIcon} />
+              {!isCollapsed && <span>{item.label}</span>}
+            </button>
+          )
+        )}
+      </div>
+      
+      <HistoryModal 
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+      />
+    </div>
+  );
+};
