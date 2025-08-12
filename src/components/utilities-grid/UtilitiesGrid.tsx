@@ -401,7 +401,6 @@ export default function UtilitiesGrid() {
                 className={styles.utilityModal}
                 closeIcon={<X size={20} />}
                 zIndex={999999}
-                maskStyle={{ zIndex: 999998 }}
             >
                 <div className={styles.modalHeader}>
                     <div

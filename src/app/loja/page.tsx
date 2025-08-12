@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { ArrowRightIcon, ShoppingBagIcon, Trash2Icon } from "lucide-react";
 import styles from "./page.module.scss";
-import { Button, Radio, RadioChangeEvent, Drawer, List, Typography, Space, Divider } from "antd";
+import { Button, Radio, RadioChangeEvent, Drawer, List, Typography, Space, Divider, notification } from "antd";
 
 const { Text, Title } = Typography;
 
@@ -146,6 +146,7 @@ export default function Loja() {
   const [value, setValue] = useState("todos");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
 
   const onChange = (e: RadioChangeEvent) => {
     setValue(e.target.value);
@@ -166,6 +167,12 @@ export default function Loja() {
         );
       }
       return [...prevCart, { ...service, quantity: 1 }];
+    });
+    
+    api.success({
+      message: 'Produto adicionado no carrinho',
+      description: `${service.title} foi adicionado ao seu carrinho`,
+      placement: 'bottomRight',
     });
   };
 
@@ -238,11 +245,12 @@ export default function Loja() {
 
   return (
     <div className={styles.page}>
+      {contextHolder}
       <div className={styles.content}>
         <div className={styles.contentHeader}>
           <div className={styles.header}>
             <h1>Loja</h1>
-            <p>Descubra nossos serviços especializados de BPO</p>
+            <p>Descubra nossos serviços especializados</p>
           </div>
           <Button
             className={styles.shoppingBagBtn}

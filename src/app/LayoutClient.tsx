@@ -5,6 +5,9 @@ import { Sidebar as ChatSidebar } from "@/components/sidebar-chat/Sidebar";
 import { Header } from "@/components/header/Header";
 import styles from "./layout.module.scss";
 import { usePathname } from "next/navigation";
+import { ConfigProvider } from "antd";
+import ptBR from "antd/locale/pt_BR";
+
 
 interface LayoutClientProps {
   children: ReactNode;
@@ -49,35 +52,37 @@ export function LayoutClient({ children }: LayoutClientProps) {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.layout}>
-        <Sidebar
-          isCollapsed={sidebarCollapsed}
-          onToggleCollapse={handleSidebarToggle}
-          isHomePage={isHomePage}
-          isManuallyCollapsed={isManuallyCollapsed}
-          onHover={handleSidebarHover}
-        />
-        {isLucaIAPage && (
-          <ChatSidebar
-            isCollapsed={chatSidebarCollapsed}
-            onToggleCollapse={() => setChatSidebarCollapsed(!chatSidebarCollapsed)}
-          />
-        )}
-        <div className={styles.main}>
-          <Header
+    <ConfigProvider locale={ptBR}>
+      <div className={styles.page}>
+        <div className={styles.layout}>
+          <Sidebar
             isCollapsed={sidebarCollapsed}
-            chatSidebarCollapsed={isLucaIAPage ? chatSidebarCollapsed : undefined}
             onToggleCollapse={handleSidebarToggle}
-            isSidebarHovered={isSidebarHovered}
             isHomePage={isHomePage}
             isManuallyCollapsed={isManuallyCollapsed}
+            onHover={handleSidebarHover}
           />
-          <main className={styles.content}>
-            {children}
-          </main>
+          {isLucaIAPage && (
+            <ChatSidebar
+              isCollapsed={chatSidebarCollapsed}
+              onToggleCollapse={() => setChatSidebarCollapsed(!chatSidebarCollapsed)}
+            />
+          )}
+          <div className={styles.main}>
+            <Header
+              isCollapsed={sidebarCollapsed}
+              chatSidebarCollapsed={isLucaIAPage ? chatSidebarCollapsed : undefined}
+              onToggleCollapse={handleSidebarToggle}
+              isSidebarHovered={isSidebarHovered}
+              isHomePage={isHomePage}
+              isManuallyCollapsed={isManuallyCollapsed}
+            />
+            <main className={styles.content}>
+              {children}
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </ConfigProvider>
   );
 } 

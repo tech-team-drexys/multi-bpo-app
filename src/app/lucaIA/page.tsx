@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import styles from "./luca.module.scss";
 import { simulateN8NResponse } from "@/services/api";
+import { HistoryModal } from "@/components/modal/HistoryModal";
 
 interface ChatMessage {
     id: string;
@@ -37,6 +38,7 @@ export default function LucaIA() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [currentMessage, setCurrentMessage] = useState("");
     const [openIdeas, setOpenIdeas] = useState(false);
+    const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
     const handleSendMessage = async (content: string) => {
         const userMessage: ChatMessage = {
@@ -267,6 +269,11 @@ export default function LucaIA() {
                     </div>
                 )}
             </div>
+
+            <HistoryModal
+                isOpen={isHistoryModalOpen}
+                onClose={() => setIsHistoryModalOpen(false)}
+            />
         </div>
     );
 }

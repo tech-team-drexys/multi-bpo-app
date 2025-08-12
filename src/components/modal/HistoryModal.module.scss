@@ -184,7 +184,7 @@
   transition: var(--transition);
 
   &:hover {
-    background-color: #e5e7eb;
+    background-color: transparent;
     color: var(--text-primary);
   }
 }
