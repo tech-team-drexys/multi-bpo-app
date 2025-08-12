@@ -1,17 +1,18 @@
 :root {
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(220, 13%, 18%);
-  --secondary: hsl(221, 83%, 53%);
-  --secondary-hover: hsl(221, 83%, 43%);
+  --background: #ffffff;
+  --foreground: #282c34;
+  --secondary: #2463eb;
+  --secondary-hover: #134cc9;
   --bg-color: #eff6ff;
-  --button-color: hsl(141, 71%, 48%);
-  --bg-shadow: hsl(0, 0%, 94%);
-  --sub-text: hsl(287, 6%, 47%);
-  --muted-foreground: hsl(220, 13%, 18%);
-  --border-color: hsl(220, 15%, 91%);
-  --color-hover: hsl(210, 40%, 96%);
-  --color-privacy: hsl(261, 66%, 77%);
+  --button-color: #23d160;
+  --bg-shadow: #f0f0f0;
+  --sub-text: #7c717f;
+  --muted-foreground: #282c34;
+  --border-color: #e5e7eb;
+  --color-hover: #f1f5f9;
+  --color-privacy: #b99eeb;
   --placeholder-color: #9ca3af;
+  --alert-color: #e74c3c;
 
   /* --background: #ffffff;
   --foreground: #171717;

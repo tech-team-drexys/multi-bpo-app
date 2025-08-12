@@ -21,6 +21,20 @@ interface ChatMessage {
   timestamp: string;
 }
 
+// Mapeamento de rotas para títulos
+const ROUTE_TITLES: Record<string, string> = {
+  '/': 'Página Inicial',
+  '/lucaIA': 'Luca IA',
+  '/dashboard': 'Dashboard',
+  '/drive': 'Drive',
+  '/central-de-atendimento': 'Central de Atendimento',
+  '/utilitarios': 'Utilitários',
+  '/noticias': 'Notícias',
+  '/agenda': 'Agenda',
+  '/loja': 'Loja',
+  '/notificacoes': 'Notificações',
+};
+
 export const Header = ({ isCollapsed, chatSidebarCollapsed, onToggleCollapse, isSidebarHovered = false, isHomePage = false, isManuallyCollapsed = false }: SidebarProps) => {
   const [privacy, setPrivacy] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -38,45 +52,10 @@ export const Header = ({ isCollapsed, chatSidebarCollapsed, onToggleCollapse, is
       },
     ];
 
-    if (pathname === '/') {
+    const pageTitle = ROUTE_TITLES[pathname];
+    if (pageTitle) {
       items.push({
-        title: <span>Página Inicial</span>,
-      });
-    } else if (pathname === '/lucaIA') {
-      items.push({
-        title: <span>Luca IA</span>,
-      });
-    } else if (pathname === '/dashboard') {
-      items.push({
-        title: <span>Dashboard</span>,
-      });
-    } else if (pathname === '/drive') {
-      items.push({
-        title: <span>Drive</span>,
-      });
-    } else if (pathname === '/central-de-atendimento') {
-      items.push({
-        title: <span>Central de Atendimento</span>,
-      });
-    } else if (pathname === '/utilitarios') {
-      items.push({
-        title: <span>Utilitários</span>,
-      });
-    } else if (pathname === '/noticias') {
-      items.push({
-        title: <span>Notícias</span>,
-      });
-    } else if (pathname === '/agenda') {
-      items.push({
-        title: <span>Agenda</span>,
-      });
-    } else if (pathname === '/loja') {
-      items.push({
-        title: <span>Loja</span>,
-      });
-    } else if (pathname === '/notificacoes') {
-      items.push({
-        title: <span>Notificações</span>,
+        title: <span>{pageTitle}</span>,
       });
     }
 

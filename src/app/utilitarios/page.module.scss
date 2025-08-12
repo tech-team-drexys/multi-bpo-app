@@ -1,3 +1,9 @@
 .page {
-  padding: 1rem;
-} 
+    padding: 2rem;
+    background-color: var(--background);
+    min-height: 100vh;
+
+    .content {
+        margin: 4rem auto;
+    }
+}

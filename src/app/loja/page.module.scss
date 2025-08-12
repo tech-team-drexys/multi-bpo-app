@@ -1,3 +1,289 @@
 .page {
-  padding: 1rem;
-} 
+  padding: 2rem;
+  background-color: var(--background);
+  min-height: 100vh;
+
+  .content {
+    margin: 3rem auto;
+
+    .contentEcommerce {
+      display: flex;
+      gap: 2rem;
+    }
+  }
+
+  .contentHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .shoppingBagBtn {
+      height: 50px;
+      width: 50px;
+      background-color: transparent;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 50px;
+      box-shadow: none;
+      position: relative;
+
+      .shoppingBagIcon {
+        color: var(--secondary);
+        cursor: pointer;
+      }
+
+      .cartBadge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: #ff4d4f;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+      }
+    }
+
+
+    .header {
+      margin-bottom: 3rem;
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+      }
+
+      p {
+        font-size: 1.1rem;
+        color: var(--sub-text);
+        margin: 0;
+      }
+    }
+  }
+
+
+  .section {
+    margin-bottom: 3rem;
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 2rem 0;
+    }
+  }
+
+  .servicesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+    width: 80%;
+  }
+
+  .serviceCard {
+    background: var(--background);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .wideCard {
+    background: var(--background);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .cardContent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      line-height: 1.3;
+    }
+
+    p {
+      color: var(--sub-text);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0 0 0.5rem 0;
+      flex-grow: 1;
+    }
+  }
+
+  .learnMoreBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: transparent;
+    color: var(--secondary);
+    border: none;
+    padding: 0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--secondary-hover);
+    }
+  }
+
+  .contentFilter {
+    .filterHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+
+      p {
+        width: 70%;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+      }
+    }
+
+    .clearFiltersBtn {
+      background-color: transparent;
+      color: var(--secondary);
+      border: none;
+      font-size: 0.7rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+  }
+
+  .priceSection {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .discountTag {
+    width: fit-content;
+    background-color: var(--alert-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 1;
+  }
+
+  .pricing {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .currentPrice {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .oldPrice {
+    font-size: 0.8rem;
+    color: var(--placeholder-color);
+    text-decoration: line-through;
+  }
+
+  .cartDrawer {
+    .ant-drawer {
+      z-index: 1100;
+    }
+  }
+}
+
+/* Breakpoints responsivos */
+@media (max-width: 1200px) {
+  .page .servicesGrid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 1rem;
+
+    .contentEcommerce {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .servicesGrid {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+
+      .serviceCard {
+        max-width: none;
+        margin: 0;
+      }
+    }
+
+    .header h1 {
+      font-size: 2rem;
+    }
+
+    .section h2 {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 0.75rem;
+
+    .header h1 {
+      font-size: 1.75rem;
+    }
+
+    .section h2 {
+      font-size: 1.25rem;
+    }
+
+    .cardContent {
+      padding: 1rem;
+    }
+
+    .learnMoreBtn {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
+    }
+  }
+}
