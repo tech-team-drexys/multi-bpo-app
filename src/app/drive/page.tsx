@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Input, Button, Progress, Breadcrumb } from 'antd';
 import { Search, Upload, Folder, FileText, FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet, Presentation, Home, ChevronRight, Download } from 'lucide-react';
 import styles from "./page.module.scss";
+import { DriveItemType } from '@/enums/index ';
 
 interface FileItem {
   id: string;
@@ -16,46 +17,45 @@ interface FileItem {
 interface DirectoryItem {
   id: string;
   name: string;
-  type: 'month' | 'client' | 'service';
+  type: DriveItemType;
   date: string;
   modified: string;
 }
 
 type DriveItem = FileItem | DirectoryItem;
 
-// Dados mockados para demonstração
 const mockData = {
   months: [
-    { id: '1', name: 'Janeiro 2024', type: 'month' as const, date: '31/01/2024', modified: '18:30' },
-    { id: '2', name: 'Fevereiro 2024', type: 'month' as const, date: '29/02/2024', modified: '19:15' },
-    { id: '3', name: 'Março 2024', type: 'month' as const, date: '31/03/2024', modified: '20:00' },
+    { id: '1', name: 'Janeiro 2024', type: DriveItemType.MONTH, date: '31/01/2024', modified: '18:30' },
+    { id: '2', name: 'Fevereiro 2024', type: DriveItemType.MONTH, date: '29/02/2024', modified: '19:15' },
+    { id: '3', name: 'Março 2024', type: DriveItemType.MONTH, date: '31/03/2024', modified: '20:00' },
   ],
   clients: {
     '1': [
-      { id: 'c1', name: 'Empresa ABC Ltda', type: 'client' as const, date: '31/01/2024', modified: '18:30' },
-      { id: 'c2', name: 'Comércio XYZ S.A.', type: 'client' as const, date: '30/01/2024', modified: '17:45' },
-      { id: 'c3', name: 'Indústria 123 Ltda', type: 'client' as const, date: '29/01/2024', modified: '16:20' },
+      { id: 'c1', name: 'Empresa ABC Ltda', type: DriveItemType.CLIENT, date: '31/01/2024', modified: '18:30' },
+      { id: 'c2', name: 'Comércio XYZ S.A.', type: DriveItemType.CLIENT, date: '30/01/2024', modified: '17:45' },
+      { id: 'c3', name: 'Indústria 123 Ltda', type: DriveItemType.CLIENT, date: '29/01/2024', modified: '16:20' },
     ],
     '2': [
-      { id: 'c4', name: 'Loja Virtual Pro', type: 'client' as const, date: '29/02/2024', modified: '19:15' },
-      { id: 'c5', name: 'Consultoria Tech', type: 'client' as const, date: '28/02/2024', modified: '18:30' },
+      { id: 'c4', name: 'Loja Virtual Pro', type: DriveItemType.CLIENT, date: '29/02/2024', modified: '19:15' },
+      { id: 'c5', name: 'Consultoria Tech', type: DriveItemType.CLIENT, date: '28/02/2024', modified: '18:30' },
     ],
     '3': [
-      { id: 'c6', name: 'Startup Inovação', type: 'client' as const, date: '31/03/2024', modified: '20:00' },
+      { id: 'c6', name: 'Startup Inovação', type: DriveItemType.CLIENT, date: '31/03/2024', modified: '20:00' },
     ]
   },
   services: {
     'c1': [
-      { id: 's1', name: 'Notas Fiscais', type: 'service' as const, date: '31/01/2024', modified: '18:30' },
-      { id: 's2', name: 'Planilhas', type: 'service' as const, date: '31/01/2024', modified: '18:30' },
-      { id: 's3', name: 'Contratos', type: 'service' as const, date: '31/01/2024', modified: '18:30' },
+      { id: 's1', name: 'Notas Fiscais', type: DriveItemType.SERVICE, date: '31/01/2024', modified: '18:30' },
+      { id: 's2', name: 'Planilhas', type: DriveItemType.SERVICE, date: '31/01/2024', modified: '18:30' },
+      { id: 's3', name: 'Contratos', type: DriveItemType.SERVICE, date: '31/01/2024', modified: '18:30' },
     ],
     'c2': [
-      { id: 's4', name: 'Relatórios', type: 'service' as const, date: '30/01/2024', modified: '17:45' },
-      { id: 's5', name: 'Documentos', type: 'service' as const, date: '30/01/2024', modified: '17:45' },
+      { id: 's4', name: 'Relatórios', type: DriveItemType.SERVICE, date: '30/01/2024', modified: '17:45' },
+      { id: 's5', name: 'Documentos', type: DriveItemType.SERVICE, date: '30/01/2024', modified: '17:45' },
     ],
     'c3': [
-      { id: 's6', name: 'Faturamento', type: 'service' as const, date: '29/01/2024', modified: '16:20' },
+      { id: 's6', name: 'Faturamento', type: DriveItemType.SERVICE, date: '29/01/2024', modified: '16:20' },
     ]
   },
   files: {
@@ -98,44 +98,44 @@ const getFileIcon = (type: string) => {
 export default function Drive() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPath, setCurrentPath] = useState<Array<{id: string, name: string, type: string}>>([]);
-  const [currentLevel, setCurrentLevel] = useState<'months' | 'clients' | 'services' | 'files'>('months');
+  const [currentLevel, setCurrentLevel] = useState<DriveItemType>(DriveItemType.MONTH);
 
   const handleDirectoryClick = (item: DirectoryItem) => {
-    if (item.type === 'month') {
+    if (item.type === DriveItemType.MONTH) {
       setCurrentPath([{ id: item.id, name: item.name, type: item.type }]);
-      setCurrentLevel('clients');
-    } else if (item.type === 'client') {
+      setCurrentLevel(DriveItemType.CLIENT);
+    } else if (item.type === DriveItemType.CLIENT) {
       setCurrentPath(prev => [...prev, { id: item.id, name: item.name, type: item.type }]);
-      setCurrentLevel('services');
-    } else if (item.type === 'service') {
+      setCurrentLevel(DriveItemType.SERVICE);
+    } else if (item.type === DriveItemType.SERVICE) {
       setCurrentPath(prev => [...prev, { id: item.id, name: item.name, type: item.type }]);
-      setCurrentLevel('files');
+      setCurrentLevel(DriveItemType.FILE);
     }
   };
 
   const handleBreadcrumbClick = (index: number) => {
     if (index === 0) {
       setCurrentPath([]);
-      setCurrentLevel('months');
+      setCurrentLevel(DriveItemType.MONTH);
     } else if (index === 1) {
       setCurrentPath(prev => prev.slice(0, 1));
-      setCurrentLevel('clients');
+      setCurrentLevel(DriveItemType.CLIENT);
     } else if (index === 2) {
       setCurrentPath(prev => prev.slice(0, 2));
-      setCurrentLevel('services');
+      setCurrentLevel(DriveItemType.SERVICE);
     }
   };
 
   const getCurrentItems = () => {
-    if (currentLevel === 'months') {
+    if (currentLevel === DriveItemType.MONTH) {
       return mockData.months;
-    } else if (currentLevel === 'clients') {
+    } else if (currentLevel === DriveItemType.CLIENT) {
       const monthId = currentPath[0]?.id;
       return monthId ? mockData.clients[monthId as keyof typeof mockData.clients] || [] : [];
-    } else if (currentLevel === 'services') {
+    } else if (currentLevel === DriveItemType.SERVICE) {
       const clientId = currentPath[1]?.id;
       return clientId ? mockData.services[clientId as keyof typeof mockData.services] || [] : [];
-    } else if (currentLevel === 'files') {
+    } else if (currentLevel === DriveItemType.FILE) {
       const serviceId = currentPath[2]?.id;
       return serviceId ? mockData.files[serviceId as keyof typeof mockData.files] || [] : [];
     }
@@ -172,10 +172,8 @@ export default function Drive() {
 
   const handleDownload = (file: FileItem) => {
     console.log('Baixar arquivo:', file.name);
-    // Implementar lógica de download real aqui
-    // Por exemplo, criar um link temporário e clicar nele
     const link = document.createElement('a');
-    link.href = `#download-${file.id}`; // Placeholder - substituir por URL real
+    link.href = `#download-${file.id}`;
     link.download = file.name;
     link.click();
   };
@@ -183,7 +181,7 @@ export default function Drive() {
   const renderContent = () => {
     const items = getCurrentItems();
 
-    if (currentLevel === 'files') {
+    if (currentLevel === DriveItemType.FILE) {
       return (
         <div className={styles.filesGrid}>
           {items.map((item: DriveItem) => {
@@ -237,8 +235,8 @@ export default function Drive() {
                 <div className={styles.directoryInfo}>
                   <h3 className={styles.directoryName}>{directory.name}</h3>
                   <p className={styles.directoryType}>
-                    {directory.type === 'month' ? 'Mês' : 
-                     directory.type === 'client' ? 'Cliente' : 'Serviço'}
+                    {directory.type === DriveItemType.MONTH ? 'Mês' : 
+                     directory.type === DriveItemType.CLIENT ? 'Cliente' : 'Serviço'}
                   </p>
                   <div className={styles.directoryDetails}>
                     <p>Data: {directory.date}</p>

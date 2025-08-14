@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Badge, Button, List, Typography, Space, Tag } from 'antd';
 import { Bell, Check, CheckCircle, X } from 'lucide-react';
 import styles from './notificationSidebar.module.scss';
-import { formatTimestamp, getTypeColor } from '@/lib';
+import { formatTimestamp, getTypeColor } from '@/hooks/';
 
 const { Text } = Typography;
 

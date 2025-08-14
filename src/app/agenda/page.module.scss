@@ -1,3 +1,377 @@
+// Estilos para notificações do Ant Design
+.notificationStyles {
+  :global(.ant-notification) {
+    z-index: 9999 !important;
+  }
+  
+  :global(.ant-notification-notice) {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  :global(.ant-notification-bottomRight) {
+    right: 24px !important;
+    bottom: 24px !important;
+  }
+}
+
 .page {
-  padding: 1rem;
+  padding: 2rem;
+  background-color: var(--background);
+  min-height: 100vh;
+  
+  .content {
+    margin: 3rem auto;
+  }
+}
+
+.summarySection {
+  margin: 2rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 280px);
+  gap: 1.5rem;
+  justify-content: start;
+  align-items: start;
+
+  .summaryCard {
+    width: 280px;
+    min-width: 280px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    background: white;
+    padding: 1.5rem;
+    border: 1px solid #f0f0f0;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .summaryContent {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      
+      .summaryNumber {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+        margin: 0;
+        display: block;
+      }
+      
+      .summaryLabel {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0;
+        display: block;
+      }
+    }
+  }
+}
+
+.mainLayout {
+  margin-top: 2rem;
+}
+
+.calendarSection {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  .currentDate {
+    display: block;
+    margin-bottom: 1rem;
+    color: #666;
+    font-size: 1rem;
+  }
+  
+  .calendar {
+    .ant-picker-calendar {
+      background: transparent;
+    }
+    
+    .ant-picker-calendar-header {
+      padding: 0;
+    }
+    
+    .ant-picker-calendar-header .ant-picker-calendar-mode-switch {
+      display: none;
+    }
+  }
+  
+  .calendarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    
+    .ant-btn {
+      padding: 4px 8px;
+      height: auto;
+    }
+  }
+  
+  .legend {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+    
+    .legendItem {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      
+      .legendDot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+    }
+  }
+}
+
+.filterSection {
+  max-width: 1000px;
+  margin: 0 0 2rem 5px;
+  
+  .searchInput {
+    border-radius: 8px;
+  }
+  
+  .filterSelect {
+    width: 100%;
+    border-radius: 8px;
+  }
+  
+  .dateFilterButton {
+    border-radius: 8px;
+    height: 40px;
+  }
+}
+
+.tasksSection {
+  .tasksHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    
+    .tasksTitle {
+      margin: 0;
+      color: #262626;
+    }
+    
+    .viewAllTasks {
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      &:hover {
+        color: var(--secondary);
+      }
+    }
+  }
+  
+  .tasksList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .taskCard {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    &.taskCompleted {
+      background-color: #f8f9fa;
+      border-color: #e9ecef;
+      
+      .taskContent {
+        opacity: 0.8;
+      }
+    }
+    
+    .taskContent {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      
+      .taskCheckbox {
+        margin-top: 0.25rem;
+      }
+      
+      .taskInfo {
+        flex: 1;
+        
+        .taskTitle {
+          margin: 0 0 0.5rem 0;
+          color: #262626;
+          
+          &.completedText {
+            text-decoration: line-through;
+            color: #6c757d;
+          }
+        }
+        
+        .taskDescription {
+          color: #666;
+          margin-bottom: 1rem;
+          display: block;
+          line-height: 1.5;
+          
+          &.completedText {
+            text-decoration: line-through;
+            color: #6c757d;
+          }
+        }
+        
+        .taskDetails {
+          .detailItem {
+            display: flex;
+            flex-direction: row !important;
+            gap: 1rem;
+
+            .ant-space-item {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              
+              .ant-typography {
+                margin: 0;
+                font-size: 0.85rem;
+                
+                &.completedText {
+                  text-decoration: line-through;
+                  color: #6c757d;
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      .statusTag {
+        border-radius: 6px;
+        font-weight: 500;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+      }
+    }
+  }
+}
+
+.popoverContent {
+  padding: 0.5rem;
+  max-width: 300px;
+}
+
+.calendarCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 0.5rem;
+  }
+  
+  .summarySection {
+    grid-template-columns: repeat(auto-fit, 250px);
+    gap: 1rem;
+    
+    .summaryCard {
+      width: 250px;
+      min-width: 250px;
+      
+      .summaryContent {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+        
+        .summaryNumber {
+          font-size: 1.5rem;
+        }
+      }
+    }
+  }
+  
+  .mainLayout {
+    margin-top: 1rem;
+  }
+  
+  .calendarSection {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .filterSection {
+    margin: 2rem 0 1rem 0;
+    
+    .ant-row {
+      .ant-col {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+  
+  .tasksSection {
+    .tasksHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      
+      .viewAllTasks {
+        align-self: flex-end;
+      }
+    }
+    
+    .taskCard {
+      .taskContent {
+        flex-direction: column;
+        gap: 0.5rem;
+        
+        .statusTag {
+          align-self: flex-end;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 0.25rem;
+  }
+  
+  .summarySection {
+    margin-bottom: 1rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    
+    .summaryCard {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+  
+  .filterSection {
+    margin-bottom: 1rem;
+  }
 } 

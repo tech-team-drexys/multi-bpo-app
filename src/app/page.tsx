@@ -1,71 +1,12 @@
 'use client';
-import { Button, Col, Row, Calendar, List, Tag } from "antd";
+import { Button } from "antd";
 import styles from "./page.module.scss";
 import Image from "next/image";
-import { useState } from "react";
-import dayjs, { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
+import { NotificationSidebar } from "@/components/notifications/NotificationSidebar";
 
 export default function Home() {
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const router = useRouter();
-
-  const agendasDoDia = [
-    {
-      id: 1,
-      titulo: "Reunião com equipe de desenvolvimento",
-      horario: "09:00 - 10:30",
-      tipo: "reuniao",
-      descricao: "Discussão sobre novos recursos do sistema"
-    },
-    {
-      id: 2,
-      titulo: "Call com cliente - Projeto ABC",
-      horario: "14:00 - 15:00",
-      tipo: "cliente",
-      descricao: "Apresentação do progresso do projeto"
-    },
-    {
-      id: 3,
-      titulo: "Revisão de código",
-      horario: "16:00 - 17:00",
-      tipo: "tecnico",
-      descricao: "Code review do módulo de autenticação"
-    },
-    {
-      id: 4,
-      titulo: "Daily Standup",
-      horario: "08:30 - 09:00",
-      tipo: "reuniao",
-      descricao: "Sincronização diária da equipe"
-    }
-  ];
-
-  const getTipoColor = (tipo: string) => {
-    switch (tipo) {
-      case 'reuniao':
-        return 'blue';
-      case 'cliente':
-        return 'green';
-      case 'tecnico':
-        return 'orange';
-      default:
-        return 'default';
-    }
-  };
-
-  const getTipoText = (tipo: string) => {
-    switch (tipo) {
-      case 'reuniao':
-        return 'Reunião';
-      case 'cliente':
-        return 'Cliente';
-      case 'tecnico':
-        return 'Técnico';
-      default:
-        return 'Outro';
-    }
-  };
 
   return (
     <div className={styles.page}>
@@ -106,40 +47,6 @@ export default function Home() {
                 <p>Explore nossa nova loja com produtos e serviços exclusivos para sua empresa.</p>
                 <Button className={styles.button} onClick={() => router.push('/loja')}>Visitar Loja</Button>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className={styles.section}>
-          <h2>Agenda</h2>
-          <div className={styles.agendaContainer}>
-            <div className={styles.calendarioContainer}>
-              <h3>Agenda do Dia</h3>
-              <Calendar 
-                fullscreen={false}
-                value={selectedDate}
-                onChange={setSelectedDate}
-                className={styles.calendar}
-              />
-            </div>
-
-            <div className={styles.agendasLista}>
-              <h3>Agendas de Hoje</h3>
-              <List
-                dataSource={agendasDoDia}
-                renderItem={(item) => (
-                  <List.Item className={styles.agendaItem}>
-                    <div className={styles.agendaContent}>
-                      <div className={styles.agendaHeader}>
-                        <h4>{item.titulo}</h4>
-                        <Tag color={getTipoColor(item.tipo)}>{getTipoText(item.tipo)}</Tag>
-                      </div>
-                      <p className={styles.agendaHorario}>{item.horario}</p>
-                      <p className={styles.agendaDescricao}>{item.descricao}</p>
-                    </div>
-                  </List.Item>
-                )}
-              />
             </div>
           </div>
         </section>
@@ -187,7 +94,7 @@ export default function Home() {
               <p>Ferramentas úteis para o dia a dia</p>
             </div>
 
-            <div className={styles.toolCard}>
+            <div className={styles.toolCard} onClick={() => router.push('/noticias')}>
               <div className={styles.toolIcon}>
                 <div className={styles.newsIcon}>📰</div>
               </div>
@@ -195,20 +102,12 @@ export default function Home() {
               <p>Fique por dentro das novidades</p>
             </div>
 
-            <div className={styles.toolCard}>
+            <div className={styles.toolCard} onClick={() => router.push('/agenda')}>
               <div className={styles.toolIcon}>
                 <div className={styles.calendarIcon}>📅</div>
               </div>
               <h3>Agenda</h3>
               <p>Gerencie seus compromissos</p>
-            </div>
-
-            <div className={styles.toolCard}>
-              <div className={styles.toolIcon}>
-                <div className={styles.bellIcon}>🔔</div>
-              </div>
-              <h3>Notificações</h3>
-              <p>Acompanhe alertas importantes</p>
             </div>
           </div>
         </section>
