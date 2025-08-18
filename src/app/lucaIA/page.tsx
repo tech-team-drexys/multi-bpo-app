@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChatInput } from "@/components/chat-input/ChatInput";
 import { Button, Tooltip, Avatar, Spin } from "antd";
 import {
@@ -17,6 +17,8 @@ import {
 import styles from "./luca.module.scss";
 import { simulateN8NResponse } from "@/services/api";
 import { HistoryModal } from "@/components/modal/HistoryModal";
+import { RegistrationModal } from "@/components/modal/RegistrationModal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ChatMessage {
     id: string;
@@ -34,11 +36,18 @@ const thinkList = [
 ];
 
 export default function LucaIA() {
+    const { isLoggedIn } = useAuth();
     const [isTyping, setIsTyping] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [currentMessage, setCurrentMessage] = useState("");
     const [openIdeas, setOpenIdeas] = useState(false);
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+    const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+
+    const MESSAGE_LIMIT = 4;
+    
+    const userMessages = messages.filter(msg => msg.isUser);
+    const hasReachedLimit = userMessages.length >= MESSAGE_LIMIT;
 
     const handleSendMessage = async (content: string) => {
         const userMessage: ChatMessage = {
@@ -52,6 +61,31 @@ export default function LucaIA() {
         };
 
         setMessages((prev) => [...prev, userMessage]);
+        
+        const currentUserMessages = messages.filter(msg => msg.isUser);
+        const totalUserMessages = currentUserMessages.length + 1;
+        const hasReachedLimitNow = totalUserMessages >= MESSAGE_LIMIT;
+        
+        if (hasReachedLimitNow) {
+            const errorMessage: ChatMessage = {
+                id: (Date.now() + 1).toString(),
+                content: "Você atingiu o limite de 4 mensagens sem cadastro. Para continuar usando o LucaIA, faça seu cadastro gratuito agora.",
+                isUser: false,
+                timestamp: new Date().toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                }),
+            };
+            
+            setMessages((prev) => [...prev, errorMessage]);
+            
+            setTimeout(() => {
+                setIsRegistrationModalOpen(true);
+            }, 500);
+            
+            return;
+        }
+
         setIsTyping(true);
 
         try {
@@ -260,7 +294,7 @@ export default function LucaIA() {
                         </div>
                     </div>
                 )}
-                {messages.length > 0 && (
+                {messages.length > 0 && !hasReachedLimit && (
                     <div className={styles.chatInputWrapperTextContainer}>
                         <p className={styles.chatInputWrapperText}>
                             O Luca tentará te ajudar com o máximo de precisão possível, mas
@@ -273,6 +307,11 @@ export default function LucaIA() {
             <HistoryModal
                 isOpen={isHistoryModalOpen}
                 onClose={() => setIsHistoryModalOpen(false)}
+            />
+            
+            <RegistrationModal
+                isOpen={isRegistrationModalOpen}
+                onClose={() => setIsRegistrationModalOpen(false)}
             />
         </div>
     );

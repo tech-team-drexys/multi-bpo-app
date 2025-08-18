@@ -4,7 +4,7 @@
   min-height: 100vh;
   
   .content {
-    margin: 3rem auto;
+    margin: auto;
     max-width: 1200px;
   }
 }
@@ -16,18 +16,17 @@
 .headerContent h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
 }
 
 .headerContent p {
   font-size: 1.1rem;
-  color: #6b7280;
+  color: var(--sub-text);
   margin: 0 0 0.5rem 0;
 }
 
 .articleCount {
   font-size: 0.9rem;
-  color: #3b82f6;
+  color: var(--secondary);
   font-weight: 500;
   background: rgba(59, 130, 246, 0.1);
   padding: 0.25rem 0.75rem;
@@ -43,7 +42,7 @@
 .iconButton {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: var(--sub-text);
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 0.5rem;
@@ -51,7 +50,7 @@
 
   &:hover {
     background: #f3f4f6;
-    color: #6b7280;
+    color: var(--sub-text);
   }
 }
 
@@ -63,18 +62,10 @@
   position: relative;
   margin-bottom: 1.5rem;
 
-  svg {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9ca3af;
-  }
-
   input {
     width: 100%;
     padding: 1rem 1rem 1rem 3rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
     border-radius: 0.75rem;
     font-size: 1rem;
     background: #f9fafb;
@@ -82,7 +73,7 @@
 
     &:focus {
       outline: none;
-      border-color: #3b82f6;
+      border-color: var(--secondary);
       background: #ffffff;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
@@ -103,20 +94,15 @@
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 2rem;
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--bg-shadow);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #e5e7eb;
-  }
-
   &.active {
-    background: #3b82f6;
-    color: #ffffff;
+    background: var(--secondary);
+    color: var(--background);
   }
 }
 
@@ -160,8 +146,8 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
-  background: #3b82f6;
-  color: #ffffff;
+  background: var(--secondary);
+  color: var(--background);
   padding: 0.5rem 1rem;
   border-radius: 2rem;
   font-size: 0.75rem;
@@ -178,14 +164,13 @@
   h2 {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #1f2937;
     margin: 0 0 1rem 0;
     line-height: 1.3;
   }
 
   p {
     font-size: 1.1rem;
-    color: #6b7280;
+    color: var(--sub-text);
     line-height: 1.6;
     margin: 0 0 1.5rem 0;
   }
@@ -203,22 +188,19 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #9ca3af;
+  color: var(--sub-text);
   font-size: 0.875rem;
 
   span {
     margin-right: 1rem;
   }
 
-  svg {
-    color: #9ca3af;
-  }
 }
 
 .readMoreButton {
   background: none;
   border: none;
-  color: #3b82f6;
+  color: var(--secondary);
   cursor: pointer;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
@@ -238,7 +220,7 @@
 }
 
 .newsCard {
-  background: #ffffff;
+  background: var(--background);
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
@@ -274,14 +256,13 @@
   h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1f2937;
     margin: 0 0 0.75rem 0;
     line-height: 1.4;
   }
 
   p {
     font-size: 0.95rem;
-    color: #6b7280;
+    color: var(--sub-text);
     line-height: 1.5;
     margin: 0 0 1rem 0;
   }
@@ -290,7 +271,7 @@
 .cardMeta {
   display: flex;
   justify-content: space-between;
-  color: #9ca3af;
+  color: var(--sub-text);
   font-size: 0.875rem;
 }
 
@@ -304,14 +285,14 @@
 
   p {
     font-size: 1.1rem;
-    color: #6b7280;
+    color: var(--sub-text);
     margin: 0 0 1.5rem 0;
   }
 }
 
 .clearFiltersButton {
-  background: #3b82f6;
-  color: white;
+  background: var(--secondary);
+  color: var(--background);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
@@ -321,7 +302,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: #2563eb;
+    background: var(--secondary-hover);
     transform: translateY(-1px);
   }
 }

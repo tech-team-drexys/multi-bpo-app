@@ -32,6 +32,20 @@ interface ModalData {
     }>;
 }
 
+interface UtilityItem {
+    id: number;
+    name: string;
+    description: string;
+    icon: React.ReactNode;
+    color: string;
+    options: Array<{
+        id: string;
+        label: string;
+        url: string;
+        description?: string;
+    }>;
+}
+
 export default function UtilitiesGrid() {
     const [selectedState, setSelectedState] = useState("SP");
     const [modalData, setModalData] = useState<ModalData>({
@@ -331,7 +345,7 @@ export default function UtilitiesGrid() {
         return stateUrls[state as keyof typeof stateUrls]?.[service as keyof typeof stateUrls["SP"]] || stateUrls["SP"][service as keyof typeof stateUrls["SP"]];
     }
 
-    const handleCardClick = (item: any) => {
+    const handleCardClick = (item: UtilityItem) => {
         setModalData({
             isOpen: true,
             title: item.name,

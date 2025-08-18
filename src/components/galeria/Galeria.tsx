@@ -34,8 +34,8 @@ export const Galeria = () => {
       <div className={styles.galeriaContent}>
         <h1>Galeria</h1>
         <div className={styles.galeriaGrid}>
-          {images.map((image) => (
-            <div className={styles.galeriaItem}>
+          {images.map((image, key) => (
+            <div className={styles.galeriaItem} key={key}>
               <div className={styles.galeriaPlaceholder}>
                 <span>{image.title}</span>
               </div>

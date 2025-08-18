@@ -152,7 +152,9 @@ export const ChatInput = ({
                 <button type="button" className={styles.iconButton}>
                   <Mic className={styles.icon} />
                 </button>
-                <button className={`${styles.modelCircle} ${message === '' ? styles.disabled : ''}`}>
+                <button 
+                  className={`${styles.modelCircle} ${message === '' ? styles.disabled : ''}`}
+                >
                   <ArrowUp size={20} className={styles.arrowUp} />
                 </button>
               </div>

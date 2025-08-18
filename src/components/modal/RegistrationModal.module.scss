@@ -1,0 +1,299 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1005;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--background);
+  border-radius: 16px;
+  max-width: 1200px;
+  width: 100%;
+  height: 80%;
+  overflow: hidden;
+  // position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.closeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  color: var(--placeholder-color);
+  transition: color 0.2s;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.modalContent {
+  display: flex;
+  // min-height: 600px;
+  height: 100%;
+}
+
+.leftSection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+
+  .alertImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.rightSection {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 32px;
+  line-height: 1.4;
+}
+
+.googleButton {
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+  }
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.socialButton {
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+    transform: translateY(-1px);
+  }
+}
+
+.socialIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.countdown {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.separator {
+  text-align: center;
+  margin: 24px 0;
+  position: relative;
+  color: #666;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #ddd;
+  }
+
+  span {
+    background: white;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+  }
+}
+
+.captchaButton {
+  height: 48px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  color: #666;
+  font-weight: 500;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #e8e8e8;
+    border-color: #ccc;
+  }
+}
+
+.termsCheckbox {
+  margin: 8px 0;
+
+  .ant-checkbox-wrapper {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+  }
+}
+
+.link {
+  color: #1890ff;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.submitButton {
+  height: 48px;
+  border-radius: 8px;
+  background: #1890ff;
+  border: none;
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #40a9ff;
+    transform: translateY(-1px);
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .modal {
+    max-width: 100%;
+    margin: 20px;
+  }
+
+  .modalContent {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .leftSection {
+    padding: 30px 20px;
+    min-height: 200px;
+  }
+
+  .rightSection {
+    padding: 30px 20px;
+  }
+
+  .warningTitle {
+    font-size: 20px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    padding: 10px;
+  }
+
+  .modal {
+    margin: 10px;
+    border-radius: 12px;
+  }
+
+  .leftSection {
+    padding: 20px 15px;
+    min-height: 150px;
+  }
+
+  .rightSection {
+    padding: 20px 15px;
+  }
+
+  .warningIcon {
+    font-size: 48px;
+  }
+
+  .warningTitle {
+    font-size: 18px;
+  }
+
+  .warningText {
+    font-size: 14px;
+  }
+} 

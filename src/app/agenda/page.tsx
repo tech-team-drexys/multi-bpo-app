@@ -212,7 +212,7 @@ export default function Agenda() {
               <Calendar 
                 value={selectedDate}
                 onSelect={setSelectedDate}
-                dateCellRender={dateCellRender}
+                cellRender={dateCellRender}
                 className={styles.calendar}
                 headerRender={({ value, onChange }) => (
                   <div className={styles.calendarHeader}>

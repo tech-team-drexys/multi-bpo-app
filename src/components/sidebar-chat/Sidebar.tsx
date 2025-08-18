@@ -19,6 +19,15 @@ interface SidebarProps {
   onToggleCollapse: () => void;
 }
 
+interface MenuItem {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  path?: string;
+  isSearch?: boolean;
+  isNewChat?: boolean;
+  isHistory?: boolean;
+}
+
 export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const [open, setOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
@@ -33,14 +42,14 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
     { id: 4, title: 'AI Technology Image Factivity Analysis', time: 'Yesterday' },
   ]);
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     { icon: Search, label: 'Buscar em chats', isSearch: true },
     { icon: SquarePen, label: 'Novo chat', path: '/lucaIA', isNewChat: true },
     { icon: Images, label: 'Galeria', path: '/lucaIA/galeria' },
     { icon: History, label: 'Histórico', isHistory: true },
   ];
 
-  const isItemActive = (item: any) => {
+  const isItemActive = (item: MenuItem) => {
     if (item.isSearch) {
       return false;
     }
@@ -138,7 +147,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
                   onClick={() => setOpen(!open)}
                 >
                   <span className={styles.iconContainer}>
-                    <item.icon size={18} className={styles.clockIcon} />
+                    <item.icon className={styles.clockIcon} />
                     <ChevronDown size={18} className={styles.chevronIcon} />
                   </span>
                   <span>Histórico</span>
@@ -146,7 +155,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
               ) : (
                 <Popover placement="right" title={<span>Histórico</span>} content={content} arrow={false}>
                   <Button className={`${styles.menuItemButton} ${isItemActive(item) ? styles.menuItemActive : ''}`}>
-                    <item.icon size={20} className={styles.clockIcon} />
+                    <item.icon className={styles.clockIcon} />
                   </Button>
                 </Popover>
               )}

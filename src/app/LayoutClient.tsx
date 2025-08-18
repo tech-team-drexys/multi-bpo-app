@@ -2,7 +2,11 @@
 import { ReactNode, useState, useEffect } from "react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Sidebar as ChatSidebar } from "@/components/sidebar-chat/Sidebar";
-import { Header } from "@/components/header/Header";
+import { SidebarMobile } from "@/components/sidebar-mobile/SidebarMobile";
+import { HeaderMobile } from "@/components/header-mobile/HeaderMobile";
+import { NotificationsSidebar } from "@/components/notifications-sidebar/NotificationsSidebar";
+import { Breadcrumbs } from "@/components/breadcrumbs/Breadcrumbs";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import styles from "./layout.module.scss";
 import { usePathname } from "next/navigation";
 import { ConfigProvider } from "antd";
@@ -18,6 +22,8 @@ export function LayoutClient({ children }: LayoutClientProps) {
   const [chatSidebarCollapsed, setChatSidebarCollapsed] = useState(false);
   const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
   const pathname = usePathname();
   const isLucaIAPage = pathname === '/lucaIA';
   const isHomePage = pathname === '/';
@@ -51,38 +57,55 @@ export function LayoutClient({ children }: LayoutClientProps) {
     setIsSidebarHovered(isHovered);
   };
 
+  const handleToggleNotifications = () => {
+    setNotificationsOpen(!notificationsOpen);
+  };
+
+  const handleToggleSidebarMobile = () => {
+    setSidebarMobileOpen(!sidebarMobileOpen);
+  };
+
   return (
     <ConfigProvider locale={ptBR}>
-      <div className={styles.page}>
-        <div className={styles.layout}>
-          <Sidebar
-            isCollapsed={sidebarCollapsed}
-            onToggleCollapse={handleSidebarToggle}
-            isHomePage={isHomePage}
-            isManuallyCollapsed={isManuallyCollapsed}
-            onHover={handleSidebarHover}
-          />
-          {isLucaIAPage && (
-            <ChatSidebar
-              isCollapsed={chatSidebarCollapsed}
-              onToggleCollapse={() => setChatSidebarCollapsed(!chatSidebarCollapsed)}
-            />
-          )}
-          <div className={styles.main}>
-            <Header
+      <NotificationProvider>
+        <div className={styles.page}>
+          <div className={styles.layout}>
+            <Sidebar
               isCollapsed={sidebarCollapsed}
-              chatSidebarCollapsed={isLucaIAPage ? chatSidebarCollapsed : undefined}
               onToggleCollapse={handleSidebarToggle}
-              isSidebarHovered={isSidebarHovered}
               isHomePage={isHomePage}
               isManuallyCollapsed={isManuallyCollapsed}
+              onHover={handleSidebarHover}
             />
-            <main className={styles.content}>
-              {children}
-            </main>
+            {isLucaIAPage && (
+              <ChatSidebar
+                isCollapsed={chatSidebarCollapsed}
+                onToggleCollapse={() => setChatSidebarCollapsed(!chatSidebarCollapsed)}
+              />
+            )}
+            <div className={styles.main}>
+              <HeaderMobile
+                onToggleSidebar={handleToggleSidebarMobile}
+                onToggleNotifications={handleToggleNotifications}
+              />
+              <main className={styles.content}>
+                <Breadcrumbs />
+                {children}
+              </main>
+            </div>
           </div>
         </div>
-      </div>
+        
+        <SidebarMobile
+          isOpen={sidebarMobileOpen}
+          onClose={() => setSidebarMobileOpen(false)}
+        />
+        
+        <NotificationsSidebar
+          isOpen={notificationsOpen}
+          onClose={() => setNotificationsOpen(false)}
+        />
+      </NotificationProvider>
     </ConfigProvider>
   );
 } 

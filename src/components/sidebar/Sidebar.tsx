@@ -32,6 +32,15 @@ interface SidebarProps {
   onHover?: (isHovered: boolean) => void;
 }
 
+interface MenuItem {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  path: string;
+  isSearch?: boolean;
+  isNewChat?: boolean;
+  isHistory?: boolean;
+}
+
 export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isManuallyCollapsed = false, onHover }: SidebarProps) => {
   const [open, setOpen] = useState(false);
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
@@ -40,7 +49,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(2);
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     { icon: House, label: 'Página inicial', path: '/' },
     { icon: ChartNoAxesCombined, label: 'Dashboard', path: '/dashboard' },
     { icon: Archive, label: 'Drive', path: '/drive' },
@@ -56,7 +65,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
     { icon: Bell, label: 'Notificações', path: '/notificacoes' },
   ];
 
-  const isItemActive = (item: any) => {
+  const isItemActive = (item: MenuItem) => {
     if (item.isSearch) {
       return false;
     }
