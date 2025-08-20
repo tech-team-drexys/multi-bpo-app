@@ -24,10 +24,8 @@ export function formatTimestamp(timestamp: Date) {
 
 export const usePhoneMask = () => {
   const applyPhoneMask = (value: string): string => {
-    // Remove tudo que não é número
     const numbers = value.replace(/\D/g, '');
     
-    // Aplica a máscara baseada no número de dígitos
     if (numbers.length <= 2) {
       return `(${numbers}`;
     } else if (numbers.length <= 6) {

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   ChevronLeft,
   House,
@@ -16,13 +16,17 @@ import {
   Lightbulb,
   ShieldCheck,
   FileText,
+  Settings,
+  LogOut,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './sidebar.module.scss';
 import { Avatar, Badge } from 'antd';
-import { HistoryModal } from '../modal/HistoryModal';
 import { NotificationSidebar } from '../notifications/NotificationSidebar';
+import { AccountSettingsModal } from '../modal/AccountSettingsModal';
+import { RegistrationModal } from '../modal/RegistrationModal';
+import { useAuth } from '@/hooks';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -42,9 +46,15 @@ interface MenuItem {
 }
 
 export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isManuallyCollapsed = false, onHover }: SidebarProps) => {
+  // const { isLoggedIn, login, logout } = useAuth();
+  const isLoggedIn = true;
   const [open, setOpen] = useState(false);
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isAccountSettingsOpen, setIsAccountSettingsOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const userModalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(2);
@@ -110,9 +120,48 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
     onToggleCollapse();
   };
 
+  const handleUserClick = () => {
+    if (isLoggedIn) {
+      setIsUserModalOpen(!isUserModalOpen);
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  };
+
+  const handleLogout = () => {
+    // logout();
+    setIsUserModalOpen(false);
+  };
+
+  const handleLogin = () => {
+    setIsLoginModalOpen(true);
+    setIsUserModalOpen(false);
+  };
+
+  const handleSettings = () => {
+    setIsAccountSettingsOpen(true);
+    setIsUserModalOpen(false);
+  };
+
   const shouldShowExpanded = isHomePage
     ? !isCollapsed
     : !isCollapsed || (isHovered && isManuallyCollapsed) || isNotificationDrawerOpen;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userModalRef.current && !userModalRef.current.contains(event.target as Node)) {
+        setIsUserModalOpen(false);
+      }
+    };
+
+    if (isUserModalOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserModalOpen]);
 
   return (
     <div
@@ -163,8 +212,25 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
         </div>
         <div className={styles.account}>
           <div className={`${styles.accountInfo} ${!shouldShowExpanded ? styles.accountInfoCollapsed : ''}`}>
-            <Avatar icon={<User />} size={30} />
-            {shouldShowExpanded && <span>Luca IA</span>}
+            <div className={styles.userSection} onClick={handleUserClick}>
+              <Avatar icon={<User />} size={30} />
+              {shouldShowExpanded && (
+                <span>{isLoggedIn ? 'João Silva' : 'Fazer Login'}</span>
+              )}
+            </div>
+            
+            {isUserModalOpen && isLoggedIn && (
+              <div className={styles.userModal} ref={userModalRef}>
+                <div className={styles.modalItem} onClick={handleSettings}>
+                  <Settings size={16} />
+                  <span>Configurações</span>
+                </div>
+                <div className={styles.modalItem} onClick={handleLogout}>
+                  <LogOut size={16} />
+                  <span>Logout</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -172,6 +238,16 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
       <NotificationSidebar
         open={isNotificationDrawerOpen}
         onClose={() => setIsNotificationDrawerOpen(false)}
+      />
+      
+      <AccountSettingsModal
+        isOpen={isAccountSettingsOpen}
+        onClose={() => setIsAccountSettingsOpen(false)}
+      />
+      
+      <RegistrationModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
       />
     </div>
   );

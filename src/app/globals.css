@@ -37,6 +37,12 @@
   }
 } */
 
+#__next-build-watcher,
+#__next-route-announcer,
+nextjs-portal {
+  display: none !important;
+}
+
 html,
 body {
   max-width: 100vw;
