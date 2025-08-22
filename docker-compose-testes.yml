@@ -1,0 +1,141 @@
+version: '3.8'
+
+services:
+  # Backend Django
+  erp_multibpo_backend:
+    build:
+      context: ./erp_multibpo_backend
+      dockerfile: Dockerfile
+    image: erp_backend_testes:latest
+    container_name: erp_backend_testes_env
+    environment:
+      - SECRET_KEY=django-insecure-erp-multibpo-testes-key-2025
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=erp_multibpo.settings.development
+      - DB_NAME=erp_multibpo_testes_db
+      - DB_USER=erp_multibpo_testes
+      - DB_PASSWORD=erp_multibpo_testes_2025
+      - DB_HOST=erp_multibpo_db_testes
+      - DB_PORT=5432
+      - CORS_ALLOWED_ORIGINS=http://localhost:5013,http://erp_frontend_testes:3000,https://app-testes.multibpo.com.br,http://192.168.1.4:5013,http://127.0.0.1:5013
+    ports:
+      - "5015:8002"
+    volumes:
+      - ./erp_multibpo_backend:/app
+    depends_on:
+      erp_multibpo_db_testes:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect(('localhost', 8002)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - erp_network_testes
+
+  # Frontend Next.js
+  erp_multibpo_frontend:
+    build:
+      context: ./erp_multibpo_frontend
+      dockerfile: Dockerfile
+    image: erp_frontend_testes:latest
+    container_name: erp_frontend_testes_env
+    environment:
+      - NEXT_PUBLIC_API_URL=https://app-testes.multibpo.com.br/api/v1
+    ports:
+      - "5013:3000"
+    volumes:
+      - frontend_node_modules_testes:/app/node_modules
+    command: ["pnpm", "run", "start"]
+    restart: unless-stopped
+    depends_on:
+      - erp_multibpo_backend
+    networks:
+      - erp_network_testes
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: erp_redis_testes_env
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - erp_network_testes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Database
+  erp_multibpo_db_testes:
+    image: postgres:15
+    container_name: erp_db_testes_env
+    environment:
+      POSTGRES_DB: erp_multibpo_testes_db
+      POSTGRES_USER: erp_multibpo_testes
+      POSTGRES_PASSWORD: erp_multibpo_testes_2025
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5014:5432"
+    volumes:
+      - erp_postgres_data_testes:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_multibpo_testes -d erp_multibpo_testes_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - erp_network_testes
+
+  # Celery Worker
+  erp_celery_worker:
+    build:
+      context: ./erp_multibpo_backend
+      dockerfile: Dockerfile
+    container_name: erp_celery_worker_env
+    command: celery -A erp_multibpo worker --loglevel=info
+    environment:
+      - DJANGO_SETTINGS_MODULE=erp_multibpo.settings.development
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      erp_multibpo_backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - erp_network_testes
+
+  # Celery Beat
+  erp_celery_beat:
+    build:
+      context: ./erp_multibpo_backend
+      dockerfile: Dockerfile
+    container_name: erp_celery_beat_env
+    command: celery -A erp_multibpo beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      - DJANGO_SETTINGS_MODULE=erp_multibpo.settings.development
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      erp_multibpo_backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - erp_network_testes
+
+networks:
+  erp_network_testes:
+    driver: bridge
+
+volumes:
+  erp_postgres_data_testes:
+    driver: local
+  frontend_node_modules_testes:
+    driver: local
