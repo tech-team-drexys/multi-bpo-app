@@ -9,6 +9,7 @@ interface NewsArticle {
   id: number;
   titulo: string;
   resumo: string;
+  categoria?: string; 
   link: string;
   imagem: string | null;
   publicado_em: string;
@@ -46,7 +47,7 @@ export default function Noticias() {
       try {
         console.log("Iniciando fetch de notícias...");
 
-        const res = await fetch("https://app-testes.multibpo.com.br/api/v1/noticias/");
+        const res = await fetch("https://app-testes.multibpo.com.br/api/v1/noticias/?limit=200");
         console.log("Status do fetch:", res.status);
 
         const data = await res.json();

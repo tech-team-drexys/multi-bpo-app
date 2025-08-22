@@ -11,3 +11,14 @@ export enum TaskStatus {
     DUE_TODAY = 'due_today',
     COMPLETED = 'completed',
 }
+
+export enum IdeaStatus {
+    NEW = 'nova',
+    STUDY = 'em-estudo',
+    DEVELOPED = 'desenvolvida',
+}
+
+export enum IdeaType {
+    FEATURE = 'feature',
+    BUG = 'bug',
+}

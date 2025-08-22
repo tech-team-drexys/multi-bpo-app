@@ -1,4 +1,4 @@
-/* @import "antd/dist/reset.css"; */
+@import 'antd/dist/reset.css';
 
 :root {
   --background: #ffffff;
@@ -30,17 +30,26 @@
   --placeholder-color: #9ca3af; */
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #282c34;
   }
+} */
+
+#__next-build-watcher,
+#__next-route-announcer,
+nextjs-portal {
+  display: none !important;
 }
 
 html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  color-scheme: light;
+  background: #fff;
+  color: #000;
 }
 
 body {

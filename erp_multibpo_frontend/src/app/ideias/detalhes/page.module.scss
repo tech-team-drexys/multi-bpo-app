@@ -1,0 +1,550 @@
+.page {
+  padding: 2rem 0 0 0;
+  background-color: var(--background);
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+
+  .content {
+    max-width: 1200px;
+    width: 100%;
+  }
+}
+
+.ideaHeader {
+  background: var(--background);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.2;
+}
+
+.ideaNumber {
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.company {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--sub-text);
+  font-size: 0.9rem;
+  
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+  }
+  
+  .userIcon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+}
+
+.metadataGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.metadataColumn {
+  width: auto;
+  padding: 0;
+  box-shadow: none;
+  text-align: center;
+
+  .starIcon {
+    color: var(--secondary);
+  }
+  
+  h3 {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin: 0 0 0.75rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  .statusDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  
+  span {
+    font-weight: 500;
+    text-transform: capitalize;
+    font-size: 0.9rem;
+  }
+}
+
+.categories {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.categoryTag {
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+  color: var(--background);
+  background-color: var(--secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.likesInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  color: #e91e63;
+  
+  span {
+    font-size: 1.5rem;
+  }
+}
+
+.commentsSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 450px;
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.commentsHeader {
+  border-bottom: 1px solid #000;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+  }
+  
+  p {
+    color: var(--sub-text);
+    margin: 0 0 0.25rem 0;
+    font-size: 0.85rem;
+  }
+  
+  .commentCount {
+    color: var(--sub-text);
+    font-size: 0.75rem;
+  }
+}
+
+.commentsList {
+  margin-bottom: 1.5rem;
+}
+
+.comment {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  
+  .commentText {
+    color: #000;
+    line-height: 1.5;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+  }
+  
+  .commentFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    
+    .commentUser {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #6b7280;
+      font-size: 0.8rem;
+      
+      .userIcon {
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+      }
+    }
+    
+    .commentDate {
+      color: #9ca3af;
+      font-size: 0.75rem;
+    }
+  }
+}
+
+.addComment {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 6px;
+}
+
+.commentInput {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: #000;
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+}
+
+.imagePreview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  border-radius: 4px;
+  padding: 0.25rem;
+  border: 1px solid #e5e7eb;
+}
+
+.previewImage {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #e5e7eb;
+}
+
+.removeImageButton {
+  background: #ef4444;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+  }
+}
+
+.commentActions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.actionButton {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 0.4rem;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #f3f4f6;
+    color: #2563eb;
+    border-color: #2563eb;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .page {
+    padding: 1.5rem;
+  }
+  
+  .content {
+    margin: 2rem 0 auto 0;
+  }
+  
+  .metadataGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .page {
+    padding: 1rem;
+  }
+  
+  .content {
+    margin: 1rem 0 auto 0;
+  }
+  
+  .ideaHeader {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+  
+  .description {
+    font-size: 0.9rem;
+  }
+  
+  .metadataGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .metadataColumn {
+    text-align: left;
+    
+    h3 {
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+  
+  .categories {
+    justify-content: flex-start;
+  }
+  
+  .categoryTag {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .commentsSection {
+    padding: 1rem;
+  }
+  
+  .commentsHeader {
+    h2 {
+      font-size: 1.1rem;
+    }
+    
+    p {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .addComment {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    
+    .commentActions {
+      justify-content: center;
+      gap: 0.5rem;
+    }
+  }
+  
+  .commentInput {
+    padding: 0.75rem;
+    
+    input {
+      font-size: 0.85rem;
+    }
+  }
+  
+  .actionButton {
+    padding: 0.5rem;
+  }
+  
+  .imagePreview {
+    padding: 0.2rem;
+  }
+  
+  .previewImage {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .removeImageButton {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .page {
+    padding: 0.5rem;
+  }
+  
+  .content {
+    margin: 0.5rem 0 auto 0;
+  }
+  
+  .ideaHeader {
+    padding: 0.75rem;
+    border-radius: 6px;
+  }
+  
+  .title {
+    font-size: 1.1rem;
+  }
+  
+  .ideaNumber {
+    font-size: 0.9rem;
+  }
+  
+  .description {
+    font-size: 0.85rem;
+  }
+  
+  .company {
+    font-size: 0.8rem;
+    
+    .userInfo {
+      margin-left: 0.25rem;
+    }
+  }
+  
+  .metadataGrid {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .metadataColumn {
+    h3 {
+      font-size: 0.7rem;
+    }
+  }
+  
+  .categoryTag {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .commentsSection {
+    padding: 0.75rem;
+  }
+  
+  .comment {
+    padding: 0.75rem;
+    
+    .commentText {
+      font-size: 0.85rem;
+    }
+    
+    .commentFooter {
+      .commentUser {
+        font-size: 0.75rem;
+      }
+      
+      .commentDate {
+        font-size: 0.7rem;
+      }
+    }
+  }
+  
+  .commentInput {
+    padding: 0.5rem;
+    
+    input {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .actionButton {
+    padding: 0.4rem;
+  }
+  
+  .imagePreview {
+    padding: 0.15rem;
+  }
+  
+  .previewImage {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .removeImageButton {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .page {
+    padding: 0.75rem;
+  }
+  
+  .metadataGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
