@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { ChevronDown } from "lucide-react";
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './sidebar.module.scss';
-import { Button, Popover } from 'antd';
+import { Button, Popover } from '@mui/material';
 import { HistoryModal } from '../modal/HistoryModal';
 
 interface SidebarProps {
@@ -20,7 +20,7 @@ interface SidebarProps {
 }
 
 interface MenuItem {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
   label: string;
   path?: string;
   isSearch?: boolean;
@@ -31,6 +31,7 @@ interface MenuItem {
 export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const [open, setOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -72,6 +73,16 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const handleConversationClick = (conversationId: number) => {
     router.push(`/lucaIA?conversation=${conversationId}`);
   };
+
+  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const openPopover = Boolean(anchorEl);
 
   const content = (
     <>
@@ -147,17 +158,19 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
                   onClick={() => setOpen(!open)}
                 >
                   <span className={styles.iconContainer}>
-                    <item.icon className={styles.clockIcon} />
+                    <item.icon className={styles.clockIcon} size={18} />
                     <ChevronDown size={18} className={styles.chevronIcon} />
                   </span>
                   <span>Histórico</span>
                 </div>
               ) : (
-                <Popover placement="right" title={<span>Histórico</span>} content={content} arrow={false}>
-                  <Button className={`${styles.menuItemButton} ${isItemActive(item) ? styles.menuItemActive : ''}`}>
-                    <item.icon className={styles.clockIcon} />
-                  </Button>
-                </Popover>
+                <Button 
+                  className={`${styles.menuItemButton} ${isItemActive(item) ? styles.menuItemActive : ''}`}
+                  onMouseEnter={handlePopoverOpen}
+                  onMouseLeave={handlePopoverClose}
+                >
+                  <item.icon className={styles.clockIcon} />
+                </Button>
               )}
 
               {open && !isCollapsed && (
@@ -184,6 +197,25 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           )
         )}
       </div>
+
+      <Popover
+        open={openPopover}
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: 'center',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'left',
+        }}
+        onClose={handlePopoverClose}
+        disableRestoreFocus
+      >
+        <div style={{ padding: '16px' }}>
+          {content}
+        </div>
+      </Popover>
       
       <HistoryModal 
         isOpen={isHistoryModalOpen}

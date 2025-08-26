@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./breadcrumbs.module.scss";
-import { Breadcrumb } from "antd";
+import { Breadcrumbs as MUIBreadcrumbs, Link as MUILink, Typography } from "@mui/material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { House } from "lucide-react";
@@ -90,7 +90,7 @@ export const Breadcrumbs = () => {
       // Se for o último item, não adiciona link
       if (isLast) {
         items.push({
-          title: <span>{title}</span>,
+          title: <Typography color="text.primary">{title}</Typography>,
         });
       } else {
         items.push({
@@ -108,7 +108,13 @@ export const Breadcrumbs = () => {
 
   return (
     <div className={styles.breadcrumbsContainer}>
-      <Breadcrumb items={getBreadcrumbItems()} />
+      <MUIBreadcrumbs aria-label="breadcrumb">
+        {getBreadcrumbItems().map((item, index) => (
+          <div key={index}>
+            {item.title}
+          </div>
+        ))}
+      </MUIBreadcrumbs>
     </div>
   );
 }; 

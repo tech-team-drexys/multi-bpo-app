@@ -1,12 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Badge, Button, List, Typography, Space, Tag } from 'antd';
+import { Badge, Button, List, ListItem, ListItemAvatar, ListItemText, Typography, Chip, Box } from '@mui/material';
 import { Bell, Check, CheckCircle, X } from 'lucide-react';
 import styles from './notificationSidebar.module.scss';
 import { formatTimestamp, getTypeColor } from '@/hooks/';
-
-const { Text } = Typography;
-
 interface Notification {
   id: string;
   title: string;
@@ -83,7 +80,7 @@ export const NotificationSidebar = ({ open, onClose }: NotificationSidebarProps)
         <div className={styles.actions}>
           {unreadCount > 0 && (
             <Button 
-              type="text" 
+              variant="text" 
               size="small" 
               onClick={markAllAsRead}
               className={styles.markAllAsRead}
@@ -98,49 +95,49 @@ export const NotificationSidebar = ({ open, onClose }: NotificationSidebarProps)
         {notifications.length === 0 ? (
           <div className={styles.emptyState}>
             <Bell size={48} className={styles.emptyIcon} />
-            <Text type="secondary">Nenhuma notificação</Text>
+            <Typography variant="body2" color="text.secondary">Nenhuma notificação</Typography>
           </div>
         ) : (
           <div className={styles.listContent}>
-            <List
-              dataSource={notifications}
-              renderItem={(notification) => (
-                <List.Item
+            <List>
+              {notifications.map((notification) => (
+                <ListItem
+                  key={notification.id}
                   className={`${styles.notificationItem} ${!notification.isRead ? styles.unread : styles.read}`}
                   onClick={() => handleNotificationClick(notification)}
                 >
-                  <List.Item.Meta
-                    avatar={
-                      <div className={styles.notificationAvatar}>
-                        {getTypeIcon(notification.type)}
-                      </div>
-                    }
-                    title={
+                  <ListItemAvatar>
+                    <div className={styles.notificationAvatar}>
+                      {getTypeIcon(notification.type)}
+                    </div>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
                       <div className={styles.notificationHeader}>
-                        <Text strong={!notification.isRead}>
+                        <Typography variant="body1" className={styles.notificationTitle}>
                           {notification.title}
-                        </Text>
-                        <Tag 
-                          color={getTypeColor(notification.type)}
-                        >
-                          {notification.type}
-                        </Tag>
+                        </Typography>
+                        <Chip 
+                          label={notification.type}
+                          color={getTypeColor(notification.type) as any}
+                          size="small"
+                        />
                       </div>
                     }
-                    description={
+                    secondary={
                       <div className={styles.notificationContent}>
-                        <Text type="secondary" className={styles.message}>
+                        <Typography variant="body2" color="text.secondary" className={styles.message}>
                           {notification.message}
-                        </Text>
-                        <Text type="secondary" className={styles.timestamp}>
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" className={styles.timestamp}>
                           {formatTimestamp(notification.timestamp)}
-                        </Text>
+                        </Typography>
                       </div>
                     }
                   />
-                </List.Item>
-              )}
-            />
+                </ListItem>
+              ))}
+            </List>
           </div>
         )}
       </div>

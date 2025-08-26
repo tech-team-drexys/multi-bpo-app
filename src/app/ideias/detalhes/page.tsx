@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './page.module.scss';
 import { MessageCircle, Paperclip, Heart, StarIcon, Send, X } from 'lucide-react';
-import { Tag } from 'antd';
+import { Chip } from '@mui/material';
 
 interface Comment {
     id: string;
@@ -125,15 +125,15 @@ export default function DetalhesIdeia() {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'aberta':
-                return '#FFD700';
+                return 'warning';
             case 'em_analise':
-                return '#FFA500';
+                return 'info';
             case 'implementada':
-                return '#32CD32';
+                return 'success';
             case 'rejeitada':
-                return '#FF0000';
+                return 'error';
             default:
-                return '#FFD700';
+                return 'warning';
         }
     };
 
@@ -158,7 +158,11 @@ export default function DetalhesIdeia() {
                 <div className={styles.metadataGrid}>
                     <div className={styles.metadataColumn}>
                         <h3>situação</h3>
-                        <Tag bordered={false} color={getStatusColor(idea.status)}>{idea.status}</Tag>
+                        <Chip 
+                            label={idea.status} 
+                            color={getStatusColor(idea.status) as any}
+                            variant="outlined"
+                        />
                     </div>
 
                     <div className={styles.metadataColumn}>

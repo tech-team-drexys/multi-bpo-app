@@ -18,6 +18,11 @@
   padding: 2rem;
   background-color: var(--background);
   min-height: 100vh;
+
+  .title {
+    font-size: 3rem;
+    font-weight: 600;
+  }
 }
 
 .summarySection {
@@ -75,6 +80,13 @@
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  
+  .calendarTitle {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
   
   .currentDate {
     display: block;
@@ -86,6 +98,27 @@
   .calendar {
     .ant-picker-calendar {
       background: transparent;
+      overflow: hidden !important;
+      
+      .ant-picker-calendar-date {
+        overflow: hidden !important;
+        
+        .ant-picker-calendar-date-content {
+          overflow: hidden !important;
+        }
+        
+        .ant-picker-calendar-date-body {
+          overflow: hidden !important;
+        }
+      }
+      
+      .ant-picker-calendar-date-today {
+        overflow: hidden !important;
+      }
+      
+      .ant-picker-calendar-date-selected {
+        overflow: hidden !important;
+      }
     }
     
     .ant-picker-calendar-header {
@@ -135,6 +168,7 @@
   
   .searchInput {
     border-radius: 8px;
+    gap: 1rem;
   }
   
   .filterSelect {
@@ -157,11 +191,12 @@
     
     .tasksTitle {
       margin: 0;
-      color: #262626;
+      font-size: 2rem;
+      font-weight: bold;
     }
     
     .viewAllTasks {
-      color: #666;
+      color: var(--sub-text);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -233,6 +268,11 @@
         }
         
         .taskDetails {
+
+          .icon {
+            color: var(--background);
+          }
+
           .detailItem {
             display: flex;
             flex-direction: row !important;
@@ -276,11 +316,127 @@
   max-width: 300px;
 }
 
+// Estilos globais para o calendário - sobrescrever Ant Design
+.calendarGlobal {
+  :global(.ant-picker-calendar) {
+    overflow: hidden !important;
+    
+    .ant-picker-calendar-date {
+      overflow: hidden !important;
+      
+      .ant-picker-calendar-date-content {
+        overflow: hidden !important;
+      }
+      
+      .ant-picker-calendar-date-body {
+        overflow: hidden !important;
+      }
+      
+      .ant-picker-calendar-date-today {
+        overflow: hidden !important;
+      }
+      
+      .ant-picker-calendar-date-selected {
+        overflow: hidden !important;
+      }
+    }
+    
+    .ant-picker-calendar-date-panel {
+      overflow: hidden !important;
+    }
+    
+    .ant-picker-calendar-date-value {
+      overflow: hidden !important;
+    }
+  }
+}
+
+// Estilos para as bolinhas dos eventos no calendário
 .calendarCell {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  align-items: center;
+  align-items: flex-start;
+  padding: 2px;
+  min-height: 24px;
+  
+  .eventItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    font-size: 10px;
+    line-height: 1.2;
+    padding: 1px 2px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.8);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.95);
+    }
+    
+    .eventDot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .eventText {
+      color: #333;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: calc(100% - 10px);
+      font-size: 9px;
+    }
+  }
+}
+
+// Estilos para os eventos do calendário
+.events {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  
+  li {
+    margin-bottom: 3px !important;
+    line-height: 1.2 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    
+    .ant-badge {
+      width: 100% !important;
+      display: flex !important;
+      align-items: center !important;
+      overflow: hidden !important;
+      
+      .ant-badge-status-dot {
+        width: 8px !important;
+        height: 8px !important;
+        flex-shrink: 0 !important;
+      }
+      
+      .ant-badge-status-text {
+        font-size: 10px !important;
+        color: #333 !important;
+        margin-left: 6px !important;
+        font-weight: 500 !important;
+        flex: 1 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        width: auto !important;
+        display: block !important;
+      }
+    }
+  }
 }
 
 @media (max-width: 768px) {

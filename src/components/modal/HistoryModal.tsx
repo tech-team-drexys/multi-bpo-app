@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Search, X, SquarePen, Share, Edit, Trash2, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Button } from 'antd';
+import { Button } from '@mui/material';
 import styles from './HistoryModal.module.scss';
 
 interface Conversation {
@@ -88,8 +88,12 @@ export const HistoryModal = ({ isOpen, onClose }: HistoryModalProps) => {
         </div>
 
         <div className={styles.content}>
-          <Button className={styles.newChatButton} onClick={handleNewChatClick}>
-            <SquarePen size={16} />
+          <Button 
+            variant="contained" 
+            className={styles.newChatButton} 
+            onClick={handleNewChatClick}
+            startIcon={<SquarePen size={16} />}
+          >
             <span>Criar novo bate-papo</span>
           </Button>
 

@@ -1,4 +1,4 @@
-import { Badge, Select, Modal } from "antd";
+import { Badge, Select, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, MenuItem } from "@mui/material";
 import {
     Building2,
     Calendar,
@@ -367,14 +367,22 @@ export default function UtilitiesGrid() {
         <div className={styles.container}>
             <div className={styles.stateSelector}>
                 <label htmlFor="state-select">Selecione o Estado:</label>
-                <Select
-                    id="state-select"
-                    value={selectedState}
-                    onChange={setSelectedState}
-                    options={states}
-                    placeholder="Selecione um estado"
-                    style={{ width: 200 }}
-                />
+                <FormControl style={{ width: 200 }}>
+                    <InputLabel id="state-select-label">Estado</InputLabel>
+                    <Select
+                        labelId="state-select-label"
+                        id="state-select"
+                        value={selectedState}
+                        onChange={(e) => setSelectedState(e.target.value)}
+                        label="Estado"
+                    >
+                        {states.map((state) => (
+                            <MenuItem key={state.value} value={state.value}>
+                                {state.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </div>
 
             {categories.map((category) => (
@@ -382,7 +390,7 @@ export default function UtilitiesGrid() {
                     <div className={styles.categoryHeader}>
                         <div className={styles.categoryIcon}>{category.icon}</div>
                         <h2>{category.name}</h2>
-                        <Badge count={category.count} color="#c7c5c5" />
+                        <Badge badgeContent={category.count} color="default" />
                     </div>
                     <div className={styles.cardsGrid}>
                         {category.items.map((item) => (
@@ -407,49 +415,50 @@ export default function UtilitiesGrid() {
                 </div>
             ))}
 
-            <Modal
+            <Dialog
                 open={modalData.isOpen}
-                onCancel={closeModal}
-                footer={null}
-                width={600}
+                onClose={closeModal}
+                maxWidth="sm"
+                fullWidth
                 className={styles.utilityModal}
-                closeIcon={<X size={20} />}
-                zIndex={999999}
             >
-                <div className={styles.modalHeader}>
-                    <div
-                        className={styles.modalIcon}
-                        style={{ backgroundColor: modalData.color }}
-                    >
-                        {modalData.icon}
+                <DialogTitle>
+                    <div className={styles.modalHeader}>
+                        <div
+                            className={styles.modalIcon}
+                            style={{ backgroundColor: modalData.color }}
+                        >
+                            {modalData.icon}
+                        </div>
+                        <h2>{modalData.title}</h2>
                     </div>
-                    <h2>{modalData.title}</h2>
-                </div>
+                </DialogTitle>
+                <DialogContent>
+                    <div className={styles.modalContent}>
+                        <p className={styles.modalSubtitle}>
+                            Escolha a opção que deseja acessar:
+                        </p>
 
-                <div className={styles.modalContent}>
-                    <p className={styles.modalSubtitle}>
-                        Escolha a opção que deseja acessar:
-                    </p>
-
-                    <div className={styles.optionsList}>
-                        {modalData.options.map((option) => (
-                            <div
-                                key={option.id}
-                                className={styles.optionItem}
-                                onClick={() => handleOptionClick(option.url)}
-                            >
-                                <ExternalLink size={24} />
-                                <div className={styles.optionContent}>
-                                    <h4>{option.label}</h4>
-                                    {option.description && (
-                                        <p>{option.description}</p>
-                                    )}
+                        <div className={styles.optionsList}>
+                            {modalData.options.map((option) => (
+                                <div
+                                    key={option.id}
+                                    className={styles.optionItem}
+                                    onClick={() => handleOptionClick(option.url)}
+                                >
+                                    <ExternalLink size={24} />
+                                    <div className={styles.optionContent}>
+                                        <h4>{option.label}</h4>
+                                        {option.description && (
+                                            <p>{option.description}</p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </Modal>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

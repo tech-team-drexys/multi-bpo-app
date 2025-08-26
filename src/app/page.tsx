@@ -1,9 +1,8 @@
 'use client';
-import { Button } from "antd";
+import { Button } from "@mui/material";
 import styles from "./page.module.scss";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { NotificationSidebar } from "@/components/notifications/NotificationSidebar";
 
 export default function Home() {
   const router = useRouter();
@@ -23,7 +22,7 @@ export default function Home() {
               <div className={styles.cardContent}>
                 <h3>Fale com o Luca IA</h3>
                 <p>Agora você pode falar com o Luca IA para tirar dúvidas, fazer pedidos e muito mais.</p>
-                <Button className={styles.button} onClick={() => router.push('/lucaIA')}>Fale com o Luca IA</Button>
+                <Button variant="contained" className={styles.button} onClick={() => router.push('/lucaIA')}>Fale com o Luca IA</Button>
               </div>
             </div>
 
@@ -34,7 +33,7 @@ export default function Home() {
               <div className={styles.cardContent}>
                 <h3>Novo Dashboard Atualizado</h3>
                 <p>Visualize métricas em tempo real com nosso dashboard reformulado e mais intuitivo.</p>
-                <Button className={styles.button} onClick={() => router.push('/dashboard')}>Acessar Dashboard</Button>
+                <Button variant="contained" className={styles.button} onClick={() => router.push('/dashboard')}>Acessar Dashboard</Button>
               </div>
             </div>
 
@@ -45,7 +44,7 @@ export default function Home() {
               <div className={styles.cardContent}>
                 <h3>Nova Loja Online</h3>
                 <p>Explore nossa nova loja com produtos e serviços exclusivos para sua empresa.</p>
-                <Button className={styles.button} onClick={() => router.push('/loja')}>Visitar Loja</Button>
+                <Button variant="contained" className={styles.button} onClick={() => router.push('/loja')}>Visitar Loja</Button>
               </div>
             </div>
           </div>
@@ -60,7 +59,7 @@ export default function Home() {
               </div>
               <h3>Drive</h3>
               <p>Armazene e compartilhe seus arquivos</p>
-              <Button className={styles.button} onClick={() => router.push('/drive')}>Acessar Drive</Button>
+              <Button variant="contained" className={styles.button} onClick={() => router.push('/drive')}>Acessar Drive</Button>
             </div>
 
             <div className={styles.serviceCard}>
@@ -69,7 +68,7 @@ export default function Home() {
               </div>
               <h3>Central de Atendimento</h3>
               <p>Suporte técnico e atendimento ao cliente</p>
-              <Button className={styles.button} onClick={() => router.push('/central-de-atendimento')}>Entrar em contato</Button>
+              <Button variant="contained" className={styles.button} onClick={() => router.push('/central-de-atendimento')}>Entrar em contato</Button>
             </div>
 
             <div className={styles.serviceCard}>
@@ -78,7 +77,7 @@ export default function Home() {
               </div>
               <h3>Luca IA</h3>
               <p>Assistente inteligente para suas tarefas</p>
-              <Button className={styles.button} onClick={() => router.push('/lucaIA')}>Conversar</Button>
+              <Button variant="contained" className={styles.button} onClick={() => router.push('/lucaIA')}>Conversar</Button>
             </div>
           </div>
         </section>

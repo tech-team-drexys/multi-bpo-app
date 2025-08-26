@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Input, Button, Progress, Breadcrumb } from 'antd';
+import { TextField, Button, LinearProgress, Breadcrumbs, Typography } from '@mui/material';
 import { Search, Upload, Folder, FileText, FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet, Presentation, Home, ChevronRight, Download } from 'lucide-react';
 import styles from "./page.module.scss";
 import { DriveItemType } from '@/enums/index ';
@@ -261,14 +261,23 @@ export default function Drive() {
             <p className={styles.subtitle}>Documentos organizados por mês, cliente e categoria</p>
           </div>
           <div className={styles.headerActions}>
-            <Input
+            <TextField
               placeholder="Buscar documentos..."
-              prefix={<Search size={16} />}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.searchInput}
+              variant="outlined"
+              size="small"
+              InputProps={{
+                startAdornment: <Search size={16} />,
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  gap: "8px",
+                },
+              }}
             />
-            <Button type="primary" icon={<Upload size={16} />} className={styles.uploadButton}>
+            <Button variant="contained" startIcon={<Upload size={16} />} className={styles.uploadButton}>
               Upload de arquivo
             </Button>
           </div>
@@ -276,11 +285,16 @@ export default function Drive() {
 
         {currentPath.length > 0 && (
           <div className={styles.breadcrumbSection}>
-            <Breadcrumb 
-              items={getBreadcrumbItems()}
+            <Breadcrumbs 
               separator={<ChevronRight size={16} />}
               className={styles.breadcrumb}
-            />
+            >
+              {getBreadcrumbItems().map((item, index) => (
+                <div key={index}>
+                  {item.title}
+                </div>
+              ))}
+            </Breadcrumbs>
           </div>
         )}
 
@@ -290,11 +304,16 @@ export default function Drive() {
           <h3 className={styles.storageTitle}>Armazenamento</h3>
           <div className={styles.storageInfo}>
             <span>Usado</span>
-            <Progress
-              percent={14.72}
-              showInfo={false}
-              strokeColor="#2463eb"
+            <LinearProgress
+              variant="determinate"
+              value={14.72}
               className={styles.progressBar}
+              sx={{ 
+                backgroundColor: '#e0e0e0',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: '#2463eb'
+                }
+              }}
             />
             <span className={styles.storageText}>147.2 GB de 1 TB</span>
           </div>

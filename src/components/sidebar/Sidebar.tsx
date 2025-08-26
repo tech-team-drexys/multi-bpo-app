@@ -22,7 +22,7 @@ import {
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './sidebar.module.scss';
-import { Avatar, Badge } from 'antd';
+import { Avatar, Badge } from '@mui/material';
 import { NotificationSidebar } from '../notifications/NotificationSidebar';
 import { AccountSettingsModal } from '../modal/AccountSettingsModal';
 import { RegistrationModal } from '../modal/RegistrationModal';
@@ -46,8 +46,7 @@ interface MenuItem {
 }
 
 export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isManuallyCollapsed = false, onHover }: SidebarProps) => {
-  // const { isLoggedIn, login, logout } = useAuth();
-  const isLoggedIn = true;
+  const { isLoggedIn, login, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -129,7 +128,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
   };
 
   const handleLogout = () => {
-    // logout();
+    logout();
     setIsUserModalOpen(false);
   };
 
@@ -164,6 +163,8 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
   }, [isUserModalOpen]);
 
   return (
+    <>
+    
     <div
       className={`${styles.sidebar} ${shouldShowExpanded ? styles.expanded : styles.collapsed}`}
       onMouseEnter={handleMouseEnter}
@@ -199,7 +200,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
                 }}
               >
                 {isNotificationItem ? (
-                  <Badge count={unreadCount} size="small" offset={[-5, 5]}>
+                  <Badge badgeContent={unreadCount} color="error">
                     <item.icon className={styles.menuIcon} />
                   </Badge>
                 ) : (
@@ -212,8 +213,10 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
         </div>
         <div className={styles.account}>
           <div className={`${styles.accountInfo} ${!shouldShowExpanded ? styles.accountInfoCollapsed : ''}`}>
-            <div className={styles.userSection} onClick={handleUserClick}>
-              <Avatar icon={<User />} size={30} />
+            <div className={`${styles.userSection} ${!shouldShowExpanded ? styles.userSectionCollapsed : ''}`} onClick={handleUserClick}>
+              <Avatar className={styles.avatar}>
+                <User />
+              </Avatar>
               {shouldShowExpanded && (
                 <span>{isLoggedIn ? 'João Silva' : 'Fazer Login'}</span>
               )}
@@ -235,6 +238,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
         </div>
       </div>
       
+    </div>
       <NotificationSidebar
         open={isNotificationDrawerOpen}
         onClose={() => setIsNotificationDrawerOpen(false)}
@@ -249,6 +253,6 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
       />
-    </div>
+    </>
   );
 };

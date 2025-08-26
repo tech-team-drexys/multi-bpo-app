@@ -107,6 +107,7 @@
             justify-content: center;
             gap: 0.5rem;
             box-shadow: none;
+            text-transform: capitalize;
 
             &:hover {
               background-color: var(--border-color) !important;
@@ -142,4 +143,8 @@
   &:hover {
     background-color: var(--border-color);
   }
+}
+
+.dropdownContent {
+  padding: 5px;
 }

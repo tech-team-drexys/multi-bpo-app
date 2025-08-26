@@ -87,16 +87,12 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
-    color: var(--text-primary);
+    color: var(--background);
+    font-weight: 600;
+    text-transform: capitalize;
     transition: var(--transition);
     margin-bottom: 20px;
     width: fit-content;
-  
-    &:hover {
-      background-color: transparent !important;
-      border-color: var(--secondary) !important;
-      color: var(--secondary) !important;
-    }
   
     span {
       font-weight: 500;
@@ -233,8 +229,8 @@
 .resizeIcon {
   width: 8px;
   height: 8px;
-  border-right: 2px solid #d1d5db;
-  border-bottom: 2px solid #d1d5db;
+  border-right: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
   border-radius: 0 0 2px 0;
 }
 

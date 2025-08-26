@@ -140,7 +140,8 @@
       &.accountInfoCollapsed {
         justify-content: center;
         gap: 0;
-        padding: 0;
+        padding: 0.5rem;
+        align-items: center;
       }
 
       .userSection {
@@ -153,9 +154,25 @@
         border-radius: 0.5rem;
         width: 100%;
 
+        &.userSectionCollapsed {
+          justify-content: center;
+          gap: 0;
+          padding: 0.5rem;
+        }
+
         &:hover {
           background-color: rgba(255, 255, 255, 0.1);
           transform: translateY(-1px);
+        }
+      }
+
+      .avatar {
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        transition: all 0.3s ease;
+        
+        &.MuiAvatar-root {
+          font-size: 1.25rem;
         }
       }
 

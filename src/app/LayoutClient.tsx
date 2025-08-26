@@ -9,8 +9,8 @@ import { Breadcrumbs } from "@/components/breadcrumbs/Breadcrumbs";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import styles from "./layout.module.scss";
 import { usePathname } from "next/navigation";
-import { ConfigProvider } from "antd";
-import ptBR from "antd/locale/pt_BR";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
 
 
 interface LayoutClientProps {
@@ -65,8 +65,21 @@ export function LayoutClient({ children }: LayoutClientProps) {
     setSidebarMobileOpen(!sidebarMobileOpen);
   };
 
+  const theme = createTheme({
+    palette: {
+      mode: 'light',
+      primary: {
+        main: '#1976d2',
+      },
+      secondary: {
+        main: '#dc004e',
+      },
+    },
+  });
+
   return (
-    <ConfigProvider locale={ptBR}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <NotificationProvider>
         <div className={styles.page}>
           <div className={styles.layout}>
@@ -106,6 +119,6 @@ export function LayoutClient({ children }: LayoutClientProps) {
           onClose={() => setNotificationsOpen(false)}
         />
       </NotificationProvider>
-    </ConfigProvider>
+    </ThemeProvider>
   );
 } 

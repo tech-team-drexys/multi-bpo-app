@@ -3,9 +3,7 @@ import styles from "./notificationsSidebar.module.scss";
 import { X, Bell, CheckCircle } from "lucide-react";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { formatTimestamp, getTypeColor } from "@/hooks/";
-import { Badge, Button, List, Typography, Tag } from "antd";
-
-const { Text } = Typography;
+import { Button, List, ListItem, ListItemAvatar, ListItemText, Typography, Chip } from "@mui/material";
 
 interface NotificationsSidebarProps {
   isOpen: boolean;
@@ -44,7 +42,7 @@ export const NotificationsSidebar = ({ isOpen, onClose }: NotificationsSidebarPr
           <div className={styles.actions}>
             {unreadCount > 0 && (
               <Button 
-                type="text" 
+                variant="text" 
                 size="small" 
                 onClick={markAllAsRead}
                 className={styles.markAllAsRead}
@@ -66,45 +64,45 @@ export const NotificationsSidebar = ({ isOpen, onClose }: NotificationsSidebarPr
             </div>
           ) : (
             <div className={styles.listContent}>
-              <List
-                dataSource={notifications}
-                renderItem={(notification) => (
-                  <List.Item
+              <List>
+                {notifications.map((notification) => (
+                  <ListItem
+                    key={notification.id}
                     className={`${styles.notificationItem} ${!notification.isRead ? styles.unread : styles.read}`}
                     onClick={() => handleNotificationClick(notification)}
                   >
-                    <List.Item.Meta
-                      avatar={
-                        <div className={styles.notificationAvatar}>
-                          {getTypeIcon(notification.type)}
-                        </div>
-                      }
-                      title={
+                    <ListItemAvatar>
+                      <div className={styles.notificationAvatar}>
+                        {getTypeIcon(notification.type)}
+                      </div>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
                         <div className={styles.notificationHeader}>
-                          <Text strong={!notification.isRead}>
+                          <Typography variant="body1" fontWeight={!notification.isRead ? 'bold' : 'normal'}>
                             {notification.title}
-                          </Text>
-                          <Tag 
-                            color={getTypeColor(notification.type)}
-                          >
-                            {notification.type}
-                          </Tag>
+                          </Typography>
+                          <Chip 
+                            label={notification.type}
+                            color={getTypeColor(notification.type) as any}
+                            size="small"
+                          />
                         </div>
                       }
-                      description={
+                      secondary={
                         <div className={styles.notificationContent}>
-                          <Text type="secondary" className={styles.message}>
+                          <Typography variant="body2" color="text.secondary" className={styles.message}>
                             {notification.message}
-                          </Text>
-                          <Text type="secondary" className={styles.timestamp}>
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" className={styles.timestamp}>
                             {formatTimestamp(notification.timestamp)}
-                          </Text>
+                          </Typography>
                         </div>
                       }
                     />
-                  </List.Item>
-                )}
-              />
+                  </ListItem>
+                ))}
+              </List>
             </div>
           )}
         </div>

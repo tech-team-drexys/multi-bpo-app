@@ -1,10 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ChatInput } from "@/components/chat-input/ChatInput";
-import { Button, Tooltip, Avatar, Spin } from "antd";
+import { Button, Tooltip, Avatar, CircularProgress } from "@mui/material";
 import {
     Bot,
-    BotMessageSquare,
     Copy,
     Pencil,
     RefreshCcw,
@@ -45,7 +44,7 @@ export default function LucaIA() {
     const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
 
     const MESSAGE_LIMIT = 4;
-    
+
     const userMessages = messages.filter(msg => msg.isUser);
     const hasReachedLimit = userMessages.length >= MESSAGE_LIMIT;
 
@@ -61,11 +60,11 @@ export default function LucaIA() {
         };
 
         setMessages((prev) => [...prev, userMessage]);
-        
+
         const currentUserMessages = messages.filter(msg => msg.isUser);
         const totalUserMessages = currentUserMessages.length + 1;
         const hasReachedLimitNow = totalUserMessages >= MESSAGE_LIMIT;
-        
+
         if (hasReachedLimitNow) {
             const errorMessage: ChatMessage = {
                 id: (Date.now() + 1).toString(),
@@ -76,13 +75,13 @@ export default function LucaIA() {
                     minute: "2-digit",
                 }),
             };
-            
+
             setMessages((prev) => [...prev, errorMessage]);
-            
+
             setTimeout(() => {
                 setIsRegistrationModalOpen(true);
             }, 500);
-            
+
             return;
         }
 
@@ -173,10 +172,10 @@ export default function LucaIA() {
 
                             <div className={styles.avatarWrapper}>
                                 <Avatar
-                                    size={35}
-                                    icon={msg.isUser ? <User size={20} /> : <Bot size={20} />}
                                     className={msg.isUser ? styles.userAvatar : styles.aiAvatar}
-                                />
+                                >
+                                    {msg.isUser ? <User size={20} /> : <Bot size={20} />}
+                                </Avatar>
                             </div>
 
                             <div className={styles.messageContent}>
@@ -191,41 +190,41 @@ export default function LucaIA() {
                                     <div className={styles.actions}>
                                         {msg.isUser ? (
                                             <>
-                                                <Tooltip title="Copiar">
-                                                    <Button className={styles.actionButton}>
+                                                <Tooltip title="Copiar" className={styles.actionButton}>
+                                                    <Button className={styles.actionButton} size="small">
                                                         <Copy size={16} />
                                                     </Button>
                                                 </Tooltip>
-                                                <Tooltip title="Editar">
-                                                    <Button className={styles.actionButton}>
+                                                <Tooltip title="Editar" className={styles.actionButton}>
+                                                    <Button className={styles.actionButton} size="small">
                                                         <Pencil size={16} />
                                                     </Button>
                                                 </Tooltip>
                                             </>
                                         ) : (
                                             <>
-                                                <Tooltip title="Tentar novamente">
-                                                    <Button className={styles.actionButton}>
+                                                <Tooltip title="Tentar novamente" className={styles.actionButton}>
+                                                    <Button className={styles.actionButton} size="small">
                                                         <RefreshCcw size={16} />
                                                     </Button>
                                                 </Tooltip>
-                                                <Tooltip title="Copiar">
-                                                    <Button className={styles.actionButton}>
+                                                <Tooltip title="Copiar" className={styles.actionButton}>
+                                                    <Button className={styles.actionButton} size="small">
                                                         <Copy size={16} />
                                                     </Button>
                                                 </Tooltip>
-                                                <Tooltip title="Compartilhar">
-                                                    <Button className={styles.actionButton}>
+                                                <Tooltip title="Compartilhar" className={styles.actionButton}>
+                                                    <Button className={styles.actionButton} size="small">
                                                         <Share size={16} />
                                                     </Button>
                                                 </Tooltip>
-                                                <Tooltip title="Amei">
-                                                    <Button className={styles.actionButton}>
+                                                <Tooltip title="Amei" className={styles.actionButton}>
+                                                    <Button className={styles.actionButton} size="small">
                                                         <ThumbsUp size={16} />
                                                     </Button>
                                                 </Tooltip>
-                                                <Tooltip title="Precisa de melhorias">
-                                                    <Button className={styles.actionButton}>
+                                                <Tooltip title="Precisa de melhorias" className={styles.actionButton}>
+                                                    <Button className={styles.actionButton} size="small">
                                                         <ThumbsDown size={16} />
                                                     </Button>
                                                 </Tooltip>
@@ -240,13 +239,10 @@ export default function LucaIA() {
                     {isTyping && (
                         <div className={`${styles.messageGroup} ${styles.ai}`}>
                             <div className={styles.avatarWrapper}>
-                                <Spin className={styles.typingAvatarSpin}>
-                                    <Avatar
-                                        size={32}
-                                        icon={<BotMessageSquare size={20} />}
-                                        className={`${styles.aiAvatar} ${styles.typingAvatar}`}
-                                    />
-                                </Spin>
+                                <Avatar className={styles.aiAvatar}>
+                                    <Bot size={20} />
+                                </Avatar>
+                                <div className={styles.typingSpinner}></div>
                             </div>
                             <div className={styles.messageContent}>
                                 <div className={styles.messageWrapper}>
@@ -308,7 +304,7 @@ export default function LucaIA() {
                 isOpen={isHistoryModalOpen}
                 onClose={() => setIsHistoryModalOpen(false)}
             />
-            
+
             <RegistrationModal
                 isOpen={isRegistrationModalOpen}
                 onClose={() => setIsRegistrationModalOpen(false)}

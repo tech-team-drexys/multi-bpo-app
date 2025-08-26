@@ -2,9 +2,7 @@
 import { useState } from "react";
 import { ArrowRightIcon, ShoppingBagIcon, Trash2Icon } from "lucide-react";
 import styles from "./page.module.scss";
-import { Button, Radio, RadioChangeEvent, Drawer, List, Typography, Space, Divider, notification } from "antd";
-
-const { Text, Title } = Typography;
+import { Button, RadioGroup, FormControlLabel, Radio, Drawer, List, ListItem, ListItemText, Typography, Box, Snackbar, Alert } from "@mui/material";
 
 interface Service {
   id: string;
@@ -146,9 +144,13 @@ export default function Loja() {
   const [value, setValue] = useState("todos");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
-  const [api, contextHolder] = notification.useNotification();
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
-  const onChange = (e: RadioChangeEvent) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
@@ -169,10 +171,10 @@ export default function Loja() {
       return [...prevCart, { ...service, quantity: 1 }];
     });
     
-    api.success({
-      message: 'Produto adicionado no carrinho',
-      description: `${service.title} foi adicionado ao seu carrinho`,
-      placement: 'bottomRight',
+    setSnackbar({
+      open: true,
+      message: `${service.title} foi adicionado ao seu carrinho`,
+      severity: 'success'
     });
   };
 
@@ -245,7 +247,6 @@ export default function Loja() {
 
   return (
     <div className={styles.page}>
-      {contextHolder}
       <div className={styles.content}>
         <div className={styles.contentHeader}>
           <div className={styles.header}>
@@ -253,6 +254,7 @@ export default function Loja() {
             <p>Descubra nossos serviços especializados</p>
           </div>
           <Button
+            variant="outlined"
             className={styles.shoppingBagBtn}
             onClick={() => setCartDrawerOpen(true)}
           >
@@ -271,7 +273,7 @@ export default function Loja() {
                 Limpar filtros
               </button>
             </div>
-            <Radio.Group
+            <RadioGroup
               value={value}
               onChange={onChange}
               style={{
@@ -279,13 +281,12 @@ export default function Loja() {
                 flexDirection: 'column',
                 gap: '1rem',
               }}
-              options={[
-                { value: "todos", label: 'Todos' },
-                { value: "terceirização", label: 'Terceirização' },
-                { value: "consultoria-assessoria", label: 'Consultoria & Assessoria' },
-                { value: "servicos-digitais", label: 'Serviços Digitais' },
-              ]}
-            />
+            >
+              <FormControlLabel value="todos" control={<Radio />} label="Todos" />
+              <FormControlLabel value="terceirização" control={<Radio />} label="Terceirização" />
+              <FormControlLabel value="consultoria-assessoria" control={<Radio />} label="Consultoria & Assessoria" />
+              <FormControlLabel value="servicos-digitais" control={<Radio />} label="Serviços Digitais" />
+            </RadioGroup>
           </div>
 
           <div className={styles.servicesGrid}>
@@ -295,92 +296,148 @@ export default function Loja() {
       </div>
 
       <Drawer
-        title="Carrinho de Compras"
-        placement="right"
+        anchor="right"
         onClose={() => setCartDrawerOpen(false)}
         open={cartDrawerOpen}
-        width={400}
         className={styles.cartDrawer}
-        footer={
-          <div style={{ textAlign: 'center' }}>
-            {cart.length > 0 && (
-              <div style={{ 
+        PaperProps={{
+          style: { width: 400 }
+        }}
+      >
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          height: '100%',
+          overflow: 'hidden'
+        }}>
+          {/* Header do Sidebar */}
+          <Box sx={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.75rem 1rem',
+            borderBottom: 1,
+            borderColor: 'divider',
+            backgroundColor: 'white'
+          }}>
+            <Typography variant="body1" fontWeight="bold">
+              Carrinho de Compras
+            </Typography>
+            <Button
+              onClick={() => setCartDrawerOpen(false)}
+              sx={{ minWidth: 'auto', padding: '6px' }}
+            >
+              ✕
+            </Button>
+          </Box>
+
+          <Box sx={{ 
+            flex: 1, 
+            overflowY: 'auto',
+            padding: '1rem'
+          }}>
+            {cart.length === 0 ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+                <ShoppingBagIcon size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
+                <Typography variant="body2" color="text.secondary">Seu carrinho está vazio</Typography>
+              </Box>
+            ) : (
+              <>
+                <List>
+                  {cart.map((item) => (
+                    <ListItem
+                      key={item.id}
+                      secondaryAction={
+                        <Button
+                          variant="text"
+                          color="error"
+                          onClick={() => removeFromCart(item.id)}
+                        >
+                          <Trash2Icon size={16} />
+                        </Button>
+                      }
+                    >
+                      <ListItemText
+                        primary={<Typography variant="body1" fontWeight="bold">{item.title}</Typography>}
+                        secondary={
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">{item.description}</Typography>
+                            <Box sx={{ mt: 1 }}>
+                              <Typography variant="body2">Quantidade:</Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                <Button
+                                  size="small"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                >
+                                  -
+                                </Button>
+                                <Typography>{item.quantity}</Typography>
+                                <Button
+                                  size="small"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                >
+                                  +
+                                </Button>
+                              </Box>
+                              <Typography variant="body1" fontWeight="bold">
+                                R$ {(100 * item.quantity).toFixed(2).replace('.', ',')}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </>
+            )}
+          </Box>
+          
+          {cart.length > 0 && (
+            <Box sx={{ 
+              flexShrink: 0,
+              backgroundColor: 'white',
+              borderTop: 1, 
+              borderColor: 'divider', 
+              padding: '1rem',
+              boxShadow: '0 -2px 8px rgba(0,0,0,0.1)'
+            }}>
+              <Box sx={{ 
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center', 
-                marginBottom: '1rem',
-                padding: '0 1rem'
+                marginBottom: '1rem'
               }}>
-                <Text strong style={{ fontSize: '1.1rem' }}>Total:</Text>
-                <Text strong style={{ fontSize: '1.1rem' }}>
+                <Typography variant="h6" fontWeight="bold">Total:</Typography>
+                <Typography variant="h6" fontWeight="bold">
                   R$ {getCartTotal().toFixed(2).replace('.', ',')}
-                </Text>
-              </div>
-            )}
-            <Button
-              type="primary"
-              size="large"
-              block
-              onClick={finalizePurchase}
-              disabled={cart.length === 0}
-            >
-              Finalizar Compra
-            </Button>
-          </div>
-        }
-      >
-        {cart.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-            <ShoppingBagIcon size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
-            <Text type="secondary">Seu carrinho está vazio</Text>
-          </div>
-        ) : (
-          <>
-            <List
-              dataSource={cart}
-              renderItem={(item) => (
-                <List.Item
-                  actions={[
-                    <Button
-                      key="remove"
-                      type="text"
-                      danger
-                      icon={<Trash2Icon size={16} />}
-                      onClick={() => removeFromCart(item.id)}
-                    />
-                  ]}
-                >
-                  <List.Item.Meta
-                    title={<Text strong>{item.title}</Text>}
-                    description={
-                      <Space direction="vertical" size="small">
-                        <Text type="secondary">{item.description}</Text>
-                        <Space>
-                          <Text>Quantidade:</Text>
-                          <Button
-                            size="small"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          >
-                            -
-                          </Button>
-                          <Text>{item.quantity}</Text>
-                          <Button
-                            size="small"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            +
-                          </Button>
-                        </Space>
-                        <Text strong>R$ {(100 * item.quantity).toFixed(2).replace('.', ',')}</Text>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          </>
-        )}
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                size="large"
+                fullWidth
+                onClick={finalizePurchase}
+                disabled={cart.length === 0}
+              >
+                Finalizar Compra
+              </Button>
+            </Box>
+          )}
+        </Box>
       </Drawer>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 } 

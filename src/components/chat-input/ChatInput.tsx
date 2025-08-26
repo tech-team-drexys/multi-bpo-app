@@ -1,11 +1,10 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Mic, Paperclip, ChevronDown, ArrowUp, Lightbulb } from 'lucide-react';
-import { Button, Popover } from 'antd';
+import { Button, Popover, TextField } from '@mui/material';
 import { OneDrive } from '@/icons/onedrive';
 import { GoogleDrive } from '@/icons/googledrive';
 import styles from './ChatInput.module.scss';
-import TextArea from 'antd/es/input/TextArea';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -27,6 +26,7 @@ export const ChatInput = ({
   openIdeas
 }: ChatInputProps) => {
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [placeholder, setPlaceholder] = useState('');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const typingInterval = useRef<NodeJS.Timeout | null>(null);
@@ -93,14 +93,26 @@ export const ChatInput = ({
     setOpenIdeas(newOpen);
   };
 
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setAnchorEl(null);
+  };
+
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.wrapper}>
           <div className={styles.inputRow}>
-            <TextArea
+            <TextField
               placeholder={isInitial ? placeholder : 'Como o Luca pode te ajudar hoje?'}
-              autoSize={{ minRows: 2, maxRows: 15 }}
+              multiline
+              minRows={2}
+              maxRows={15}
               className={styles.input}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -113,35 +125,67 @@ export const ChatInput = ({
                   }
                 }
               }}
+              variant="outlined"
+              fullWidth
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  border: 'none',
+                  padding: '0',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    border: 'none',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    border: 'none',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    border: 'none',
+                  },
+                  '& .MuiInputBase-input': {
+                    padding: '0 0 20px 0',
+                  },
+                },
+              }}
             />
 
             <div className={styles.actions}>
               <div className={styles.actionsContainer}>
                 <Popover
-                  content={
-                    <>
-                      <p className={styles.dropdownItem}><Paperclip size={16} /> Anexar arquivo </p>
-                      <p className={styles.dropdownItem}><OneDrive /> Conectar com o Google Drive </p>
-                      <p className={styles.dropdownItem}><GoogleDrive /> Conectar com o OneDrive </p>
-                    </>
-                  }
-                  trigger="click"
                   open={open}
-                  onOpenChange={() => setOpen(!open)}
-                  arrow={false}
+                  onClose={handleClose}
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                  }}
                 >
-                  <Button type="primary"
-                    className={styles.dropdownToggle}>
-                    <Paperclip className={styles.iconSmall} />
-                    Anexar
-                    <ChevronDown className={styles.chevronIcon} />
-                  </Button>
+                  <div className={styles.dropdownContent}>
+                    <p className={styles.dropdownItem}><Paperclip size={16} /> Anexar arquivo </p>
+                    <p className={styles.dropdownItem}><OneDrive /> Conectar com o Google Drive </p>
+                    <p className={styles.dropdownItem}><GoogleDrive /> Conectar com o OneDrive </p>
+                  </div>
                 </Popover>
+                <Button 
+                  variant="contained"
+                  className={styles.dropdownToggle}
+                  onClick={handleClick}
+                >
+                  <Paperclip className={styles.iconSmall} />
+                  Anexar
+                  <ChevronDown className={styles.chevronIcon} />
+                </Button>
                 {
                   isInitial && (
-                    <Button type="primary" className={styles.dropdownToggle} onClick={() => {
-                      setOpenIdeas(!openIdeas);
-                    }}>
+                    <Button 
+                      variant="contained" 
+                      className={styles.dropdownToggle} 
+                      onClick={() => {
+                        setOpenIdeas(!openIdeas);
+                      }}
+                    >
                       <Lightbulb className={styles.iconSmall} /> Ideias
                     </Button>
                   )
