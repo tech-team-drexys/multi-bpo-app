@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Calendar, User, Tag } from 'lucide-react';
 import styles from './page.module.scss';
 import { getOneNews } from '@/services/api';
@@ -22,7 +22,7 @@ interface NewsArticle {
     };
 }
 
-export default function NoticiaIndividual() {
+function NoticiaIndividualContent() {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
     const router = useRouter();
@@ -31,9 +31,7 @@ export default function NoticiaIndividual() {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        Promise.all([
-            getOneNews(Number(id)),
-        ]).then(([newsResponse]) => {
+        getOneNews(Number(id)).then((newsResponse) => {
             setArticle(newsResponse.data);
         }).catch((error) => {
             console.error("Erro ao buscar a notícia:", error);
@@ -219,4 +217,20 @@ export default function NoticiaIndividual() {
             </div>
         </div>
     )
+}
+
+export default function NoticiaIndividual() {
+    return (
+        <Suspense fallback={
+            <div className={styles.page}>
+                <div className={styles.content}>
+                    <div className={styles.loading}>
+                        Carregando notícia...
+                    </div>
+                </div>
+            </div>
+        }>
+            <NoticiaIndividualContent />
+        </Suspense>
+    );
 }
