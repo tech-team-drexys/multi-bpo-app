@@ -1,212 +1,351 @@
 .page {
-  padding: 2rem;
+  padding: 1rem;
   background-color: #f8f9fa;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.content {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-/* Cards de Resumo */
-.summaryCards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.summaryCard {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: transform 0.2s ease;
-}
-
-.summaryCard:hover {
-  transform: translateY(-2px);
-}
-
-.summaryLabel {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.summaryValue {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #111827;
-}
-
-.summaryValue.valid {
-  color: #059669;
-}
-
-.summaryValue.expiring {
-  color: #d97706;
-}
-
-.summaryValue.expired {
-  color: #dc2626;
-}
-
-/* Título Principal */
-.mainTitle {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #111827;
+/* Seção Superior */
+.topSection {
+  display: flex;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-/* Barra de Ações */
-.actionBar {
+.statsCard {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
-.searchContainer {
-  position: relative;
+.statsIcon {
+  font-size: 1.5rem;
+}
+
+.statsContent {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex: 1;
-  min-width: 300px;
 }
 
-.searchIcon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+.statsLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.statsValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.percentage {
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.statsDate {
+  font-size: 0.625rem;
   color: #9ca3af;
+}
+
+.trainingPromo {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border-radius: 8px;
+  padding: 1rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 250px;
+}
+
+.trainingIcon {
+  font-size: 2rem;
+}
+
+.trainingText {
+  flex: 1;
+}
+
+.trainingTitle {
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.trainingSubtitle {
   font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.125rem;
+}
+
+.trainingHighlight {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* Conteúdo Principal */
+.mainContent {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.leftSection {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.integrationCard {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-radius: 8px;
+  padding: 1rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.integrationIcon {
+  font-size: 1.5rem;
+}
+
+.integrationContent {
+  flex: 1;
+}
+
+.integrationTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.integrationSubtitle {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.addCertCard {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.addCertIcon {
+  font-size: 1.5rem;
+}
+
+.addCertContent {
+  flex: 1;
+}
+
+.addCertTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.addCertSubtitle {
+  font-size: 0.625rem;
+  color: #6b7280;
+}
+
+.chartCard {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.chartTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.chartValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.chartContainer {
+  margin-bottom: 1rem;
+}
+
+.chartLegend {
+  text-align: left;
+  font-size: 0.75rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  justify-content: space-between;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.totalCerts {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Seção Direita - Relatórios */
+.rightSection {
+  flex: 1;
+}
+
+.reportsCard {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.reportsHeader {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-weight: 600;
+
+  .reportsActionButton {
+    background: var(--secondary);
+    color: var(--background);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: none;
+    border: 1px solid var(--secondary);
+    transition: all 0.2s ease;
+    gap: 1rem;
+  }
+}
+
+.reportsIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.reportsTabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.tab {
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.activeTab {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: white;
+  font-weight: 600;
+}
+
+.tabContent {
+  padding: 1rem;
+}
+
+.clientsContent {
+  min-height: 400px;
+}
+
+.searchBar {
+  margin-bottom: 1rem;
 }
 
 .searchInput {
   width: 100%;
-  padding: 12px 12px 12px 40px;
+  padding: 0.75rem;
   border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 0.875rem;
-  background: white;
+  background: #f9fafb;
 }
 
 .searchInput:focus {
   outline: none;
   border-color: #3b82f6;
+  background: white;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.actionButtons {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.exportButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  color: #374151;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.exportButton:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.newCertificateButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #3b82f6;
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.newCertificateButton:hover {
-  background: #2563eb;
-}
-
-.downloadIcon, .plusIcon {
-  font-size: 1rem;
-}
-
-.filterContainer {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.filterIcon {
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-.filterSelect {
-  padding: 12px 32px 12px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  color: #374151;
-  font-size: 0.875rem;
-  cursor: pointer;
-  appearance: none;
-}
-
-.filterArrow {
-  position: absolute;
-  right: 12px;
-  color: #6b7280;
-  font-size: 0.75rem;
-  pointer-events: none;
 }
 
 /* Tabela */
 .tableContainer {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #e5e7eb;
 }
 
 .certificatesTable {
   width: 100%;
   border-collapse: collapse;
+  background: white;
 }
 
 .certificatesTable th {
   background: #f8fafc;
-  padding: 16px;
+  padding: 0.75rem;
   text-align: left;
   font-weight: 600;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
 }
 
 .certificatesTable td {
-  padding: 16px;
+  padding: 0.75rem;
   border-bottom: 1px solid #f1f5f9;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  vertical-align: top;
 }
 
 .tableRow:hover {
@@ -222,28 +361,31 @@
 }
 
 .clientName {
-  min-width: 250px;
+  min-width: 200px;
 }
 
 .certificateName {
   font-weight: 600;
   color: #111827;
   margin-bottom: 0.25rem;
+  font-size: 0.75rem;
 }
 
-.certificateSubline {
-  font-size: 0.75rem;
+.certificateId {
+  font-size: 0.625rem;
   color: #6b7280;
+  font-family: monospace;
 }
 
 .statusPill {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.625rem;
   font-weight: 500;
   text-align: center;
-  min-width: 80px;
+  min-width: 60px;
+  white-space: nowrap;
 }
 
 .validPill {
@@ -262,68 +404,185 @@
 }
 
 /* Responsividade */
-@media (max-width: 1024px) {
-  .actionBar {
+@media (max-width: 1200px) {
+  .topSection {
     flex-direction: column;
-    align-items: stretch;
   }
   
-  .searchContainer {
-    min-width: auto;
+  .statsCards {
+    flex-wrap: wrap;
   }
   
-  .actionButtons {
-    justify-content: center;
+  .mainContent {
+    flex-direction: column;
   }
   
-  .filterContainer {
-    justify-content: center;
+  .leftSection {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .chartCard {
+    flex: 1;
+    min-width: 250px;
   }
 }
 
 @media (max-width: 768px) {
   .page {
-    padding: 1rem;
+    padding: 0.5rem;
   }
   
-  .summaryCards {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+  .statsCards {
+    flex-direction: column;
   }
   
-  .summaryCard {
-    padding: 1rem;
+  .leftSection {
+    flex-direction: column;
   }
   
-  .summaryValue {
-    font-size: 1.5rem;
+  .reportsTabs {
+    flex-wrap: wrap;
   }
   
-  .mainTitle {
-    font-size: 1.5rem;
+  .tab {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
   }
   
   .certificatesTable {
-    font-size: 0.75rem;
+    font-size: 0.625rem;
   }
   
   .certificatesTable th,
   .certificatesTable td {
-    padding: 12px 8px;
+    padding: 0.5rem;
   }
 }
 
 @media (max-width: 480px) {
-  .summaryCards {
-    grid-template-columns: 1fr;
-  }
-  
-  .actionButtons {
-    flex-direction: column;
-  }
-  
   .certificatesTable {
     display: block;
     overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .trainingPromo {
+    min-width: auto;
+  }
+}
+
+/* Estilos de Paginação */
+.paginationInfo {
+  text-align: left;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 1rem 0;
+}
+
+.paginationButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  &:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+}
+
+.paginationNumbers {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.paginationNumber {
+  min-width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  &.active {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+
+    &:hover {
+      background-color: #2563eb;
+      border-color: #2563eb;
+    }
+  }
+}
+
+.ellipsis {
+  padding: 0 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  height: 2rem;
+}
+
+.loadingRow {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Responsividade para paginação */
+@media (max-width: 768px) {
+  .pagination {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  
+  .paginationButton {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+  }
+  
+  .paginationNumber {
+    min-width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.75rem;
   }
 }

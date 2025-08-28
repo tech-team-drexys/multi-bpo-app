@@ -171,11 +171,11 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             <div className={styles.contentAlert}>
               {!isLoginMode && currentStep <= 3 ? (
                 <div className={styles.floatingTags}>
-                  <div className={styles.contentMessage}>
+                  {/* <div className={styles.contentMessage}>
                     <h1>Você atingiu o limite de <br /> <span>Mensagens</span> <br /> sem fazer cadastro.</h1>
                     <p>Para continuar, faça seu cadastro agora e gratuitamente!</p>
                   </div>
-                  <img src="/background-test.png" alt="Success Ilustration " className={styles.successIlustration} />
+                  <img src="/background-test.png" alt="Success Ilustration " className={styles.successIlustration} /> */}
                 </div>
               ) : !isLoginMode && currentStep > 3 ? (
                 <>

@@ -58,3 +58,13 @@ export const getCategories = async () => {
         throw error;
     }
 };
+
+export const getCertificados = async (page: number = 1) => {
+    try {
+        const response = await api.get(`/certificados/?page=${page}`);
+        return response;
+    } catch (error) {
+        console.error("Erro ao buscar certificados:", error);
+        throw error;
+    }
+};
