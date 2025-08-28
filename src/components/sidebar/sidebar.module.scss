@@ -140,7 +140,7 @@
       &.accountInfoCollapsed {
         justify-content: center;
         gap: 0;
-        padding: 0.5rem;
+        padding: 0;
         align-items: center;
       }
 
@@ -157,7 +157,6 @@
         &.userSectionCollapsed {
           justify-content: center;
           gap: 0;
-          padding: 0.5rem;
         }
 
         &:hover {
@@ -167,8 +166,8 @@
       }
 
       .avatar {
-        width: 2.5rem !important;
-        height: 2.5rem !important;
+        width: 2rem !important;
+        height: 2rem !important;
         transition: all 0.3s ease;
         
         &.MuiAvatar-root {
