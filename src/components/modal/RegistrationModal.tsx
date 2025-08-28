@@ -170,12 +170,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
           <div className={styles.modalContent}>
             <div className={styles.contentAlert}>
               {!isLoginMode && currentStep <= 3 ? (
-                <div className={styles.floatingTags}>
-                  {/* <div className={styles.contentMessage}>
-                    <h1>Você atingiu o limite de <br /> <span>Mensagens</span> <br /> sem fazer cadastro.</h1>
-                    <p>Para continuar, faça seu cadastro agora e gratuitamente!</p>
-                  </div>
-                  <img src="/background-test.png" alt="Success Ilustration " className={styles.successIlustration} /> */}
+                <div className={styles.signupImageContainer}>
                 </div>
               ) : !isLoginMode && currentStep > 3 ? (
                 <>
@@ -193,16 +188,18 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                       <Tag className={styles.tag} color="magenta">Integração Completa</Tag>
                       <Tag className={styles.tag} color="red">Dashboard Inteligente</Tag>
                     </div>
-                    <img src="/background-test.png" alt="Success Ilustration " className={styles.successIlustration} />
+                    <img src="/waves.png" alt="Success Ilustration " className={styles.successIlustration} />
                   </div>
                 </>
               ) : (
-                <div className={styles.floatingTags}>
-                  <div className={styles.contentMessage}>
-                    <h1>Bem-vindo de volta! <br /> <span>Faça login</span> <br /> para continuar.</h1>
+                <div className={styles.loginContainer}>
+                  <div className={styles.contentMessageLogin}>
+                    <h1>Bem-vindo de volta! <span>Faça login</span> para continuar.</h1>
                     <p>Acesse sua conta e aproveite todas as funcionalidades do sistema!</p>
                   </div>
-                  <img src="/background-test.png" alt="Success Ilustration " className={styles.successIlustration} />
+                  <div className={styles.backgroundLogin}>
+                    <img src="/login-background.png" alt="login background" className={styles.successIlustration} />
+                  </div>
                 </div>
               )}
             </div>
