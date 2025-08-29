@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ChatInput } from "@/components/chat-input/ChatInput";
-import { Button, Tooltip, Avatar, CircularProgress } from "@mui/material";
+import { Button, Tooltip, Avatar } from "@mui/material";
 import {
     Bot,
     Copy,

@@ -1,5 +1,5 @@
 'use client';
-import { ChevronDown, BarChart3, ChevronLeft, ChevronRight, Plus, Download, DownloadCloud } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Download } from 'lucide-react';
 import styles from './page.module.scss';
 import { PieChart } from '@mui/x-charts';
 import { useState, useEffect } from 'react';
@@ -22,7 +22,6 @@ interface PaginationResponse {
 }
 
 const Certificados = () => {
-  const [activeTab, setActiveTab] = useState('clientes');
   const [allCertificados, setAllCertificados] = useState<Certificado[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);

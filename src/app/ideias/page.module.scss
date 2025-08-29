@@ -3,6 +3,11 @@
   background-color: var(--background);
   min-height: 100vh;
 
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
   .header {
     display: flex;
     justify-content: space-between;
@@ -18,7 +23,7 @@
       .iconWrapper {
         width: 48px;
         height: 48px;
-        background: linear-gradient(135deg, var(--secondary) 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--secondary) 0%, var(--color-privacy) 100%);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -34,6 +39,7 @@
         font-size: 2rem;
         font-weight: 700;
         margin: 0;
+        color: var(--foreground);
       }
     }
 
@@ -69,7 +75,7 @@
     border-radius: 16px;
     text-align: center;
     margin-bottom: 2rem;
-    box-shadow: 0 10px 25px rgba(49, 130, 206, 0.3);
+    box-shadow: 0 10px 25px rgba(var(--secondary), 0.3);
 
     h2 {
       font-size: 2.5rem;
@@ -140,6 +146,8 @@
         font-size: 1rem;
         outline: none;
         transition: border-color 0.2s ease;
+        background: var(--background);
+        color: var(--foreground);
 
         &:focus {
           border-color: var(--secondary);
@@ -206,7 +214,7 @@
       h3 {
         font-size: 1.5rem;
         font-weight: 600;
-        color: var(--sub-text);
+        color: var(--foreground);
         margin: 0;
       }
 
@@ -233,6 +241,7 @@
         &:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+          border-color: var(--secondary);
         }
 
         .cardHeader {
@@ -247,6 +256,7 @@
             margin: 0;
             flex: 1;
             margin-right: 1rem;
+            color: var(--foreground);
           }
 
           .statusTag {
@@ -258,18 +268,18 @@
             letter-spacing: 0.5px;
 
             &.statusNew {
-              background: #ebf8ff;
+              background: var(--bg-color);
               color: var(--secondary);
             }
 
             &.statusStudy {
-              background: #fef5e7;
-              color: #d69e2e;
+              background: var(--bg-color);
+              color: var(--warning);
             }
 
             &.statusDeveloped {
-              background: #f0fff4;
-              color: #38a169;
+              background: var(--bg-color);
+              color: var(--success);
             }
           }
         }
@@ -280,6 +290,7 @@
           margin-bottom: 1.5rem;
           display: -webkit-box;
           -webkit-line-clamp: 3;
+          line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
@@ -315,12 +326,12 @@
               cursor: pointer;
               padding: 0.5rem;
               border-radius: 6px;
-              transition: background 0.2s ease;
+              transition: all 0.2s ease;
               color: var(--sub-text);
 
               &:hover {
-                background: #f7fafc;
-                color: #e53e3e;
+                background: var(--color-hover);
+                color: var(--alert-color);
               }
 
               .heartIcon {

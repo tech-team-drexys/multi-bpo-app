@@ -1,8 +1,9 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, CardContent, TextField, Select, MenuItem, FormControl, InputLabel, Button, Chip, Grid, Typography, Box, Checkbox, Snackbar, Alert } from '@mui/material';
+import { Card, CardContent, TextField, Select, MenuItem, FormControl, InputLabel, Button, Chip, Typography, Box, Checkbox, Snackbar, Alert } from '@mui/material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
 import { Calendar, Badge } from 'antd';
 import {
   AlertTriangle,
@@ -109,7 +110,7 @@ export default function Agenda() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [cityFilter, setCityFilter] = useState<string>('');
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
-  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(new Date()).locale('pt-br'));
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -241,7 +242,7 @@ export default function Agenda() {
             <div className={styles.calendarSection}>
               <Typography variant="h3" className={styles.calendarTitle}>Calendário</Typography>
               <Typography className={styles.currentDate}>
-                {selectedDate.format('DD [de] MMMM [de] YYYY')}
+                {selectedDate.locale('pt-br').format('DD [de] MMMM [de] YYYY')}
               </Typography>
 
               <div className={styles.calendar}>
@@ -259,18 +260,18 @@ export default function Agenda() {
                               variant="text"
                               startIcon={<ChevronDown size={16} style={{ transform: 'rotate(90deg)' }} />}
                               onClick={() => {
-                                const newDate = value.subtract(1, 'month');
+                                const newDate = value.subtract(1, 'month').locale('pt-br');
                                 onChange?.(newDate);
                               }}
                             />
                             <Typography variant="h6" fontWeight="bold">
-                              {value.format('MMMM YYYY')}
+                              {value.locale('pt-br').format('MMMM YYYY')}
                             </Typography>
                             <Button
                               variant="text"
                               startIcon={<ChevronDown size={16} style={{ transform: 'rotate(-90deg)' }} />}
                               onClick={() => {
-                                const newDate = value.add(1, 'month');
+                                const newDate = value.add(1, 'month').locale('pt-br');
                                 onChange?.(newDate);
                               }}
                             />
@@ -369,7 +370,7 @@ export default function Agenda() {
             <div className={styles.tasksSection}>
               <div className={styles.tasksHeader}>
                 <Typography variant="h3" className={styles.tasksTitle}>
-                  Tarefas para {selectedDate.format('DD/MM/YYYY')} ({getTasksForDate(selectedDate).length})
+                  Tarefas para {selectedDate.locale('pt-br').format('DD/MM/YYYY')} ({getTasksForDate(selectedDate).length})
                 </Typography>
                 <Typography className={styles.viewAllTasks}>
                   <Eye size={16} /> Ver todas as tarefas

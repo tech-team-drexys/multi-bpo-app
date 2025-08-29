@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 999;
   padding: 20px;
 }
 
@@ -367,16 +367,7 @@
   }
 }
 
-.logo {
-  text-align: center;
-  margin-bottom: 32px;
-}
 
-.googleButton {
-  height: 48px;
-  margin-bottom: 24px;
-  gap: 12px;
-}
 
 .socialButtons {
   display: flex;
@@ -392,35 +383,7 @@
   text-transform: none !important;
 }
 
-.countdown {
-  text-align: center;
-  color: #666;
-  font-size: 14px;
-  margin: 8px 0;
-}
 
-.separator {
-  text-align: center;
-  margin: 10px 0;
-  position: relative;
-  color: #666;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #ddd;
-  }
-
-  span {
-    background: white;
-    padding: 0 16px;
-    font-size: 14px;
-  }
-}
 
 .form {
   display: flex;
@@ -450,6 +413,7 @@
   font-weight: 500;
   transition: all 0.2s;
   padding: 10px;
+  width: 100%;
 
   &:hover {
     background: #e8e8e8;
@@ -530,28 +494,7 @@
   }
 }
 
-.divider {
-  text-align: center;
-  position: relative;
-  color: #666;
-  margin-bottom: 20px;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #ddd;
-  }
-
-  span {
-    background: var(--background);
-    padding: 0 16px;
-    font-size: 14px;
-  }
-}
 
 .signupLink {
   text-align: center;
@@ -580,26 +523,7 @@
   }
 }
 
-.captchaContainer {
-  width: 100%;
-}
 
-.captchaPlaceholder {
-  height: 78px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fafafa;
-  color: #666;
-  font-size: 14px;
-  transition: border-color 0.2s;
-
-  &:hover {
-    border-color: #40a9ff;
-  }
-}
 
 // Responsividade
 @media (max-width: 768px) {
@@ -613,21 +537,8 @@
     min-height: auto;
   }
 
-  .leftSection {
-    padding: 30px 20px;
-    min-height: 200px;
-  }
-
   .rightSection {
     padding: 30px 20px;
-  }
-
-  .warningTitle {
-    font-size: 20px;
-  }
-
-  .title {
-    font-size: 18px;
   }
 }
 
@@ -641,25 +552,8 @@
     border-radius: 12px;
   }
 
-  .leftSection {
-    padding: 20px 15px;
-    min-height: 150px;
-  }
-
   .rightSection {
     padding: 20px 15px;
-  }
-
-  .warningIcon {
-    font-size: 48px;
-  }
-
-  .warningTitle {
-    font-size: 18px;
-  }
-
-  .warningText {
-    font-size: 14px;
   }
 }
 

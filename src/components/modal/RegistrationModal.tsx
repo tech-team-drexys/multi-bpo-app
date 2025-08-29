@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Checkbox, TextField, FormControlLabel, Snackbar, Alert } from '@mui/material';
 import { X, ArrowLeft, CheckCircle, Clock } from 'lucide-react';
-import { Tag } from 'antd';
+import { Divider, Tag } from 'antd';
 import styles from './RegistrationModal.module.scss';
 import { useAuth, usePhoneMask } from '@/hooks';
 import { Facebook } from '@/icons/facebook';
@@ -32,7 +32,6 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     severity: 'info'
   });
 
-  // Simular verificação automática do email após 20 segundos
   useEffect(() => {
     if (currentStep === 3 && !isEmailVerified) {
       const timer = setTimeout(() => {
@@ -44,7 +43,6 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     }
   }, [currentStep, isEmailVerified]);
 
-  // Funções de validação para cada step
   const isStep2Valid = () => {
     return formData.email && formData.password && formData.acceptTerms;
   };
@@ -240,9 +238,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                           </Button>
                         </div>
 
-                        <div className={styles.divider}>
-                          <span>ou</span>
-                        </div>
+                        <Divider plain>ou</Divider>
 
                         <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className={styles.form}>
                           <label className={styles.label}>E-mail</label>

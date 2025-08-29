@@ -36,13 +36,22 @@
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           gap: 2rem;
 
+          &.cardLuca {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+          }
+
+          &.cardDashboard {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+          }
+
+          &.cardLoja {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+          }
+
           .cardIcon {
             flex-shrink: 0;
 
-            .chartIcon {
-              font-size: 2rem;
-            }
-
+            .chartIcon,
             .shopIcon {
               font-size: 2rem;
             }
@@ -78,129 +87,8 @@
             }
           }
         }
-
-        .cardLuca {
-          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        }
-
-        .cardDashboard {
-          background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
-        }
-
-        .cardLoja {
-          background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-        }
       }
 
-      // Seção Agenda (Calendário e Lista)
-      .agendaContainer {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-
-        .calendarioContainer {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          height: fit-content;
-
-          h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 1rem;
-            text-align: center;
-          }
-
-          .calendar {
-            .ant-picker-calendar {
-              .ant-picker-calendar-header {
-                padding: 0;
-                margin-bottom: 1rem;
-              }
-
-              .ant-picker-calendar-body {
-                .ant-picker-calendar-date {
-                  height: 32px;
-                  line-height: 32px;
-                  text-align: center;
-                  border-radius: 4px;
-                  margin: 1px;
-                  cursor: pointer;
-
-                  &:hover {
-                    background-color: #f0f0f0;
-                  }
-                }
-
-                .ant-picker-calendar-date-today {
-                  background-color: var(--secondary);
-                  color: var(--background);
-                }
-              }
-            }
-          }
-        }
-
-        .agendasLista {
-          background: var(--background);
-          padding: 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          height: fit-content;
-
-          h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-          }
-
-          .agendaItem {
-            padding: 1rem 0;
-            border-bottom: 1px solid #f0f0f0;
-
-            &:last-child {
-              border-bottom: none;
-            }
-
-            .agendaContent {
-              width: 100%;
-
-              .agendaHeader {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                margin-bottom: 0.5rem;
-
-                h4 {
-                  font-size: 1.1rem;
-                  font-weight: 600;
-                  color: #333;
-                  margin: 0;
-                  flex: 1;
-                }
-              }
-
-              .agendaHorario {
-                color: var(--secondary);
-                font-weight: 600;
-                font-size: 0.9rem;
-                margin: 0.5rem 0;
-              }
-
-              .agendaDescricao {
-                color: var(--sub-text);
-                font-size: 0.9rem;
-                line-height: 1.5;
-                margin: 0;
-              }
-            }
-          }
-        }
-      }
-
-      // Seção Serviços Principais
       .servicosGrid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -228,6 +116,11 @@
             justify-content: center;
             margin: 0 auto 1.5rem;
             font-size: 2rem;
+
+            .cloudIcon,
+            .headphoneIcon {
+              font-size: 2rem;
+            }
           }
 
           h3 {
@@ -264,62 +157,6 @@
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 2rem;
 
-        .toolCardNotifications {
-          background: var(--background);
-          padding: 2rem;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          transition: transform 0.2s;
-          cursor: pointer;
-
-          h3 {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-          }
-
-          .notificationPreview {
-            text-align: left;
-            background-color: rgba(24, 144, 255, 0.05);
-            border-left: 3px solid var(--secondary);
-            padding: 1rem;
-            border-radius: 8px;
-            
-            .previewTitle {
-              font-weight: 600;
-              font-size: 0.9rem;
-              color: var(--foreground);
-              margin-bottom: 0.3rem;
-              line-height: 1.4;
-            }
-            
-            .previewMessage {
-              font-size: 0.8rem;
-              color: var(--sub-text);
-              margin-bottom: 0.8rem;
-              line-height: 1.3;
-              display: -webkit-box;
-              -webkit-line-clamp: 2;
-              -webkit-box-orient: vertical;
-              overflow: hidden;
-            }
-            
-            .previewMeta {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              
-              .previewTime {
-                font-size: 0.75rem;
-                color: var(--sub-text);
-              }
-            }
-          }
-        }
-
         .toolCard {
           background: var(--background);
           padding: 2rem;
@@ -343,6 +180,12 @@
             justify-content: center;
             margin: 0 auto 1.5rem;
             font-size: 1.8rem;
+
+            .peopleIcon,
+            .newsIcon,
+            .calendarIcon {
+              font-size: 1.8rem;
+            }
           }
 
           h3 {
@@ -359,11 +202,9 @@
       }
     }
   }
-}
 
-// Responsividade
-@media (max-width: 768px) {
-  .page {
+  // Responsividade
+  @media (max-width: 768px) {
     padding: 1rem;
 
     .content {
@@ -385,11 +226,6 @@
             text-align: center;
             gap: 1rem;
           }
-        }
-
-        .agendaContainer {
-          grid-template-columns: 1fr;
-          gap: 1.5rem;
         }
 
         .servicosGrid,
