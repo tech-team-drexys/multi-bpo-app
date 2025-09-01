@@ -134,13 +134,15 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
         <div className={styles.headerInner}>
           {!isCollapsed && (
             <div className={styles.logo}>
-              <Image src="/logo-multi-bpo.png" alt="Luca IA" width={30} height={30} />
+              <Image src="/logo-luca-complete.png" alt="Luca IA" width={97} height={35} />
+
+              {/*teste para ver se o logo está funcionando*/}
               <span className={styles.logoText}>Luca IA</span>
             </div>
           )}
           <button onClick={onToggleCollapse} className={styles.toggleButton}>
             {isCollapsed ? (
-              <Image src="/logo-multi-bpo.png" alt="Luca IA" width={30} height={30} />
+              <Image src="/logo-luca.png" alt="Luca IA" width={35} height={35} />
             ) : (
               <ChevronLeft className={styles.toggleIcon} />
             )}
