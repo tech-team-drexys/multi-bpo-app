@@ -69,7 +69,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
     { icon: LayoutGrid, label: 'Utilitários', path: '/utilitarios' },
     { icon: Newspaper, label: 'Notícias', path: '/noticias' },
     { icon: Lightbulb, label: 'Ideias', path: '/ideias' },
-    { icon: FileText, label: 'Contratos', path: '/contrato' },
+    { icon: FileText, label: 'Contratos', path: '/contratos' },
     { icon: Headset, label: 'Central de Atendimento', path: '/central-de-atendimento' },
     { icon: Bell, label: 'Notificações', path: '/notificacoes' },
   ];

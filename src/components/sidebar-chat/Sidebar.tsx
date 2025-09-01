@@ -135,9 +135,6 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           {!isCollapsed && (
             <div className={styles.logo}>
               <Image src="/logo-luca-complete.png" alt="Luca IA" width={97} height={35} />
-
-              {/*teste para ver se o logo está funcionando*/}
-              <span className={styles.logoText}>Luca IA</span>
             </div>
           )}
           <button onClick={onToggleCollapse} className={styles.toggleButton}>
@@ -160,19 +157,19 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
                   onClick={() => setOpen(!open)}
                 >
                   <span className={styles.iconContainer}>
-                    <item.icon className={styles.clockIcon} size={18} />
+                    <item.icon className={styles.clockIcon} size={19} />
                     <ChevronDown size={18} className={styles.chevronIcon} />
                   </span>
                   <span>Histórico</span>
                 </div>
               ) : (
-                <Button 
-                  className={`${styles.menuItemButton} ${isItemActive(item) ? styles.menuItemActive : ''}`}
+                <button 
+                  className={`${styles.menuItemButton} ${styles.iconContainer} ${isItemActive(item) ? styles.menuItemActive : ''}`}
                   onMouseEnter={handlePopoverOpen}
                   onMouseLeave={handlePopoverClose}
                 >
-                  <item.icon className={styles.clockIcon} />
-                </Button>
+                  <item.icon className={styles.clockIcon} size={20} />
+                </button>
               )}
 
               {open && !isCollapsed && (
