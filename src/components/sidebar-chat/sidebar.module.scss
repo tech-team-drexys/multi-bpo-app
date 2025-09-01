@@ -198,6 +198,13 @@
     flex-direction: column;
     align-items: flex-end;
   }
+
+  .iconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
   
   .menuItemButton {
     width: 100%;
@@ -210,6 +217,7 @@
     outline: none;
     cursor: pointer;
     box-shadow: none;
+    border-radius: 1rem;
 
     &:hover {
       background-color: var(--bg-shadow) !important;
