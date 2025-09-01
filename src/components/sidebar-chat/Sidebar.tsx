@@ -135,6 +135,9 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           {!isCollapsed && (
             <div className={styles.logo}>
               <Image src="/logo-luca-complete.png" alt="Luca IA" width={97} height={35} />
+
+              {/*teste para ver se o logo está funcionando*/}
+              <span className={styles.logoText}>Luca IA</span>
             </div>
           )}
           <button onClick={onToggleCollapse} className={styles.toggleButton}>
