@@ -32,6 +32,9 @@ importers:
       '@radix-ui/react-select':
         specifier: ^2.2.5
         version: 2.2.5(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-oauth/google':
+        specifier: ^0.7.0
+        version: 0.7.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       antd:
         specifier: ^5.27.1
         version: 5.27.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -1075,6 +1078,12 @@ packages:
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
+
+  '@react-oauth/google@0.7.3':
+    resolution: {integrity: sha512-sGlysUSEH5cQu6mRgXA/3deYDMl0YIn/OWM1H3QiPVVJxGNlPLACe5J6s/jKGaxVWb+8OMNrVE573+tWMJFCFw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -3903,6 +3912,11 @@ snapshots:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
       react-is: 18.3.1
+
+  '@react-oauth/google@0.7.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   '@rtsao/scc@1.1.0': {}
 

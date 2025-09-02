@@ -8,7 +8,6 @@ import styles from './RegistrationModal.module.scss';
 import { useAuth, usePhoneMask } from '@/hooks';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Facebook } from '@/icons/facebook';
-import { GoogleLogin } from '@react-oauth/google';
 
 
 interface RegistrationModalProps {
@@ -277,51 +276,22 @@ useEffect(() => {
                             Cadastre-se e aproveite!
                           </h1>
                         </div>
-                        
                         <div className={styles.socialButtons}>
-                          <GoogleLogin
-                            onSuccess={async (credentialResponse) => {
-                              console.log('credentialResponse:', credentialResponse);
-                              const token = credentialResponse.credential;
-                              console.log('token JWT:', token);
-                              try {
-                                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/google-login/`, {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ 
-                                  credential: token  // Só isso é necessário para o GoogleLoginView
-                                }),
-                                });
-                                
-                                const data = await response.json();
-                                if (data.access && data.user) {
-                                  refreshProfile();
-                                  showMessage('Login realizado com Google!', 'success');
-                                  onClose();
-                                } else {
-                                  showMessage(data.message || 'Falha no login com Google', 'error');
-                                }
-                              } catch (error) {
-                                showMessage('Erro de autenticação', 'error');
-                              }
-                            }}
-                            onError={() => {
-                              showMessage('Erro de login com Google', 'error');
-                            }}
-                            render={({ onClick }) => (
-                              <Button
-                                type="button"
-                                className={styles.socialButton}
-                                size="small"
-                                fullWidth
-                                variant="outlined"
-                                onClick={onClick}
-                              >
-                                <img src="/google-icon.svg" alt="Google" className={styles.socialIcon} width={24} height={24} />
-                                Cadastro com Google
-                              </Button>
-                            )}
-                          />
+                          <Button
+                            className={styles.socialButton}
+                            size="small"
+                            fullWidth
+                            onClick={() => handleSocialLogin('Google')}
+                            variant="outlined"
+                          >
+                            <img src="/google-icon.svg" alt="Google" className={styles.socialIcon} width={24} height={24} />
+                            Cadastro com Google
+                          </Button>
+
+
+
+
+                          
 
                           <Button
                             className={styles.socialButton}
@@ -329,6 +299,9 @@ useEffect(() => {
                             fullWidth
                             onClick={() => handleSocialLogin('Facebook')}
                             variant="outlined"
+
+
+                      
                           >
                             <Facebook className={styles.socialIcon} width={24} height={24} />
                             Cadastro com Facebook
@@ -533,7 +506,7 @@ useEffect(() => {
                           </div>
 
                           <p className={styles.subtitle}>Não recebeu o email? Verifique sua caixa de spam ou tente novamente.</p>
-                         
+                          // Botão original (deve permanecer)
 
                         </div>
                       </div>

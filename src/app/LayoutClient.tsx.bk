@@ -7,12 +7,10 @@ import { HeaderMobile } from "@/components/header-mobile/HeaderMobile";
 import { NotificationsSidebar } from "@/components/notifications-sidebar/NotificationsSidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs/Breadcrumbs";
 import { NotificationProvider } from "@/contexts/NotificationContext";
-import { AuthProvider } from "@/contexts/AuthContext"; // ⭐ NOVO IMPORT
 import styles from "./layout.module.scss";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 
 
 interface LayoutClientProps {
@@ -81,50 +79,46 @@ export function LayoutClient({ children }: LayoutClientProps) {
 
   return (
     <ThemeProvider theme={theme}>
-  <CssBaseline />
-  <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-    <AuthProvider> {/* ⭐ NOVO: AuthProvider envolvendo tudo */}
+      <CssBaseline />
       <NotificationProvider>
-          <div className={styles.page}>
-            <div className={styles.layout}>
-              <Sidebar
-                isCollapsed={sidebarCollapsed}
-                onToggleCollapse={handleSidebarToggle}
-                isHomePage={isHomePage}
-                isManuallyCollapsed={isManuallyCollapsed}
-                onHover={handleSidebarHover}
+        <div className={styles.page}>
+          <div className={styles.layout}>
+            <Sidebar
+              isCollapsed={sidebarCollapsed}
+              onToggleCollapse={handleSidebarToggle}
+              isHomePage={isHomePage}
+              isManuallyCollapsed={isManuallyCollapsed}
+              onHover={handleSidebarHover}
+            />
+            {isLucaIAPage && (
+              <ChatSidebar
+                isCollapsed={chatSidebarCollapsed}
+                onToggleCollapse={() => setChatSidebarCollapsed(!chatSidebarCollapsed)}
               />
-              {isLucaIAPage && (
-                <ChatSidebar
-                  isCollapsed={chatSidebarCollapsed}
-                  onToggleCollapse={() => setChatSidebarCollapsed(!chatSidebarCollapsed)}
-                />
-              )}
-              <div className={styles.main}>
-                <HeaderMobile
-                  onToggleSidebar={handleToggleSidebarMobile}
-                  onToggleNotifications={handleToggleNotifications}
-                />
-                <main className={styles.content}>
-                  <Breadcrumbs />
-                  {children}
-                </main>
-              </div>
+            )}
+            <div className={styles.main}>
+              <HeaderMobile
+                onToggleSidebar={handleToggleSidebarMobile}
+                onToggleNotifications={handleToggleNotifications}
+              />
+              <main className={styles.content}>
+                <Breadcrumbs />
+                {children}
+              </main>
             </div>
           </div>
-          
-          <SidebarMobile
-            isOpen={sidebarMobileOpen}
-            onClose={() => setSidebarMobileOpen(false)}
-          />
-          
-          <NotificationsSidebar
-            isOpen={notificationsOpen}
-            onClose={() => setNotificationsOpen(false)}
-          />
-             </NotificationProvider>
-      </AuthProvider> {/* ⭐ NOVO: Fechamento do AuthProvider */}
-    </GoogleOAuthProvider>
-  </ThemeProvider>
+        </div>
+        
+        <SidebarMobile
+          isOpen={sidebarMobileOpen}
+          onClose={() => setSidebarMobileOpen(false)}
+        />
+        
+        <NotificationsSidebar
+          isOpen={notificationsOpen}
+          onClose={() => setNotificationsOpen(false)}
+        />
+      </NotificationProvider>
+    </ThemeProvider>
   );
-}
+} 
