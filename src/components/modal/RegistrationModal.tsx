@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Button, Checkbox, TextField, FormControlLabel, Snackbar, Alert } from '@mui/material';
 import { X, ArrowLeft, CheckCircle, Clock } from 'lucide-react';
-import { Tag } from 'antd';
+import { Divider, Tag } from 'antd';
 import styles from './RegistrationModal.module.scss';
 import { useAuth, usePhoneMask } from '@/hooks';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -87,7 +87,6 @@ useEffect(() => {
 
 
 
-  // Funções de validação para cada step
   const isStep2Valid = () => {
     return formData.email && formData.password && formData.acceptTerms;
   };
@@ -308,19 +307,19 @@ useEffect(() => {
                             onError={() => {
                               showMessage('Erro de login com Google', 'error');
                             }}
-                            render={({ onClick }) => (
-                              <Button
-                                type="button"
-                                className={styles.socialButton}
-                                size="small"
-                                fullWidth
-                                variant="outlined"
-                                onClick={onClick}
-                              >
-                                <img src="/google-icon.svg" alt="Google" className={styles.socialIcon} width={24} height={24} />
-                                Cadastro com Google
-                              </Button>
-                            )}
+                            // render={({ onClick }) => (
+                            //   <Button
+                            //     type="button"
+                            //     className={styles.socialButton}
+                            //     size="small"
+                            //     fullWidth
+                            //     variant="outlined"
+                            //     onClick={onClick}
+                            //   >
+                            //     <img src="/google-icon.svg" alt="Google" className={styles.socialIcon} width={24} height={24} />
+                            //     Cadastro com Google
+                            //   </Button>
+                            // )}
                           />
 
                           <Button
@@ -335,9 +334,7 @@ useEffect(() => {
                           </Button>
                         </div>
 
-                        <div className={styles.divider}>
-                          <span>ou</span>
-                        </div>
+                        <Divider plain>ou</Divider>
 
                         <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className={styles.form}>
                           <label className={styles.label}>E-mail</label>

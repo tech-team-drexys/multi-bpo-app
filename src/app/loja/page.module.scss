@@ -68,17 +68,6 @@
   }
 
 
-  .section {
-    margin-bottom: 3rem;
-
-    h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #2c3e50;
-      margin: 0 0 2rem 0;
-    }
-  }
-
   .servicesGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -95,21 +84,6 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     width: 100%;
     padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    }
-  }
-
-  .wideCard {
-    background: var(--background);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: flex;
     flex-direction: column;
 
@@ -156,6 +130,10 @@
 
     &:hover {
       color: var(--secondary-hover);
+    }
+
+    .arrowIcon {
+      transition: transform 0.2s ease;
     }
   }
 
@@ -257,9 +235,7 @@
       font-size: 2rem;
     }
 
-    .section h2 {
-      font-size: 1.5rem;
-    }
+
   }
 }
 
@@ -271,9 +247,7 @@
       font-size: 1.75rem;
     }
 
-    .section h2 {
-      font-size: 1.25rem;
-    }
+
 
     .cardContent {
       padding: 1rem;

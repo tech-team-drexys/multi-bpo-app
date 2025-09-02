@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Badge, Button, List, ListItem, ListItemAvatar, ListItemText, Typography, Chip, Box } from '@mui/material';
-import { Bell, Check, CheckCircle, X } from 'lucide-react';
+import { Button, List, ListItem, ListItemAvatar, ListItemText, Typography, Chip } from '@mui/material';
+import { Bell, CheckCircle } from 'lucide-react';
 import styles from './notificationSidebar.module.scss';
 import { formatTimestamp, getTypeColor } from '@/hooks/';
 interface Notification {

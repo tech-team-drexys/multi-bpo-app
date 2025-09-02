@@ -134,13 +134,12 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
         <div className={styles.headerInner}>
           {!isCollapsed && (
             <div className={styles.logo}>
-              <Image src="/logo-multi-bpo.png" alt="Luca IA" width={30} height={30} />
-              <span className={styles.logoText}>Luca IA</span>
+              <Image src="/logo-luca-complete.png" alt="Luca IA" width={97} height={35} />
             </div>
           )}
           <button onClick={onToggleCollapse} className={styles.toggleButton}>
             {isCollapsed ? (
-              <Image src="/logo-multi-bpo.png" alt="Luca IA" width={30} height={30} />
+              <Image src="/logo-luca.png" alt="Luca IA" width={35} height={35} />
             ) : (
               <ChevronLeft className={styles.toggleIcon} />
             )}
@@ -158,19 +157,19 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
                   onClick={() => setOpen(!open)}
                 >
                   <span className={styles.iconContainer}>
-                    <item.icon className={styles.clockIcon} size={18} />
+                    <item.icon className={styles.clockIcon} size={19} />
                     <ChevronDown size={18} className={styles.chevronIcon} />
                   </span>
                   <span>Histórico</span>
                 </div>
               ) : (
-                <Button 
-                  className={`${styles.menuItemButton} ${isItemActive(item) ? styles.menuItemActive : ''}`}
+                <button 
+                  className={`${styles.menuItemButton} ${styles.iconContainer} ${isItemActive(item) ? styles.menuItemActive : ''}`}
                   onMouseEnter={handlePopoverOpen}
                   onMouseLeave={handlePopoverClose}
                 >
-                  <item.icon className={styles.clockIcon} />
-                </Button>
+                  <item.icon className={styles.clockIcon} size={20} />
+                </button>
               )}
 
               {open && !isCollapsed && (

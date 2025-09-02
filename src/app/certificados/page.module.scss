@@ -12,21 +12,6 @@
   margin-bottom: 1.5rem;
 }
 
-.statsCard {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.statsIcon {
-  font-size: 1.5rem;
-}
-
 .statsContent {
   background-color: white;
   border-radius: 8px;
@@ -48,50 +33,9 @@
   margin-bottom: 0.25rem;
 }
 
-.percentage {
-  font-size: 0.75rem;
-  color: #dc2626;
-  font-weight: 500;
-}
-
 .statsDate {
   font-size: 0.625rem;
   color: #9ca3af;
-}
-
-.trainingPromo {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  border-radius: 8px;
-  padding: 1rem;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 250px;
-}
-
-.trainingIcon {
-  font-size: 2rem;
-}
-
-.trainingText {
-  flex: 1;
-}
-
-.trainingTitle {
-  font-size: 0.875rem;
-  margin-bottom: 0.125rem;
-}
-
-.trainingSubtitle {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.125rem;
-}
-
-.trainingHighlight {
-  font-size: 1rem;
-  font-weight: 700;
 }
 
 /* Conteúdo Principal */
@@ -105,66 +49,6 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.integrationCard {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  border-radius: 8px;
-  padding: 1rem;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.integrationIcon {
-  font-size: 1.5rem;
-}
-
-.integrationContent {
-  flex: 1;
-}
-
-.integrationTitle {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.integrationSubtitle {
-  font-size: 0.75rem;
-  opacity: 0.9;
-}
-
-.addCertCard {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  border: 1px solid #e5e7eb;
-}
-
-.addCertIcon {
-  font-size: 1.5rem;
-}
-
-.addCertContent {
-  flex: 1;
-}
-
-.addCertTitle {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 0.25rem;
-}
-
-.addCertSubtitle {
-  font-size: 0.625rem;
-  color: #6b7280;
 }
 
 .chartCard {
@@ -253,40 +137,6 @@
     transition: all 0.2s ease;
     gap: 1rem;
   }
-}
-
-.reportsIcon {
-  width: 20px;
-  height: 20px;
-}
-
-.reportsTabs {
-  display: flex;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f8fafc;
-}
-
-.tab {
-  padding: 0.75rem 1rem;
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  font-size: 0.875rem;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.tab:hover {
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.05);
-}
-
-.activeTab {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
-  background: white;
-  font-weight: 600;
 }
 
 .tabContent {
@@ -393,11 +243,6 @@
   color: #166534;
 }
 
-.expiringPill {
-  background: #fef3c7;
-  color: #92400e;
-}
-
 .expiredPill {
   background: #fee2e2;
   color: #991b1b;
@@ -407,10 +252,6 @@
 @media (max-width: 1200px) {
   .topSection {
     flex-direction: column;
-  }
-  
-  .statsCards {
-    flex-wrap: wrap;
   }
   
   .mainContent {
@@ -434,21 +275,8 @@
     padding: 0.5rem;
   }
   
-  .statsCards {
-    flex-direction: column;
-  }
-  
   .leftSection {
     flex-direction: column;
-  }
-  
-  .reportsTabs {
-    flex-wrap: wrap;
-  }
-  
-  .tab {
-    font-size: 0.75rem;
-    padding: 0.5rem 0.75rem;
   }
   
   .certificatesTable {
@@ -466,10 +294,6 @@
     display: block;
     overflow-x: auto;
     white-space: nowrap;
-  }
-  
-  .trainingPromo {
-    min-width: auto;
   }
 }
 
