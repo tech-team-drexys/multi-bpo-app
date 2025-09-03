@@ -11,9 +11,11 @@ import { Facebook } from '@/icons/facebook';
 interface RegistrationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  openedFromSidebar?: boolean;
+  setIsRegistrationSidebar: (e: boolean) => void;
 }
 
-export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) => {
+export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsRegistrationSidebar }: RegistrationModalProps) => {
   const { login } = useAuth();
   const { applyPhoneMask, removePhoneMask } = usePhoneMask();
   const [currentStep, setCurrentStep] = useState(1);
@@ -131,12 +133,14 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
   };
 
   const handleSwitchToLogin = () => {
+    setIsRegistrationSidebar(false);
     setIsLoginMode(true);
     setCurrentStep(5);
   };
 
   const handleSwitchToSignup = () => {
     setIsLoginMode(false);
+    setIsRegistrationSidebar(true);
     setCurrentStep(1);
   };
 
@@ -151,6 +155,9 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       acceptTerms: false,
     });
     setIsEmailVerified(false);
+    if (openedFromSidebar) {
+      setIsRegistrationSidebar(false);
+    }
     onClose();
   };
 
@@ -167,10 +174,10 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
 
           <div className={styles.modalContent}>
             <div className={styles.contentAlert}>
-              {!isLoginMode && currentStep <= 3 ? (
+              {!isLoginMode && currentStep <= 3 && !openedFromSidebar ? (
                 <div className={styles.signupImageContainer}>
                 </div>
-              ) : !isLoginMode && currentStep > 3 ? (
+              ) : !isLoginMode && currentStep > 3 && !openedFromSidebar ? (
                 <>
                   <div className={styles.floatingTags}>
                     <div className={styles.contentMessage}>
@@ -189,6 +196,16 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                     <img src="/waves.png" alt="Success Ilustration " className={styles.successIlustration} />
                   </div>
                 </>
+              ) : openedFromSidebar ? (
+                <div className={styles.loginContainer}>
+                  <div className={styles.contentMessageLogin}>
+                    <h1>Bem-vindo! Faça seu <span>Cadastro</span>!</h1>
+                    <p>Crie sua conta e aproveite todas as funcionalidades do sistema!</p>
+                  </div>
+                  <div className={styles.backgroundLogin}>
+                    <img src="/login-background.png" alt="login background" className={styles.successIlustration} />
+                  </div>
+                </div>
               ) : (
                 <div className={styles.loginContainer}>
                   <div className={styles.contentMessageLogin}>
