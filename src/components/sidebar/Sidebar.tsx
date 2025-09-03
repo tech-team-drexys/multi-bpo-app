@@ -142,6 +142,8 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
     setIsUserModalOpen(false);
   };
 
+
+
   const shouldShowExpanded = isHomePage
     ? !isCollapsed
     : !isCollapsed || (isHovered && isManuallyCollapsed) || isNotificationDrawerOpen;
