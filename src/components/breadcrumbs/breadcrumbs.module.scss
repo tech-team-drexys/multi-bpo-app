@@ -2,6 +2,9 @@
   padding: 16px 24px;
   background: #fff;
   border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   
   :global(.ant-breadcrumb) {
     font-size: 14px;
@@ -10,7 +13,7 @@
       color: #666;
       
       &:hover {
-        color: #1890ff;
+        color: var(--secondary);
       }
     }
     
@@ -27,10 +30,32 @@
   text-decoration: none;
   
   &:hover {
-    color: #1890ff;
+    color: var(--secondary);
   }
   
   svg {
     margin-right: 4px;
   }
-} 
+}
+
+.upgradeButton {
+  background-color: var(--secondary);
+  color: var(--background);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: none;
+  text-decoration: none;
+  margin-left: 16px;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover {
+    background-color: var(--secondary-hover);
+  }
+}

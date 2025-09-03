@@ -6,6 +6,7 @@ import { SidebarMobile } from "@/components/sidebar-mobile/SidebarMobile";
 import { HeaderMobile } from "@/components/header-mobile/HeaderMobile";
 import { NotificationsSidebar } from "@/components/notifications-sidebar/NotificationsSidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs/Breadcrumbs";
+import { UpgradeFab } from "@/components/floating-action-button/UpgradeFab";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import styles from "./layout.module.scss";
 import { usePathname } from "next/navigation";
@@ -27,15 +28,13 @@ export function LayoutClient({ children }: LayoutClientProps) {
   const pathname = usePathname();
   const isLucaIAPage = pathname === '/lucaIA';
   const isHomePage = pathname === '/';
+  const isPricingPage = pathname === '/plans';
 
-  // Controla o estado do sidebar baseado na página atual
   useEffect(() => {
     if (isHomePage) {
-      // Na home, o sidebar fica aberto por padrão
       setSidebarCollapsed(false);
       setIsManuallyCollapsed(false);
     } else {
-      // Em outras páginas, o sidebar fica fechado
       setSidebarCollapsed(true);
       setIsManuallyCollapsed(true);
     }
@@ -43,11 +42,9 @@ export function LayoutClient({ children }: LayoutClientProps) {
 
   const handleSidebarToggle = () => {
     if (isHomePage) {
-      // Na home, permite fechar/abrir manualmente
       setSidebarCollapsed(!sidebarCollapsed);
       setIsManuallyCollapsed(!sidebarCollapsed);
     } else {
-      // Em outras páginas, apenas alterna o estado manual
       setIsManuallyCollapsed(!isManuallyCollapsed);
       setSidebarCollapsed(!isManuallyCollapsed);
     }
@@ -76,6 +73,19 @@ export function LayoutClient({ children }: LayoutClientProps) {
       },
     },
   });
+
+  if (isPricingPage) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <NotificationProvider>
+          <div className={styles.page}>
+            {children}
+          </div>
+        </NotificationProvider>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -118,6 +128,8 @@ export function LayoutClient({ children }: LayoutClientProps) {
           isOpen={notificationsOpen}
           onClose={() => setNotificationsOpen(false)}
         />
+        
+        <UpgradeFab />
       </NotificationProvider>
     </ThemeProvider>
   );

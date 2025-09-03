@@ -1,0 +1,76 @@
+.fabContainer {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+.upgradeFab {
+  background: linear-gradient(135deg, #2463eb 0%, #134cc9 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 20px rgba(0, 26, 255, 0.582) !important;
+  transition: all 0.6s ease !important;
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  border-radius: 28px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+
+  .upgradeText {
+    opacity: 0;
+    width: 0;
+    white-space: nowrap;
+    transition: all 0.6s ease;
+    overflow: hidden;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #134cc9 0%, #06308a 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5) !important;
+    width: auto !important;
+    min-width: auto !important;
+    padding: 0 16px !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+
+    .upgradeText {
+      opacity: 1;
+      width: auto;
+    }
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+
+  @media (max-width: 768px) {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    border-radius: 24px !important;
+    bottom: 20px;
+    right: 20px;
+
+    &:hover {
+      width: auto !important;
+      min-width: auto !important;
+      padding: 0 12px !important;
+    }
+  }
+}
+
+.upgradeIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 20px;
+    height: 20px;
+  }
+}
