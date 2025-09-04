@@ -17,6 +17,7 @@ interface RegistrationModalProps {
 
 export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsRegistrationSidebar }: RegistrationModalProps) => {
   const { login } = useAuth();
+  // const login = true;
   const { applyPhoneMask, removePhoneMask } = usePhoneMask();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoginMode, setIsLoginMode] = useState(false);
@@ -26,7 +27,8 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     password: '',
     phone: '',
     firstName: '',
-    acceptTerms: false
+    acceptTerms: false,
+    rememberMe: false
   });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
@@ -44,6 +46,23 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       return () => clearTimeout(timer);
     }
   }, [currentStep, isEmailVerified]);
+
+  // Carregar credenciais salvas quando o modal de login for aberto
+  useEffect(() => {
+    if (isOpen && isLoginMode && typeof window !== 'undefined') {
+      const savedEmail = localStorage.getItem('lucaIA_rememberedEmail');
+      const savedPassword = localStorage.getItem('lucaIA_rememberedPassword');
+      
+      if (savedEmail && savedPassword) {
+        setFormData(prev => ({
+          ...prev,
+          email: savedEmail,
+          password: savedPassword,
+          rememberMe: true
+        }));
+      }
+    }
+  }, [isOpen, isLoginMode]);
 
   const isStep2Valid = () => {
     return formData.email && formData.password && formData.acceptTerms;
@@ -102,6 +121,20 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     showMessage('Login realizado com sucesso!', 'success');
     login();
 
+    // Se "Lembrar-me" estiver marcado, salvar credenciais
+    if (formData.rememberMe) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('lucaIA_rememberedEmail', formData.email);
+        localStorage.setItem('lucaIA_rememberedPassword', formData.password);
+      }
+    } else {
+      // Se não estiver marcado, remover credenciais salvas
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('lucaIA_rememberedEmail');
+        localStorage.removeItem('lucaIA_rememberedPassword');
+      }
+    }
+
     setCurrentStep(1);
     setIsLoginMode(false);
     setFormData({
@@ -109,7 +142,8 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       password: '',
       phone: '',
       firstName: '',
-      acceptTerms: false
+      acceptTerms: false,
+      rememberMe: false
     });
 
     onClose();
@@ -123,7 +157,8 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       password: '',
       phone: '',
       firstName: '',
-      acceptTerms: false
+      acceptTerms: false,
+      rememberMe: false
     });
     onClose();
   };
@@ -153,6 +188,7 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       phone: '',
       firstName: '',
       acceptTerms: false,
+      rememberMe: false
     });
     setIsEmailVerified(false);
     if (openedFromSidebar) {
@@ -543,6 +579,23 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                           label={
                             <span className={styles.termsCheckboxLabel}>
                               Confirmo que não sou um robô
+                            </span>
+                          }
+                        />
+                      </div>
+
+                      <div className={styles.rememberMeContainer}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={formData.rememberMe}
+                              onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
+                              className={styles.checkbox}
+                            />
+                          }
+                          label={
+                            <span className={styles.termsCheckboxLabel}>
+                              Lembrar-me
                             </span>
                           }
                         />

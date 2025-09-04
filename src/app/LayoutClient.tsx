@@ -12,6 +12,7 @@ import styles from "./layout.module.scss";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+import { useAuth } from "@/hooks";
 
 
 interface LayoutClientProps {
@@ -19,6 +20,7 @@ interface LayoutClientProps {
 }
 
 export function LayoutClient({ children }: LayoutClientProps) {
+  const { isLoggedIn, isLoading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [chatSidebarCollapsed, setChatSidebarCollapsed] = useState(false);
   const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
@@ -39,6 +41,22 @@ export function LayoutClient({ children }: LayoutClientProps) {
       setIsManuallyCollapsed(true);
     }
   }, [pathname, isHomePage]);
+
+  // Verificar automaticamente se o usuário está logado
+  useEffect(() => {
+    if (!isLoading && !isLoggedIn && typeof window !== 'undefined') {
+      const savedEmail = localStorage.getItem('lucaIA_rememberedEmail');
+      const savedPassword = localStorage.getItem('lucaIA_rememberedPassword');
+      const isLoggedInStorage = localStorage.getItem('lucaIA_loggedIn') === 'true';
+      
+      // Se não está logado mas tem credenciais salvas, fazer login automático
+      if (!isLoggedInStorage && savedEmail && savedPassword) {
+        localStorage.setItem('lucaIA_loggedIn', 'true');
+        // Recarregar a página para atualizar o estado de autenticação
+        window.location.reload();
+      }
+    }
+  }, [isLoading, isLoggedIn]);
 
   const handleSidebarToggle = () => {
     if (isHomePage) {
