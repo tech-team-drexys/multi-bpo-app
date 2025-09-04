@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:ci": "next build", 
+    "build:ci": "next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -18,19 +18,20 @@
     "@mui/x-charts": "^8.10.2",
     "@mui/x-data-grid": "^8.10.2",
     "@radix-ui/react-select": "^2.2.5",
+    "@react-oauth/google": "^0.7.0",
     "antd": "^5.27.1",
     "axios": "^1.11.0",
     "chart.js": "^4.5.0",
     "dayjs": "^1.11.13",
     "lucide-react": "^0.536.0",
     "next": "15.4.6",
+    "next-auth": "^4.24.11",
     "next-themes": "^0.4.6",
     "react": "19.1.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "19.1.1",
     "sass": "^1.89.2",
-    "@react-oauth/google": "^0.7.0"
-    
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

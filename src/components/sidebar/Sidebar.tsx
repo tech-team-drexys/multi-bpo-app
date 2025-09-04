@@ -57,6 +57,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
   const router = useRouter();
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(2);
+  const [isRegistrationSidebar, setIsRegistrationSidebar] = useState(false);
 
   const menuItems: MenuItem[] = [
     { icon: House, label: 'Página inicial', path: '/' },
@@ -123,6 +124,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
     if (isLoggedIn) {
       setIsUserModalOpen(!isUserModalOpen);
     } else {
+      setIsRegistrationSidebar(true);
       setIsLoginModalOpen(true);
     }
   };
@@ -141,6 +143,8 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
     setIsAccountSettingsOpen(true);
     setIsUserModalOpen(false);
   };
+
+
 
   const shouldShowExpanded = isHomePage
     ? !isCollapsed
@@ -252,6 +256,8 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
       <RegistrationModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
+        openedFromSidebar={isRegistrationSidebar}
+        setIsRegistrationSidebar={(e) => setIsRegistrationSidebar(e)}
       />
     </>
   );

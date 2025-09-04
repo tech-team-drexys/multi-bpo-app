@@ -6,6 +6,7 @@ import { SidebarMobile } from "@/components/sidebar-mobile/SidebarMobile";
 import { HeaderMobile } from "@/components/header-mobile/HeaderMobile";
 import { NotificationsSidebar } from "@/components/notifications-sidebar/NotificationsSidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs/Breadcrumbs";
+import { UpgradeFab } from "@/components/floating-action-button/UpgradeFab";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { AuthProvider } from "@/contexts/AuthContext"; // ⭐ NOVO IMPORT
 import styles from "./layout.module.scss";
@@ -13,6 +14,7 @@ import { usePathname } from "next/navigation";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { useAuth } from "@/hooks";
 
 
 interface LayoutClientProps {
@@ -20,6 +22,7 @@ interface LayoutClientProps {
 }
 
 export function LayoutClient({ children }: LayoutClientProps) {
+  const { isLoggedIn, isLoading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [chatSidebarCollapsed, setChatSidebarCollapsed] = useState(false);
   const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
@@ -29,27 +32,39 @@ export function LayoutClient({ children }: LayoutClientProps) {
   const pathname = usePathname();
   const isLucaIAPage = pathname === '/lucaIA';
   const isHomePage = pathname === '/';
+  const isPricingPage = pathname === '/plans';
 
-  // Controla o estado do sidebar baseado na página atual
   useEffect(() => {
     if (isHomePage) {
-      // Na home, o sidebar fica aberto por padrão
       setSidebarCollapsed(false);
       setIsManuallyCollapsed(false);
     } else {
-      // Em outras páginas, o sidebar fica fechado
       setSidebarCollapsed(true);
       setIsManuallyCollapsed(true);
     }
   }, [pathname, isHomePage]);
 
+  // Verificar automaticamente se o usuário está logado
+  useEffect(() => {
+    if (!isLoading && !isLoggedIn && typeof window !== 'undefined') {
+      const savedEmail = localStorage.getItem('lucaIA_rememberedEmail');
+      const savedPassword = localStorage.getItem('lucaIA_rememberedPassword');
+      const isLoggedInStorage = localStorage.getItem('lucaIA_loggedIn') === 'true';
+
+      // Se não está logado mas tem credenciais salvas, fazer login automático
+      if (!isLoggedInStorage && savedEmail && savedPassword) {
+        localStorage.setItem('lucaIA_loggedIn', 'true');
+        // Recarregar a página para atualizar o estado de autenticação
+        window.location.reload();
+      }
+    }
+  }, [isLoading, isLoggedIn]);
+
   const handleSidebarToggle = () => {
     if (isHomePage) {
-      // Na home, permite fechar/abrir manualmente
       setSidebarCollapsed(!sidebarCollapsed);
       setIsManuallyCollapsed(!sidebarCollapsed);
     } else {
-      // Em outras páginas, apenas alterna o estado manual
       setIsManuallyCollapsed(!isManuallyCollapsed);
       setSidebarCollapsed(!isManuallyCollapsed);
     }
@@ -79,52 +94,67 @@ export function LayoutClient({ children }: LayoutClientProps) {
     },
   });
 
+  if (isPricingPage) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <NotificationProvider>
+          <div className={styles.page}>
+            {children}
+          </div>
+        </NotificationProvider>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider theme={theme}>
-  <CssBaseline />
-  <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-    <AuthProvider> {/* ⭐ NOVO: AuthProvider envolvendo tudo */}
-      <NotificationProvider>
-          <div className={styles.page}>
-            <div className={styles.layout}>
-              <Sidebar
-                isCollapsed={sidebarCollapsed}
-                onToggleCollapse={handleSidebarToggle}
-                isHomePage={isHomePage}
-                isManuallyCollapsed={isManuallyCollapsed}
-                onHover={handleSidebarHover}
-              />
-              {isLucaIAPage && (
-                <ChatSidebar
-                  isCollapsed={chatSidebarCollapsed}
-                  onToggleCollapse={() => setChatSidebarCollapsed(!chatSidebarCollapsed)}
+      <CssBaseline />
+      <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+        <AuthProvider> {/* ⭐ NOVO: AuthProvider envolvendo tudo */}
+          <NotificationProvider>
+            <div className={styles.page}>
+              <div className={styles.layout}>
+                <Sidebar
+                  isCollapsed={sidebarCollapsed}
+                  onToggleCollapse={handleSidebarToggle}
+                  isHomePage={isHomePage}
+                  isManuallyCollapsed={isManuallyCollapsed}
+                  onHover={handleSidebarHover}
                 />
-              )}
-              <div className={styles.main}>
-                <HeaderMobile
-                  onToggleSidebar={handleToggleSidebarMobile}
-                  onToggleNotifications={handleToggleNotifications}
-                />
-                <main className={styles.content}>
-                  <Breadcrumbs />
-                  {children}
-                </main>
+                {isLucaIAPage && (
+                  <ChatSidebar
+                    isCollapsed={chatSidebarCollapsed}
+                    onToggleCollapse={() => setChatSidebarCollapsed(!chatSidebarCollapsed)}
+                  />
+                )}
+                <div className={styles.main}>
+                  <HeaderMobile
+                    onToggleSidebar={handleToggleSidebarMobile}
+                    onToggleNotifications={handleToggleNotifications}
+                  />
+                  <main className={styles.content}>
+                    <Breadcrumbs />
+                    {children}
+                  </main>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <SidebarMobile
-            isOpen={sidebarMobileOpen}
-            onClose={() => setSidebarMobileOpen(false)}
-          />
-          
-          <NotificationsSidebar
-            isOpen={notificationsOpen}
-            onClose={() => setNotificationsOpen(false)}
-          />
-             </NotificationProvider>
-      </AuthProvider> {/* ⭐ NOVO: Fechamento do AuthProvider */}
-    </GoogleOAuthProvider>
-  </ThemeProvider>
+
+            <SidebarMobile
+              isOpen={sidebarMobileOpen}
+              onClose={() => setSidebarMobileOpen(false)}
+            />
+
+            <NotificationsSidebar
+              isOpen={notificationsOpen}
+              onClose={() => setNotificationsOpen(false)}
+            />
+            <UpgradeFab />
+          </NotificationProvider>
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    </ThemeProvider>
+
   );
 }

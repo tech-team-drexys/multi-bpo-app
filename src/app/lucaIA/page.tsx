@@ -17,6 +17,7 @@ import styles from "./luca.module.scss";
 import { simulateN8NResponse } from "@/services/api";
 import { HistoryModal } from "@/components/modal/HistoryModal";
 import { RegistrationModal } from "@/components/modal/RegistrationModal";
+import { UpgradeModal } from "@/components/modal/UpgradeModal";
 import { useAuth } from "@/hooks/useAuth";
 
 interface ChatMessage {
@@ -42,8 +43,12 @@ export default function LucaIA() {
     const [openIdeas, setOpenIdeas] = useState(false);
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
     const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
-    const MESSAGE_LIMIT = 4;
+    // Limite de mensagens: 3 gratuitas + 7 após login = 10 total
+    const FREE_MESSAGE_LIMIT = 3;
+    const LOGGED_IN_MESSAGE_LIMIT = 10;
+    const MESSAGE_LIMIT = isLoggedIn ? LOGGED_IN_MESSAGE_LIMIT : FREE_MESSAGE_LIMIT;
 
     const userMessages = messages.filter(msg => msg.isUser);
     const hasReachedLimit = userMessages.length >= MESSAGE_LIMIT;
@@ -66,22 +71,41 @@ export default function LucaIA() {
         const hasReachedLimitNow = totalUserMessages >= MESSAGE_LIMIT;
 
         if (hasReachedLimitNow) {
-            const errorMessage: ChatMessage = {
-                id: (Date.now() + 1).toString(),
-                content: "Você atingiu o limite de 4 mensagens sem cadastro. Para continuar usando o LucaIA, faça seu cadastro gratuito agora.",
-                isUser: false,
-                timestamp: new Date().toLocaleTimeString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                }),
-            };
+            let errorMessage: ChatMessage;
+            
+            if (isLoggedIn) {
+                // Usuário logado atingiu o limite de 10 mensagens
+                errorMessage = {
+                    id: (Date.now() + 1).toString(),
+                    content: "Você atingiu o limite de mensagens do seu plano atual. Faça upgrade para continuar conversando com o Luca!",
+                    isUser: false,
+                    timestamp: new Date().toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    }),
+                };
+                
+                setTimeout(() => {
+                    setIsUpgradeModalOpen(true);
+                }, 500);
+            } else {
+                // Usuário não logado atingiu o limite de 3 mensagens
+                errorMessage = {
+                    id: (Date.now() + 1).toString(),
+                    content: "Você atingiu o limite de 3 mensagens sem cadastro. Para continuar usando o LucaIA, faça seu cadastro gratuito agora.",
+                    isUser: false,
+                    timestamp: new Date().toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    }),
+                };
+                
+                setTimeout(() => {
+                    setIsRegistrationModalOpen(true);
+                }, 500);
+            }
 
             setMessages((prev) => [...prev, errorMessage]);
-
-            setTimeout(() => {
-                setIsRegistrationModalOpen(true);
-            }, 500);
-
             return;
         }
 
@@ -308,6 +332,13 @@ export default function LucaIA() {
             <RegistrationModal
                 isOpen={isRegistrationModalOpen}
                 onClose={() => setIsRegistrationModalOpen(false)}
+                openedFromSidebar={false}
+                setIsRegistrationSidebar={() => {}}
+            />
+
+            <UpgradeModal
+                isOpen={isUpgradeModalOpen}
+                onClose={() => setIsUpgradeModalOpen(false)}
             />
         </div>
     );
