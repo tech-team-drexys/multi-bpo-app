@@ -6,7 +6,9 @@ import { X, ArrowLeft, CheckCircle, Clock } from 'lucide-react';
 import { Divider, Tag } from 'antd';
 import styles from './RegistrationModal.module.scss';
 import { useAuth, usePhoneMask } from '@/hooks';
+import { GoogleLogin } from '@react-oauth/google';
 import { Facebook } from '@/icons/facebook';
+import { registerUser, RegisterUserData, loginWithCredentials, LoginCredentials, checkEmailStatus, loginWithGoogle, getUserProfile } from '@/services/api';
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -17,7 +19,6 @@ interface RegistrationModalProps {
 
 export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsRegistrationSidebar }: RegistrationModalProps) => {
   const { login } = useAuth();
-  // const login = true;
   const { applyPhoneMask, removePhoneMask } = usePhoneMask();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoginMode, setIsLoginMode] = useState(false);
@@ -26,7 +27,7 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     email: '',
     password: '',
     phone: '',
-    firstName: '',
+    fullName: '',
     acceptTerms: false,
     rememberMe: false
   });
@@ -35,24 +36,60 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     message: '',
     severity: 'info'
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (currentStep === 3 && !isEmailVerified) {
-      const timer = setTimeout(() => {
-        setIsEmailVerified(true);
-        showMessage('Email verificado com sucesso!', 'success');
-      }, 20000);
+    let pollInterval: NodeJS.Timeout;
 
-      return () => clearTimeout(timer);
+    if (currentStep === 3 && !isEmailVerified && isOpen && formData.email) {
+      console.log('Iniciando verificação de confirmação de email...');
+
+      const checkEmailConfirmation = async () => {
+        try {
+          const response = await checkEmailStatus(formData.email);
+
+          if (!response.success) {
+            showMessage('Erro ao verificar email');
+            setIsLoading(false);
+            return;
+          }
+
+          const data = await response;
+
+
+          if (data.success && data.email_verified) {
+            console.log('Email confirmado!');
+            setIsEmailVerified(true);
+            clearInterval(pollInterval);
+            setIsLoading(false);
+            setCurrentStep(4);
+
+            setTimeout(() => setCurrentStep(4), 2000);
+          } else {
+            showMessage('Email ainda não confirmado, tentando novamente em 5s...');
+          }
+        } catch (error) {
+          showMessage('Erro ao verificar email');
+          setIsLoading(false);
+          setCurrentStep(4);
+        }
+      };
+
+      setTimeout(() => {
+        pollInterval = setInterval(checkEmailConfirmation, 5000);
+      }, 3000);
     }
-  }, [currentStep, isEmailVerified]);
 
-  // Carregar credenciais salvas quando o modal de login for aberto
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+    };
+  }, [currentStep, isEmailVerified, isOpen, formData.email]);
+
   useEffect(() => {
     if (isOpen && isLoginMode && typeof window !== 'undefined') {
       const savedEmail = localStorage.getItem('lucaIA_rememberedEmail');
       const savedPassword = localStorage.getItem('lucaIA_rememberedPassword');
-      
+
       if (savedEmail && savedPassword) {
         setFormData(prev => ({
           ...prev,
@@ -70,7 +107,7 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
 
   const isStep2ContactValid = () => {
     const phoneNumbers = removePhoneMask(formData.phone);
-    return formData.firstName && phoneNumbers.length >= 10;
+    return formData.fullName && phoneNumbers.length >= 10;
   };
 
   const isStep5Valid = () => {
@@ -95,7 +132,7 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
 
   const handleNextStep = () => {
     if (currentStep === 2) {
-      if (!formData.firstName) {
+      if (!formData.fullName) {
         showMessage('Por favor, preencha o nome completo', 'error');
         return;
       }
@@ -110,7 +147,77 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     setCurrentStep(currentStep + 1);
   };
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async () => {
+    if (!formData.email || !formData.password || !formData.fullName || !formData.phone) {
+      showMessage('Por favor, preencha todos os campos obrigatórios', 'error');
+      return;
+    }
+
+    if (!formData.acceptTerms) {
+      showMessage('Você deve aceitar os termos de uso', 'error');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const userData: RegisterUserData = {
+        email: formData.email,
+        whatsapp: formData.phone,
+        password: formData.password,
+        captcha_token: 'dummy-captcha-token',
+        accept_terms: formData.acceptTerms,
+        full_name: formData.fullName,
+        password_confirm: formData.password,
+      };
+
+      console.log(userData);
+
+      const response = await registerUser(userData);
+
+      // Se o registro retornou tokens, fazer login automático
+      if (response.access && response.refresh) {
+        showMessage('Cadastro realizado com sucesso! Você já está logado.', 'success');
+        await login(); // Aguardar login ser completado
+
+        // Fechar modal após login bem-sucedido
+        setTimeout(() => {
+          setCurrentStep(1);
+          setIsLoginMode(false);
+          setFormData({
+            email: '',
+            password: '',
+            phone: '',
+            fullName: '',
+            acceptTerms: false,
+            rememberMe: false
+          });
+          onClose();
+        }, 2000);
+      } else {
+        showMessage('Cadastro realizado com sucesso! Verifique seu email.', 'success');
+        setCurrentStep(3);
+      }
+    } catch (error: any) {
+      console.error('Erro no cadastro:', error);
+
+      let errorMessage = 'Erro ao realizar cadastro. Tente novamente.';
+
+      if (error.response?.data?.email) {
+        errorMessage = 'Este email já está cadastrado.';
+      } else if (error.response?.data?.whatsapp) {
+        errorMessage = 'Este telefone já está cadastrado.';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
+
+      showMessage(errorMessage, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
@@ -118,35 +225,46 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       return;
     }
 
-    showMessage('Login realizado com sucesso!', 'success');
-    login();
+    setIsLoading(true);
 
-    // Se "Lembrar-me" estiver marcado, salvar credenciais
-    if (formData.rememberMe) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('lucaIA_rememberedEmail', formData.email);
-        localStorage.setItem('lucaIA_rememberedPassword', formData.password);
+    try {
+      const credentials: LoginCredentials = {
+        email: formData.email,
+        password: formData.password
+      };
+
+      await loginWithCredentials(credentials);
+
+      showMessage('Login realizado com sucesso!', 'success');
+      await login();
+
+      setCurrentStep(1);
+      setIsLoginMode(false);
+      setFormData({
+        email: '',
+        password: '',
+        phone: '',
+        fullName: '',
+        acceptTerms: false,
+        rememberMe: false
+      });
+
+      onClose();
+    } catch (error: any) {
+      let errorMessage = 'Erro ao fazer login. Tente novamente.';
+
+      if (error.response?.status === 401) {
+        errorMessage = 'Email ou senha incorretos.';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response?.data?.non_field_errors) {
+        errorMessage = error.response.data.non_field_errors[0];
       }
-    } else {
-      // Se não estiver marcado, remover credenciais salvas
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('lucaIA_rememberedEmail');
-        localStorage.removeItem('lucaIA_rememberedPassword');
-      }
+
+      showMessage(errorMessage, 'error');
+    } finally {
+      setIsLoading(false);
     }
-
-    setCurrentStep(1);
-    setIsLoginMode(false);
-    setFormData({
-      email: '',
-      password: '',
-      phone: '',
-      firstName: '',
-      acceptTerms: false,
-      rememberMe: false
-    });
-
-    onClose();
   };
 
   const handleCloseModal = () => {
@@ -156,15 +274,11 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       email: '',
       password: '',
       phone: '',
-      firstName: '',
+      fullName: '',
       acceptTerms: false,
       rememberMe: false
     });
     onClose();
-  };
-
-  const handleSocialLogin = (provider: string) => {
-    showMessage(`Cadastro com ${provider} em desenvolvimento`, 'info');
   };
 
   const handleSwitchToLogin = () => {
@@ -186,7 +300,7 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       email: '',
       password: '',
       phone: '',
-      firstName: '',
+      fullName: '',
       acceptTerms: false,
       rememberMe: false
     });
@@ -213,7 +327,7 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
               {!isLoginMode && currentStep <= 3 && !openedFromSidebar ? (
                 <div className={styles.signupImageContainer}>
                 </div>
-              ) : !isLoginMode && currentStep > 3 && !openedFromSidebar ? (
+              ) : !isLoginMode && currentStep > 3 ? (
                 <>
                   <div className={styles.floatingTags}>
                     <div className={styles.contentMessage}>
@@ -268,7 +382,75 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                           </h1>
                         </div>
                         <div className={styles.socialButtons}>
-                          <Button
+                          <GoogleLogin
+                            onSuccess={async (credentialResponse) => {
+                              console.log('Google Login Response:', credentialResponse);
+                              
+                              if (!credentialResponse.credential) {
+                                showMessage('Token não fornecido pelo Google', 'error');
+                                return;
+                              }
+
+                              const idToken = credentialResponse.credential;
+
+                              try {
+                                console.log('Enviando token para backend:', idToken);
+                                const response = await loginWithGoogle(idToken);
+                                console.log('Resposta do backend:', response);
+                                
+                                // if (!isLoginMode) {
+                                //   showMessage('Cadastro com Google realizado com sucesso!', 'success');
+                                //   await login(true); // true indica que é login com Google
+                                  
+                                //   // Chamada direta para garantir que o perfil seja atualizado
+                                //   try {
+                                //     console.log('Chamando getUserProfile diretamente...');
+                                //     const profileData = await getUserProfile();
+                                //     console.log('Perfil atualizado diretamente:', profileData);
+                                //   } catch (error) {
+                                //     console.error('Erro ao buscar perfil diretamente:', error);
+                                //   }
+                                  
+                                //   setCurrentStep(4);
+                                // } else {
+                                  showMessage('Login com Google realizado com sucesso!', 'success');
+                                  await login(true); // true indica que é login com Google
+                                  
+                                  // Chamada direta para garantir que o perfil seja atualizado
+                                  try {
+                                    console.log('Chamando getUserProfile diretamente...');
+                                    const profileData = await getUserProfile();
+                                    console.log('Perfil atualizado diretamente:', profileData);
+                                  } catch (error) {
+                                    console.error('Erro ao buscar perfil diretamente:', error);
+                                  }
+                                  
+                                  onClose();
+                                // }
+                              } catch (err: any) {
+                                console.error('Erro detalhado:', err);
+                                console.error('Response data:', err.response?.data);
+                                console.error('Response status:', err.response?.status);
+                                
+                                let errorMessage = 'Erro ao fazer login com Google';
+                                if (err.response?.data?.detail) {
+                                  errorMessage = err.response.data.detail;
+                                } else if (err.response?.data?.error) {
+                                  errorMessage = err.response.data.error;
+                                }
+                                
+                                showMessage(errorMessage, 'error');
+                              }
+                            }}
+                            onError={() => {
+                              console.error('Google OAuth Error');
+                              showMessage('Erro ao autenticar com Google', 'error');
+                            }}
+                            text="signup_with"
+                            useOneTap={false}
+                          />
+
+                          {/* <Button
                             className={styles.socialButton}
                             size="small"
                             fullWidth
@@ -277,13 +459,13 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                           >
                             <img src="/google-icon.svg" alt="Google" className={styles.socialIcon} width={24} height={24} />
                             Cadastro com Google
-                          </Button>
+                          </Button> */}
 
                           <Button
                             className={styles.socialButton}
                             size="small"
                             fullWidth
-                            onClick={() => handleSocialLogin('Facebook')}
+                            // onClick={() => handleSocialLogin('Facebook')}
                             variant="outlined"
                           >
                             <Facebook className={styles.socialIcon} width={24} height={24} />
@@ -362,10 +544,10 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                             className={styles.submitButton}
                             size="large"
                             fullWidth
-                            disabled={!isStep2Valid()}
+                            disabled={!isStep2Valid() || isLoading}
                             onClick={() => setCurrentStep(2)}
                           >
-                            Avançar
+                            {isLoading ? 'Processando...' : 'Avançar'}
                           </Button>
                         </form>
 
@@ -402,8 +584,8 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                           <TextField
                             type="text"
                             placeholder="Digite seu nome"
-                            value={formData.firstName}
-                            onChange={(e) => handleInputChange('firstName', e.target.value)}
+                            value={formData.fullName}
+                            onChange={(e) => handleInputChange('fullName', e.target.value)}
                             size="medium"
                             required
                             fullWidth
@@ -448,10 +630,10 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                           className={styles.submitButton}
                           size="large"
                           fullWidth
-                          disabled={!isStep2ContactValid()}
-                          onClick={() => handleNextStep()}
+                          disabled={!isStep2ContactValid() || isLoading}
+                          onClick={handleRegisterSubmit}
                         >
-                          Continuar
+                          {isLoading ? 'Cadastrando...' : 'Continuar'}
                         </Button>
                       </div>
                     ) : currentStep === 3 ? (
@@ -579,23 +761,6 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                           label={
                             <span className={styles.termsCheckboxLabel}>
                               Confirmo que não sou um robô
-                            </span>
-                          }
-                        />
-                      </div>
-
-                      <div className={styles.rememberMeContainer}>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={formData.rememberMe}
-                              onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
-                              className={styles.checkbox}
-                            />
-                          }
-                          label={
-                            <span className={styles.termsCheckboxLabel}>
-                              Lembrar-me
                             </span>
                           }
                         />

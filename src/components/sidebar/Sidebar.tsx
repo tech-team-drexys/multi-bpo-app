@@ -27,6 +27,8 @@ import { NotificationSidebar } from '../notifications/NotificationSidebar';
 import { AccountSettingsModal } from '../modal/AccountSettingsModal';
 import { RegistrationModal } from '../modal/RegistrationModal';
 import { useAuth } from '@/hooks';
+import { logoutUser } from '@/services/api';
+import { UserData } from '@/hooks/useAuth';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -46,7 +48,7 @@ interface MenuItem {
 }
 
 export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isManuallyCollapsed = false, onHover }: SidebarProps) => {
-  const { isLoggedIn, login, logout } = useAuth();
+  const { isLoggedIn, userData, login, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -58,6 +60,10 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(2);
   const [isRegistrationSidebar, setIsRegistrationSidebar] = useState(false);
+  
+  useEffect(() => {
+    console.log('userData', userData?.fullName);
+  }, [userData]);
 
   const menuItems: MenuItem[] = [
     { icon: House, label: 'Página inicial', path: '/' },
@@ -131,6 +137,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
 
   const handleLogout = () => {
     logout();
+    logoutUser();
     setIsUserModalOpen(false);
   };
 
@@ -222,7 +229,12 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
                 <User />
               </Avatar>
               {shouldShowExpanded && (
-                <span>{isLoggedIn ? 'João Silva' : 'Fazer Login'}</span>
+                <span>
+                  {isLoggedIn && userData 
+                    ? `${userData ? userData.fullName : ''}`.trim() || userData.email || 'Usuário'
+                    : 'Fazer Login'
+                  }
+                </span>
               )}
             </div>
             

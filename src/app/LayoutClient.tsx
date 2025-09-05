@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { useAuth } from "@/hooks";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 
 interface LayoutClientProps {
@@ -21,6 +22,13 @@ interface LayoutClientProps {
 
 export function LayoutClient({ children }: LayoutClientProps) {
   const { isLoggedIn, isLoading } = useAuth();
+  
+  // Verificar se o Google Client ID está configurado
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  
+  if (!googleClientId) {
+    console.warn('NEXT_PUBLIC_GOOGLE_CLIENT_ID não está configurado nas variáveis de ambiente');
+  }
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [chatSidebarCollapsed, setChatSidebarCollapsed] = useState(false);
   const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
@@ -42,21 +50,6 @@ export function LayoutClient({ children }: LayoutClientProps) {
     }
   }, [pathname, isHomePage]);
 
-  // Verificar automaticamente se o usuário está logado
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn && typeof window !== 'undefined') {
-      const savedEmail = localStorage.getItem('lucaIA_rememberedEmail');
-      const savedPassword = localStorage.getItem('lucaIA_rememberedPassword');
-      const isLoggedInStorage = localStorage.getItem('lucaIA_loggedIn') === 'true';
-      
-      // Se não está logado mas tem credenciais salvas, fazer login automático
-      if (!isLoggedInStorage && savedEmail && savedPassword) {
-        localStorage.setItem('lucaIA_loggedIn', 'true');
-        // Recarregar a página para atualizar o estado de autenticação
-        window.location.reload();
-      }
-    }
-  }, [isLoading, isLoggedIn]);
 
   const handleSidebarToggle = () => {
     if (isHomePage) {
@@ -107,6 +100,7 @@ export function LayoutClient({ children }: LayoutClientProps) {
 
   return (
     <ThemeProvider theme={theme}>
+       <GoogleOAuthProvider clientId={googleClientId || ''}>
       <CssBaseline />
       <NotificationProvider>
         <div className={styles.page}>
@@ -149,6 +143,7 @@ export function LayoutClient({ children }: LayoutClientProps) {
         
         <UpgradeFab />
       </NotificationProvider>
+      </GoogleOAuthProvider>
     </ThemeProvider>
   );
 } 

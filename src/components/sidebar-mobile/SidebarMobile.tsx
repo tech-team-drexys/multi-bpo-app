@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./sidebarMobile.module.scss";
 import { X, House, ChartNoAxesCombined, Archive, Headset, BotMessageSquare, LayoutGrid, Newspaper, CalendarDays, Store, Bell, User, Lightbulb, ShieldCheck, FileText } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from '@/hooks';
 import Image from "next/image";
 
 interface SidebarMobileProps {
@@ -12,6 +13,7 @@ interface SidebarMobileProps {
 export const SidebarMobile = ({ isOpen, onClose }: SidebarMobileProps) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { isLoggedIn, userData } = useAuth();
 
   const menuItems = [
     { icon: House, label: 'Página inicial', path: '/' },
@@ -80,8 +82,15 @@ export const SidebarMobile = ({ isOpen, onClose }: SidebarMobileProps) => {
               <User className={styles.avatarIcon} />
             </div>
             <div className={styles.userDetails}>
-              <span className={styles.userName}>Usuário</span>
-              <span className={styles.userEmail}>usuario@email.com</span>
+              <span className={styles.userName}>
+                {isLoggedIn && userData 
+                  ? `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || userData.email || 'Usuário'
+                  : 'Fazer Login'
+                }
+              </span>
+              <span className={styles.userEmail}>
+                {isLoggedIn && userData ? userData.email || '' : ''}
+              </span>
             </div>
           </div>
         </div>

@@ -29,6 +29,41 @@ const api = axios.create({
     }
 });
 
+// Instância autenticada (nova, para JWT)
+const authApi = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    headers: {
+        "Content-Type": "application/json"
+    }
+});
+
+export interface RegisterUserData {
+    email: string;
+    whatsapp: string;
+    password: string;
+    captcha_token: string;
+    accept_terms: boolean;
+    full_name?: string;
+    password_confirm: string;
+}
+
+export interface LoginCredentials {
+    email: string;
+    password: string;
+}
+
+export interface SocialLoginData {
+    provider: 'google' | 'facebook';
+    accessToken: string;
+    email: string;
+    name?: string;
+}
+
+export interface UserProfile {
+    full_name?: string;
+    whatsapp?: string;
+}
+
 export const getNews = async (limit: number) => {
     try {
         const response = await api.get(`/noticias/?limit=${limit}`);
@@ -68,3 +103,164 @@ export const getCertificados = async (page: number = 1) => {
         throw error;
     }
 };
+
+export const registerUser = async (userData: RegisterUserData) => {
+    try {
+        const data = {
+            email: userData.email.toLowerCase().trim(),
+            whatsapp: userData.whatsapp,
+            password: userData.password,
+            captcha_token: userData.captcha_token,
+            accept_terms: userData.accept_terms,
+            registration_method: 'email',
+            password_confirm: userData.password_confirm,
+            full_name: userData.full_name
+        };
+
+        console.log("api data", data);
+
+        const response = await authApi.post('/auth/register/', data);
+        
+        // Se o registro retornar tokens, salvar automaticamente
+        if (response.data.access && response.data.refresh) {
+            const tokens = {
+                access: response.data.access,
+                refresh: response.data.refresh
+            };
+            localStorage.setItem('multibpo_tokens', JSON.stringify(tokens));
+        }
+        
+        return response.data;
+    } catch (error) {
+        console.error("Erro no registro:", error);
+        throw error;
+    }
+};
+
+export const confirmEmail = async (token: string) => {
+    try {
+        const response = await api.post('/auth/confirm-email/', { token });
+        return response.data;
+    } catch (error) {
+        console.error("Erro na confirmação de email:", error);
+        throw error;
+    }
+};
+
+export const checkEmailStatus = async (email: string) => {
+    try {
+        const response = await api.get(`/auth/email-status/?email=${email}`);
+        console.log('api', response);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao verificar status de email:", error);
+        throw error;
+    }
+};
+
+export const loginWithCredentials = async (credentials: LoginCredentials) => {
+    try {
+        const data = {
+            email: credentials.email.toLowerCase().trim(),
+            password: credentials.password,
+            captcha_token: 'dummy-captcha-token'
+        };
+
+        console.log('api data', data);
+
+        const response = await authApi.post('/auth/login/', data);
+        
+        if (response.data.access && response.data.refresh) {
+            const tokens = {
+                access: response.data.access,
+                refresh: response.data.refresh
+            };
+            localStorage.setItem('multibpo_tokens', JSON.stringify(tokens));
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error("Erro no login:", error);
+        throw error;
+    }
+};
+
+export const getUserProfile = async () => {
+    try {
+        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
+        const accessToken = tokens?.access;
+
+        const response = await authApi.get("/auth/profile/", {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar perfil:", error);
+        throw error;
+    }
+};
+
+export const logoutUser = async () => {
+    try {
+        const response = await authApi.post('/auth/logout/');
+        localStorage.removeItem('multibpo_tokens');
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao deslogar usuário:", error);
+        throw error;
+    }
+};
+
+export const loginWithGoogle = async (idToken: string) => {
+    try {
+      console.log("Enviando para backend:", { idToken });
+      
+      // Tentar diferentes formatos que o backend pode esperar
+      const payloads = [
+        { idToken },
+        { token: idToken },
+        { access_token: idToken },
+        { google_token: idToken },
+        { credential: idToken }
+      ];
+      
+      let response;
+      let lastError;
+      
+      // Tentar cada formato até um funcionar
+      for (const payload of payloads) {
+        try {
+          console.log("Tentando payload:", payload);
+          response = await api.post("/auth/google-login/", payload);
+          console.log("Sucesso com payload:", payload);
+          break;
+        } catch (err: any) {
+          console.log("Falhou com payload:", payload, "Erro:", err.response?.data);
+          lastError = err;
+          continue;
+        }
+      }
+      
+      if (!response) {
+        throw lastError;
+      }
+  
+      if (response.data.access && response.data.refresh) {
+        const tokens = {
+          access: response.data.access,
+          refresh: response.data.refresh,
+        };
+        localStorage.setItem("multibpo_tokens", JSON.stringify(tokens));
+        localStorage.setItem("multibpo_user", JSON.stringify(response.data.user || {}));
+        localStorage.setItem("lucaIA_loggedIn", "true");
+      }
+  
+      return response.data;
+    } catch (error) {
+      console.error("Erro no login com Google:", error);
+      throw error;
+    }
+  };
