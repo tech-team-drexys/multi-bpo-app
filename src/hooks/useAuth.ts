@@ -21,7 +21,7 @@ export interface UserData {
   };
 }
 
-const STORAGE_KEY = "lucaIA_userData";
+const STORAGE_KEY = "userData";
 
 export const useAuth = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

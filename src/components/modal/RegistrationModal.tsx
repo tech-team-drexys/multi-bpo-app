@@ -187,9 +187,6 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     setIsLoading(true);
 
     try {
-      console.log('Captcha token antes do envio:', captchaToken);
-      console.log('Captcha token length:', captchaToken.length);
-
       const userData: RegisterUserData = {
         email: formData.email,
         whatsapp: formData.phone,
@@ -200,11 +197,11 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
         password_confirm: formData.password,
       };
 
-      console.log('Dados do usuário sendo enviados:', userData);
-
       const response = await registerUser(userData);
 
       if (response.access && response.refresh) {
+        localStorage.setItem('token', response.access);
+        localStorage.setItem('refreshToken', response.refresh);
         showMessage('Cadastro realizado com sucesso! Você já está logado.', 'success');
         await login();
 

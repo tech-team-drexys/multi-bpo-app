@@ -124,7 +124,7 @@ export const registerUser = async (userData: RegisterUserData) => {
                 access: response.data.access,
                 refresh: response.data.refresh
             };
-            localStorage.setItem('userToken', JSON.stringify(tokens));
+            localStorage.setItem('multibpo_tokens', JSON.stringify(tokens));
         }
         
         return response.data;
