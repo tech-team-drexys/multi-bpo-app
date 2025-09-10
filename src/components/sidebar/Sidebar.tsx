@@ -26,9 +26,8 @@ import { Avatar, Badge } from '@mui/material';
 import { NotificationSidebar } from '../notifications/NotificationSidebar';
 import { AccountSettingsModal } from '../modal/AccountSettingsModal';
 import { RegistrationModal } from '../modal/RegistrationModal';
-import { useAuth } from '@/hooks';
+import { useAuthContext } from '@/contexts/AuthProvider';
 import { logoutUser } from '@/services/api';
-import { UserData } from '@/hooks/useAuth';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -48,7 +47,7 @@ interface MenuItem {
 }
 
 export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isManuallyCollapsed = false, onHover }: SidebarProps) => {
-  const { isLoggedIn, userData, login, logout } = useAuth();
+  const { isLoggedIn, userData, login, logout, isLoading } = useAuthContext();
   const [open, setOpen] = useState(false);
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -60,10 +59,6 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(2);
   const [isRegistrationSidebar, setIsRegistrationSidebar] = useState(false);
-  
-  useEffect(() => {
-    console.log('userData', userData?.fullName);
-  }, [userData]);
 
   const menuItems: MenuItem[] = [
     { icon: House, label: 'Página inicial', path: '/' },
@@ -175,96 +170,97 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
 
   return (
     <>
-    
-    <div
-      className={`${styles.sidebar} ${shouldShowExpanded ? styles.expanded : styles.collapsed}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div className={styles.header}>
-        <div className={styles.headerInner}>
-          {shouldShowExpanded && (
-            <div className={styles.logo}>
-              <Image src="/white-logo-multibpo.svg" alt="Luca IA" width={100} height={30} />
-            </div>
-          )}
-          <button onClick={handleToggleCollapse} className={styles.toggleButton}>
-            {!shouldShowExpanded ? (
-              <Image src="/white-logo.svg" alt="Luca IA" width={30} height={30} />
-            ) : (
-              <ChevronLeft className={styles.toggleIcon} />
-            )}
-          </button>
-        </div>
-      </div>
 
-      <div className={styles.menu}>
-        <div className={styles.contentMenuItems}>
-          {menuItems.map((item) => {
-            const isNotificationItem = item.path === '/notificacoes';
-            return (
-              <button
-                key={item.label}
-                className={`${styles.menuItem} ${!shouldShowExpanded ? styles.menuItemCollapsed : ''} ${isItemActive(item) ? styles.menuItemActive : ''}`}
-                onClick={() => {
-                  handleMenuClick(item.path);
-                }}
-              >
-                {isNotificationItem ? (
-                  <Badge badgeContent={unreadCount} color="error">
-                    <item.icon className={styles.menuIcon} />
-                  </Badge>
-                ) : (
-                  <item.icon className={styles.menuIcon} />
-                )}
-                {shouldShowExpanded && <span>{item.label}</span>}
-              </button>
-            );
-          })}
-        </div>
-        <div className={styles.account}>
-          <div className={`${styles.accountInfo} ${!shouldShowExpanded ? styles.accountInfoCollapsed : ''}`}>
-            <div className={`${styles.userSection} ${!shouldShowExpanded ? styles.userSectionCollapsed : ''}`} onClick={handleUserClick}>
-              <Avatar className={styles.avatar}>
-                <User />
-              </Avatar>
-              {shouldShowExpanded && (
-                <span>
-                  {isLoggedIn && userData 
-                    ? `${userData ? userData.fullName : ''}`.trim() || userData.email || 'Usuário'
-                    : 'Fazer Login'
-                  }
-                </span>
-              )}
-            </div>
-            
-            {isUserModalOpen && isLoggedIn && (
-              <div className={styles.userModal} ref={userModalRef}>
-                <div className={styles.modalItem} onClick={handleSettings}>
-                  <Settings size={16} />
-                  <span>Configurações</span>
-                </div>
-                <div className={styles.modalItem} onClick={handleLogout}>
-                  <LogOut size={16} />
-                  <span>Logout</span>
-                </div>
+      <div
+        className={`${styles.sidebar} ${shouldShowExpanded ? styles.expanded : styles.collapsed}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className={styles.header}>
+          <div className={styles.headerInner}>
+            {shouldShowExpanded && (
+              <div className={styles.logo}>
+                <Image src="/white-logo-multibpo.svg" alt="Luca IA" width={100} height={30} />
               </div>
             )}
+            <button onClick={handleToggleCollapse} className={styles.toggleButton}>
+              {!shouldShowExpanded ? (
+                <Image src="/white-logo.svg" alt="Luca IA" width={30} height={30} />
+              ) : (
+                <ChevronLeft className={styles.toggleIcon} />
+              )}
+            </button>
           </div>
         </div>
+
+        <div className={styles.menu}>
+          <div className={styles.contentMenuItems}>
+            {menuItems.map((item) => {
+              const isNotificationItem = item.path === '/notificacoes';
+              return (
+                <button
+                  key={item.label}
+                  className={`${styles.menuItem} ${!shouldShowExpanded ? styles.menuItemCollapsed : ''} ${isItemActive(item) ? styles.menuItemActive : ''}`}
+                  onClick={() => {
+                    handleMenuClick(item.path);
+                  }}
+                >
+                  {isNotificationItem ? (
+                    <Badge badgeContent={unreadCount} color="error">
+                      <item.icon className={styles.menuIcon} />
+                    </Badge>
+                  ) : (
+                    <item.icon className={styles.menuIcon} />
+                  )}
+                  {shouldShowExpanded && <span>{item.label}</span>}
+                </button>
+              );
+            })}
+          </div>
+          <div className={styles.account}>
+            <div className={`${styles.accountInfo} ${!shouldShowExpanded ? styles.accountInfoCollapsed : ''}`}>
+              <div className={`${styles.userSection} ${!shouldShowExpanded ? styles.userSectionCollapsed : ''}`} onClick={handleUserClick}>
+                <Avatar className={styles.avatar}>
+                  <User />
+                </Avatar>
+                {shouldShowExpanded && (
+                  <span>
+                    {isLoading
+                      ? "Carregando..."
+                      : isLoggedIn && userData
+                        ? (userData.user?.full_name?.trim() || userData.user?.email || "Usuário")
+                        : "Fazer Login"}
+                  </span>
+                )}
+              </div>
+
+              {isUserModalOpen && isLoggedIn && (
+                <div className={styles.userModal} ref={userModalRef}>
+                  <div className={styles.modalItem} onClick={handleSettings}>
+                    <Settings size={16} />
+                    <span>Configurações</span>
+                  </div>
+                  <div className={styles.modalItem} onClick={handleLogout}>
+                    <LogOut size={16} />
+                    <span>Logout</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
       </div>
-      
-    </div>
       <NotificationSidebar
         open={isNotificationDrawerOpen}
         onClose={() => setIsNotificationDrawerOpen(false)}
       />
-      
+
       <AccountSettingsModal
         isOpen={isAccountSettingsOpen}
         onClose={() => setIsAccountSettingsOpen(false)}
       />
-      
+
       <RegistrationModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}

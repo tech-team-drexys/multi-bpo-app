@@ -117,17 +117,14 @@ export const registerUser = async (userData: RegisterUserData) => {
             full_name: userData.full_name
         };
 
-        console.log("api data", data);
-
         const response = await authApi.post('/auth/register/', data);
         
-        // Se o registro retornar tokens, salvar automaticamente
         if (response.data.access && response.data.refresh) {
             const tokens = {
                 access: response.data.access,
                 refresh: response.data.refresh
             };
-            localStorage.setItem('multibpo_tokens', JSON.stringify(tokens));
+            localStorage.setItem('userToken', JSON.stringify(tokens));
         }
         
         return response.data;
@@ -137,20 +134,10 @@ export const registerUser = async (userData: RegisterUserData) => {
     }
 };
 
-export const confirmEmail = async (token: string) => {
-    try {
-        const response = await api.post('/auth/confirm-email/', { token });
-        return response.data;
-    } catch (error) {
-        console.error("Erro na confirmação de email:", error);
-        throw error;
-    }
-};
-
 export const checkEmailStatus = async (email: string) => {
     try {
         const response = await api.get(`/auth/email-status/?email=${email}`);
-        console.log('api', response);
+        console.log("Response:", response.data);
         return response.data;
     } catch (error) {
         console.error("Erro ao verificar status de email:", error);
@@ -165,8 +152,6 @@ export const loginWithCredentials = async (credentials: LoginCredentials) => {
             password: credentials.password,
             captcha_token: 'dummy-captcha-token'
         };
-
-        console.log('api data', data);
 
         const response = await authApi.post('/auth/login/', data);
         
@@ -216,9 +201,6 @@ export const logoutUser = async () => {
 
 export const loginWithGoogle = async (idToken: string) => {
     try {
-      console.log("Enviando para backend:", { idToken });
-      
-      // Tentar diferentes formatos que o backend pode esperar
       const payloads = [
         { idToken },
         { token: idToken },
@@ -230,15 +212,11 @@ export const loginWithGoogle = async (idToken: string) => {
       let response;
       let lastError;
       
-      // Tentar cada formato até um funcionar
       for (const payload of payloads) {
         try {
-          console.log("Tentando payload:", payload);
           response = await api.post("/auth/google-login/", payload);
-          console.log("Sucesso com payload:", payload);
           break;
         } catch (err: any) {
-          console.log("Falhou com payload:", payload, "Erro:", err.response?.data);
           lastError = err;
           continue;
         }
@@ -261,6 +239,26 @@ export const loginWithGoogle = async (idToken: string) => {
       return response.data;
     } catch (error) {
       console.error("Erro no login com Google:", error);
+      throw error;
+    }
+  };
+
+  export const loginWithFacebook = async (accessToken: string) => {
+    try {
+      const response = await api.post("/auth/facebook-login/", { access_token: accessToken });
+      return response.data;
+    } catch (error) {
+      console.error("Erro no login com Facebook:", error);
+      throw error;
+    }
+  };
+
+  export const captchaVerify = async (userToken: string, captchaToken: string) => {
+    try {
+      const response = await api.post("/auth/confirm-email/", { token: userToken, captcha_token: captchaToken });
+      return response.data;
+    } catch (error) {
+      console.error("Erro no captcha verify:", error);
       throw error;
     }
   };

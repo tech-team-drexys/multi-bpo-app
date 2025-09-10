@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./sidebarMobile.module.scss";
 import { X, House, ChartNoAxesCombined, Archive, Headset, BotMessageSquare, LayoutGrid, Newspaper, CalendarDays, Store, Bell, User, Lightbulb, ShieldCheck, FileText } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from '@/hooks';
+import { useAuthContext } from '@/contexts/AuthProvider';
 import Image from "next/image";
 
 interface SidebarMobileProps {
@@ -13,7 +13,7 @@ interface SidebarMobileProps {
 export const SidebarMobile = ({ isOpen, onClose }: SidebarMobileProps) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { isLoggedIn, userData } = useAuth();
+  const { isLoggedIn, userData } = useAuthContext();
 
   const menuItems = [
     { icon: House, label: 'Página inicial', path: '/' },

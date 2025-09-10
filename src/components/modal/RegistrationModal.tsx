@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Button, Checkbox, TextField, FormControlLabel, Snackbar, Alert } from '@mui/material';
 import { X, ArrowLeft, CheckCircle, Clock } from 'lucide-react';
 import { Divider, Tag } from 'antd';
 import styles from './RegistrationModal.module.scss';
-import { useAuth, usePhoneMask } from '@/hooks';
+import { usePhoneMask } from '@/hooks';
+import { useAuthContext } from '@/contexts/AuthProvider';
 import { GoogleLogin } from '@react-oauth/google';
 import { Facebook } from '@/icons/facebook';
+import { Turnstile } from '@/components/captcha/turnstile';
 import { registerUser, RegisterUserData, loginWithCredentials, LoginCredentials, checkEmailStatus, loginWithGoogle, getUserProfile } from '@/services/api';
 
 interface RegistrationModalProps {
@@ -18,11 +20,13 @@ interface RegistrationModalProps {
 }
 
 export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsRegistrationSidebar }: RegistrationModalProps) => {
-  const { login } = useAuth();
+  const { login } = useAuthContext();
   const { applyPhoneMask, removePhoneMask } = usePhoneMask();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoginMode, setIsLoginMode] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
+  const [captchaVerified, setCaptchaVerified] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -42,47 +46,48 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     let pollInterval: NodeJS.Timeout;
 
     if (currentStep === 3 && !isEmailVerified && isOpen && formData.email) {
-      console.log('Iniciando verificação de confirmação de email...');
-
       const checkEmailConfirmation = async () => {
         try {
           const response = await checkEmailStatus(formData.email);
 
           if (!response.success) {
-            showMessage('Erro ao verificar email');
+            showMessage("Erro ao verificar email", "error");
             setIsLoading(false);
             return;
           }
 
-          const data = await response;
-
-
-          if (data.success && data.email_verified) {
-            console.log('Email confirmado!');
+          if (response.email_verified) {
             setIsEmailVerified(true);
-            clearInterval(pollInterval);
             setIsLoading(false);
-            setCurrentStep(4);
+            showMessage("Email verificado com sucesso", "success");
+            setInterval(() => {
+              setCurrentStep(4);
+            }, 2000);
+            setFormData({
+              email: "",
+              password: "",
+              phone: "",
+              fullName: "",
+              acceptTerms: false,
+              rememberMe: false,
+            });
 
-            setTimeout(() => setCurrentStep(4), 2000);
-          } else {
-            showMessage('Email ainda não confirmado, tentando novamente em 5s...');
+            clearInterval(pollInterval);
           }
         } catch (error) {
-          showMessage('Erro ao verificar email');
+          showMessage("Erro ao verificar email", "error");
           setIsLoading(false);
-          setCurrentStep(4);
         }
       };
 
-      setTimeout(() => {
-        pollInterval = setInterval(checkEmailConfirmation, 5000);
-      }, 3000);
-    }
+      checkEmailConfirmation();
 
-    return () => {
-      if (pollInterval) clearInterval(pollInterval);
-    };
+      pollInterval = setInterval(checkEmailConfirmation, 10000);
+
+      return () => {
+        if (pollInterval) clearInterval(pollInterval);
+      };
+    }
   }, [currentStep, isEmailVerified, isOpen, formData.email]);
 
   useEffect(() => {
@@ -102,12 +107,12 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
   }, [isOpen, isLoginMode]);
 
   const isStep2Valid = () => {
-    return formData.email && formData.password && formData.acceptTerms;
+    return formData.email && formData.password && formData.acceptTerms && captchaVerified;
   };
 
-  const isStep2ContactValid = () => {
-    const phoneNumbers = removePhoneMask(formData.phone);
-    return formData.fullName && phoneNumbers.length >= 10;
+  const isStep2ContactValid = (): boolean => {
+    const phoneNumbers: string = removePhoneMask(formData.phone);
+    return !!formData.fullName && phoneNumbers.length >= 10;
   };
 
   const isStep5Valid = () => {
@@ -125,6 +130,22 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     const maskedValue = applyPhoneMask(value);
     handleInputChange('phone', maskedValue);
   };
+
+  const handleCaptchaVerify = useCallback((token: string) => {
+    setCaptchaToken(token);
+    setCaptchaVerified(true);
+    console.log('Captcha verificado com sucesso');
+  }, []);
+
+  const handleCaptchaError = useCallback(() => {
+    setCaptchaVerified(false);
+    showMessage('Erro na verificação do captcha. Tente novamente.', 'error');
+  }, []);
+
+  const handleCaptchaExpire = useCallback(() => {
+    setCaptchaVerified(false);
+    setCaptchaToken("");
+  }, []);
 
   const showMessage = (message: string, severity: 'success' | 'error' | 'info' = 'info') => {
     setSnackbar({ open: true, message, severity });
@@ -158,49 +179,44 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       return;
     }
 
+    if (!captchaToken || !captchaVerified) {
+      showMessage('Captcha não foi validado. Aguarde um momento e tente novamente.', 'error');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
+      console.log('Captcha token antes do envio:', captchaToken);
+      console.log('Captcha token length:', captchaToken.length);
+
       const userData: RegisterUserData = {
         email: formData.email,
         whatsapp: formData.phone,
         password: formData.password,
-        captcha_token: 'dummy-captcha-token',
+        captcha_token: captchaToken,
         accept_terms: formData.acceptTerms,
         full_name: formData.fullName,
         password_confirm: formData.password,
       };
 
-      console.log(userData);
+      console.log('Dados do usuário sendo enviados:', userData);
 
       const response = await registerUser(userData);
 
-      // Se o registro retornou tokens, fazer login automático
       if (response.access && response.refresh) {
         showMessage('Cadastro realizado com sucesso! Você já está logado.', 'success');
-        await login(); // Aguardar login ser completado
+        await login();
 
-        // Fechar modal após login bem-sucedido
         setTimeout(() => {
-          setCurrentStep(1);
+          setCurrentStep(3);
           setIsLoginMode(false);
-          setFormData({
-            email: '',
-            password: '',
-            phone: '',
-            fullName: '',
-            acceptTerms: false,
-            rememberMe: false
-          });
-          onClose();
         }, 2000);
       } else {
-        showMessage('Cadastro realizado com sucesso! Verifique seu email.', 'success');
+        showMessage('Erro ao realizar cadastro. Tente novamente.', 'error');
         setCurrentStep(3);
       }
     } catch (error: any) {
-      console.error('Erro no cadastro:', error);
-
       let errorMessage = 'Erro ao realizar cadastro. Tente novamente.';
 
       if (error.response?.data?.email) {
@@ -305,6 +321,8 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       rememberMe: false
     });
     setIsEmailVerified(false);
+    setCaptchaToken("");
+    setCaptchaVerified(false);
     if (openedFromSidebar) {
       setIsRegistrationSidebar(false);
     }
@@ -384,8 +402,6 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                         <div className={styles.socialButtons}>
                           <GoogleLogin
                             onSuccess={async (credentialResponse) => {
-                              console.log('Google Login Response:', credentialResponse);
-                              
                               if (!credentialResponse.credential) {
                                 showMessage('Token não fornecido pelo Google', 'error');
                                 return;
@@ -394,72 +410,37 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                               const idToken = credentialResponse.credential;
 
                               try {
-                                console.log('Enviando token para backend:', idToken);
-                                const response = await loginWithGoogle(idToken);
-                                console.log('Resposta do backend:', response);
-                                
-                                // if (!isLoginMode) {
-                                //   showMessage('Cadastro com Google realizado com sucesso!', 'success');
-                                //   await login(true); // true indica que é login com Google
-                                  
-                                //   // Chamada direta para garantir que o perfil seja atualizado
-                                //   try {
-                                //     console.log('Chamando getUserProfile diretamente...');
-                                //     const profileData = await getUserProfile();
-                                //     console.log('Perfil atualizado diretamente:', profileData);
-                                //   } catch (error) {
-                                //     console.error('Erro ao buscar perfil diretamente:', error);
-                                //   }
-                                  
-                                //   setCurrentStep(4);
-                                // } else {
-                                  showMessage('Login com Google realizado com sucesso!', 'success');
-                                  await login(true); // true indica que é login com Google
-                                  
-                                  // Chamada direta para garantir que o perfil seja atualizado
-                                  try {
-                                    console.log('Chamando getUserProfile diretamente...');
-                                    const profileData = await getUserProfile();
-                                    console.log('Perfil atualizado diretamente:', profileData);
-                                  } catch (error) {
-                                    console.error('Erro ao buscar perfil diretamente:', error);
-                                  }
-                                  
-                                  onClose();
-                                // }
+                                await loginWithGoogle(idToken);
+
+                                showMessage('Login com Google realizado com sucesso!', 'success');
+                                await login(true);
+
+                                try {
+                                  await getUserProfile();
+                                } catch (error) {
+                                  showMessage('Tivemos um problema ao buscar seu perfil, tente novamente mais tarde.');
+                                }
+
+                                onClose();
                               } catch (err: any) {
-                                console.error('Erro detalhado:', err);
-                                console.error('Response data:', err.response?.data);
-                                console.error('Response status:', err.response?.status);
-                                
+                                showMessage('Erro ao fazer login com Google');
+
                                 let errorMessage = 'Erro ao fazer login com Google';
                                 if (err.response?.data?.detail) {
                                   errorMessage = err.response.data.detail;
                                 } else if (err.response?.data?.error) {
                                   errorMessage = err.response.data.error;
                                 }
-                                
+
                                 showMessage(errorMessage, 'error');
                               }
                             }}
                             onError={() => {
-                              console.error('Google OAuth Error');
                               showMessage('Erro ao autenticar com Google', 'error');
                             }}
                             text="signup_with"
                             useOneTap={false}
                           />
-
-                          {/* <Button
-                            className={styles.socialButton}
-                            size="small"
-                            fullWidth
-                            onClick={() => handleSocialLogin('Google')}
-                            variant="outlined"
-                          >
-                            <img src="/google-icon.svg" alt="Google" className={styles.socialIcon} width={24} height={24} />
-                            Cadastro com Google
-                          </Button> */}
 
                           <Button
                             className={styles.socialButton}
@@ -502,21 +483,6 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                             className={styles.input}
                           />
 
-                          <div className={styles.captchaContainer}>
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  className={styles.checkbox}
-                                />
-                              }
-                              label={
-                                <span className={styles.termsCheckboxLabel}>
-                                  Confirmo que não sou um robô
-                                </span>
-                              }
-                            />
-                          </div>
-
                           <div className={styles.termsCheckbox}>
                             <FormControlLabel
                               control={
@@ -537,6 +503,18 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                               }
                             />
                           </div>
+
+                            {isOpen && currentStep === 1 && !isLoginMode && (
+                                <Turnstile
+                                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+                                  onVerify={handleCaptchaVerify}
+                                  onError={handleCaptchaError}
+                                  onExpire={handleCaptchaExpire}
+                                  theme="light"
+                                  size="normal"
+                                  className={styles.captcha}
+                                />
+                            )}
 
                           <Button
                             variant="contained"

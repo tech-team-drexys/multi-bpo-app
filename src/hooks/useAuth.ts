@@ -2,13 +2,26 @@ import { useState, useEffect } from 'react';
 import { getUserProfile } from '@/services/api';
 
 export interface UserData {
-  id?: number;
-  email?: string;
-  fullName?: string;
-  whatsapp?: string;
-  is_active?: boolean;
-  date_joined?: string;
+  success?: boolean;
+  message?: string;
+  user?: {
+    id?: number;
+    email?: string;
+    full_name?: string;
+    whatsapp?: string;
+    email_confirmed?: boolean;
+    created_at?: string;
+    registration_method?: string;
+    user_type?: string;
+    luca_questions_limit?: number;
+    luca_questions_remaining?: number;
+    next_luca_reset?: string;
+    allowed_erp_modules?: string[];
+    blocked_erp_modules?: string[];
+  };
 }
+
+const STORAGE_KEY = "lucaIA_userData";
 
 export const useAuth = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -17,101 +30,63 @@ export const useAuth = () => {
   const [isGoogleAuth, setIsGoogleAuth] = useState(false);
 
   useEffect(() => {
-    // Verificar se o usuário está logado ao carregar a página
-    console.log('isLoggedIn', isLoggedIn);
-    
     const checkAuthStatus = async () => {
-      if (typeof window !== 'undefined') {
-        const loggedIn = localStorage.getItem('lucaIA_loggedIn') === 'true';
-        const savedUser = localStorage.getItem('multibpo_user');
-        const googleAuth = localStorage.getItem('lucaIA_googleAuth') === 'true';
-        
+      if (typeof window !== "undefined") {
+        const loggedIn = localStorage.getItem("lucaIA_loggedIn") === "true";
+        const googleAuth = localStorage.getItem("lucaIA_googleAuth") === "true";
+        const savedUser = localStorage.getItem(STORAGE_KEY);
+
         setIsLoggedIn(loggedIn);
         setIsGoogleAuth(googleAuth);
-        
-        if (loggedIn && savedUser) {
-          try {
-            const parsedUser = JSON.parse(savedUser);
-            setUserData(parsedUser);
-          } catch (error) {
-            console.error('Erro ao carregar dados do usuário:', error);
+
+        if (loggedIn) {
+          if (savedUser) {
+            try {
+              setUserData(JSON.parse(savedUser));
+            } catch (error) {
+              console.error("Erro ao carregar dados do usuário:", error);
+            }
           }
-        }
-        
-        // Sempre buscar dados atualizados do perfil se estiver logado
-        // if (loggedIn) {
+
           try {
-            console.log('Verificando perfil do usuário...');
             const profileData = await getUserProfile();
-            console.log('Perfil verificado:', profileData);
             setUserData(profileData);
           } catch (error) {
-            console.error('Erro ao buscar perfil atualizado:', error);
-            // Manter dados salvos se não conseguir buscar atualizados
-            if (savedUser) {
-              try {
-                const parsedUser = JSON.parse(savedUser);
-                setUserData(parsedUser);
-              } catch (parseError) {
-                console.error('Erro ao fazer parse dos dados salvos:', parseError);
-              }
-            }
-          // }
+            console.error("Erro ao buscar perfil atualizado:", error);
+          }
         }
       }
       setIsLoading(false);
     };
 
     checkAuthStatus();
-  }, [isLoggedIn]);
+  }, []);
 
   const login = async (isGoogleLogin = false) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lucaIA_loggedIn', 'true');
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lucaIA_loggedIn", "true");
       if (isGoogleLogin) {
-        localStorage.setItem('lucaIA_googleAuth', 'true');
+        localStorage.setItem("lucaIA_googleAuth", "true");
         setIsGoogleAuth(true);
       }
       setIsLoggedIn(true);
-      
-      // Buscar dados do usuário após login
-      const savedUser = localStorage.getItem('multibpo_user');
-      if (savedUser) {
-        try {
-          const parsedUser = JSON.parse(savedUser);
-          setUserData(parsedUser);
-        } catch (error) {
-          console.error('Erro ao carregar dados do usuário:', error);
-        }
-      }
-      
-      // Sempre buscar dados atualizados do perfil após login
+
       try {
-        console.log('Buscando perfil do usuário...');
         const profileData = await getUserProfile();
-        console.log('Perfil carregado:', profileData);
         setUserData(profileData);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
       } catch (error) {
-        console.error('Erro ao buscar perfil atualizado:', error);
-        // Manter dados salvos se não conseguir buscar atualizados
-        if (savedUser) {
-          try {
-            const parsedUser = JSON.parse(savedUser);
-            setUserData(parsedUser);
-          } catch (parseError) {
-            console.error('Erro ao fazer parse dos dados salvos:', parseError);
-          }
-        }
+        console.error("Erro ao buscar perfil após login:", error);
       }
     }
   };
 
   const logout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('lucaIA_loggedIn');
-      localStorage.removeItem('lucaIA_googleAuth');
-      localStorage.removeItem('multibpo_tokens');
-      localStorage.removeItem('multibpo_user');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("lucaIA_loggedIn");
+      localStorage.removeItem("lucaIA_googleAuth");
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem("multibpo_tokens");
       setIsLoggedIn(false);
       setIsGoogleAuth(false);
       setUserData(null);
@@ -123,8 +98,9 @@ export const useAuth = () => {
       try {
         const profileData = await getUserProfile();
         setUserData(profileData);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
       } catch (error) {
-        console.error('Erro ao atualizar dados do usuário:', error);
+        console.error("Erro ao atualizar dados do usuário:", error);
       }
     }
   };
@@ -136,6 +112,6 @@ export const useAuth = () => {
     isGoogleAuth,
     login,
     logout,
-    refreshUserData
+    refreshUserData,
   };
-}; 
+};

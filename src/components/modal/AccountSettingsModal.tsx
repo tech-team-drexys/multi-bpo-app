@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { X, User, Shield } from 'lucide-react';
-import { useAuth } from '@/hooks';
+import { useAuthContext } from '@/contexts/AuthProvider';
 import styles from './AccountSettingsModal.module.scss';
 
 interface AccountSettingsModalProps {
@@ -12,7 +12,7 @@ interface AccountSettingsModalProps {
 type MenuOption = 'conta' | 'seguranca';
 
 export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalProps) => {
-  const { userData, refreshUserData } = useAuth();
+  const { userData, refreshUserData } = useAuthContext();
   const [activeMenu, setActiveMenu] = useState<MenuOption>('conta');
   const [formData, setFormData] = useState({
     nome: '',
@@ -62,8 +62,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
       [field]: value
     }));
   };
-
-  // Verificar se há alterações nos dados da conta
+  
   const hasChanges = () => {
     if (activeMenu === 'conta') {
       return (
@@ -79,12 +78,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Dados do formulário:', formData);
-    
-    // TODO: Implementar chamada para API de atualização de perfil
-    // await updateUserProfile(formData);
-    
-    // Atualizar dados originais após salvar
+
     if (activeMenu === 'conta') {
       setOriginalData({
         nome: formData.nome,
@@ -95,7 +89,6 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
       });
     }
     
-    // Atualizar dados do usuário após mudanças
     await refreshUserData();
     onClose();
   };
