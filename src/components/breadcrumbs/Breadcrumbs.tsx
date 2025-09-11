@@ -1,25 +1,10 @@
 import React from "react";
 import styles from "./breadcrumbs.module.scss";
-import { Button, Breadcrumbs as MUIBreadcrumbs, Link as MUILink, Typography } from "@mui/material";
+       import { Button, Breadcrumbs as MUIBreadcrumbs, Typography } from "@mui/material";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { House, Sparkles } from "lucide-react";
 
-const ROUTE_TITLES: Record<string, string> = {
-  '/': 'Página Inicial',
-  '/lucaIA': 'Luca IA',
-  '/dashboard': 'Dashboard',
-  '/drive': 'Drive',
-  '/central-de-atendimento': 'Central de Atendimento',
-  '/utilitarios': 'Utilitários',
-  '/noticias': 'Notícias',
-  '/agenda': 'Agenda',
-  '/loja': 'Loja',
-  '/notificacoes': 'Notificações',
-  '/ideias': 'Ideias',
-  '/ideias/adicionar-ideia': 'Adicionar Ideia',
-  '/ideias/detalhes': 'Detalhes da Ideia',
-};
 
 const SEGMENT_TITLES: Record<string, string> = {
   'ideias': 'Ideias',

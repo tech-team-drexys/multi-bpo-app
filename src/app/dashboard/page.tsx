@@ -192,7 +192,7 @@ export default function Dashboard() {
                                   <Typography variant="h6">{item.titulo}</Typography>
                                   <Chip
                                     label={getTipoText(item.tipo)}
-                                    color={getTipoColor(item.tipo) as any}
+                                    color={getTipoColor(item.tipo) as "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"}
                                     size="small"
                                   />
                                 </Box>

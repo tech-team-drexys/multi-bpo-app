@@ -89,9 +89,6 @@ export const ChatInput = ({
     }
   };
 
-  const handleOpenChange = (newOpen: boolean) => {
-    setOpenIdeas(newOpen);
-  };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

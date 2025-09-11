@@ -1,4 +1,4 @@
-import { Copy, ThumbsUp, ThumbsDown, MoreHorizontal, RotateCcw, Share } from 'lucide-react';
+import { Copy, ThumbsUp, ThumbsDown, MoreHorizontal, RotateCcw } from 'lucide-react';
 import styles from './Message.module.scss';
 
 interface MessageProps {
