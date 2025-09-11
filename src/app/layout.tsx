@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <head>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <script 
           dangerouslySetInnerHTML={{
             __html: `
@@ -33,16 +33,14 @@ export default function RootLayout({
                 FB.init({
                   appId: '${process.env.NEXT_PUBLIC_FACEBOOK_APP_ID}',
                   cookie: true,
-                  xfbml: false,
-                  version: 'v20.0'
+                  xfbml: true,
+                  version: 'v23.0'
                 });
               };
             `
           }}
         />
-        <script async defer crossOrigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js"></script>
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <script async defer crossOrigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
         <LayoutClient>
           {children}
         </LayoutClient>

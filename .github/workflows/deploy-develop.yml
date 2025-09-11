@@ -1,0 +1,58 @@
+name: 🔍 Deploy Develop (Testes)
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Instalar PNPM
+        run: npm install -g pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Rodar testes
+        run: pnpm test
+
+      - name: Build Next.js
+        run: pnpm build
+
+      - name: Empacotar build
+        run: tar -czf release.tar.gz .next public package.json pnpm-lock.yaml
+
+      - name: Copiar arquivos para servidor
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "release.tar.gz"
+          target: "/tmp/"
+
+      - name: Deploy remoto
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            mkdir -p /var/www/myapp
+            tar -xzf /tmp/release.tar.gz -C /var/www/myapp
+            cd /var/www/myapp
+            pnpm install --prod
+            pm2 restart myapp || pm2 start pnpm --name "myapp" -- start
