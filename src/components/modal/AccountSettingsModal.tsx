@@ -1,6 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, User, Shield } from 'lucide-react';
+import { useAuthContext } from '@/contexts/AuthProvider';
 import styles from './AccountSettingsModal.module.scss';
 
 interface AccountSettingsModalProps {
@@ -11,17 +12,49 @@ interface AccountSettingsModalProps {
 type MenuOption = 'conta' | 'seguranca';
 
 export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalProps) => {
+  const { userData, refreshUserData } = useAuthContext();
   const [activeMenu, setActiveMenu] = useState<MenuOption>('conta');
   const [formData, setFormData] = useState({
-    nome: 'João',
-    sobrenome: 'Silva',
+    nome: '',
+    sobrenome: '',
     apelido: '',
     telefone: '',
-    email: 'joao@exemplo.com',
+    email: '',
     senhaAtual: '',
     novaSenha: '',
     confirmarSenha: '',
   });
+  const [originalData, setOriginalData] = useState({
+    nome: '',
+    sobrenome: '',
+    apelido: '',
+    telefone: '',
+    email: '',
+  });
+
+  // Carregar dados do usuário quando o modal abrir
+  useEffect(() => {
+    if (isOpen && userData) {
+      const initialData = {
+        nome: userData.first_name || '',
+        sobrenome: userData.last_name || '',
+        apelido: '',
+        telefone: userData.whatsapp || '',
+        email: userData.email || '',
+        senhaAtual: '',
+        novaSenha: '',
+        confirmarSenha: '',
+      };
+      setFormData(initialData);
+      setOriginalData({
+        nome: userData.first_name || '',
+        sobrenome: userData.last_name || '',
+        apelido: '',
+        telefone: userData.whatsapp || '',
+        email: userData.email || '',
+      });
+    }
+  }, [isOpen, userData]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({
@@ -29,10 +62,34 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
       [field]: value
     }));
   };
+  
+  const hasChanges = () => {
+    if (activeMenu === 'conta') {
+      return (
+        formData.nome !== originalData.nome ||
+        formData.sobrenome !== originalData.sobrenome ||
+        formData.apelido !== originalData.apelido ||
+        formData.telefone !== originalData.telefone ||
+        formData.email !== originalData.email
+      );
+    }
+    return formData.senhaAtual || formData.novaSenha || formData.confirmarSenha;
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Dados do formulário:', formData);
+
+    if (activeMenu === 'conta') {
+      setOriginalData({
+        nome: formData.nome,
+        sobrenome: formData.sobrenome,
+        apelido: formData.apelido,
+        telefone: formData.telefone,
+        email: formData.email,
+      });
+    }
+    
+    await refreshUserData();
     onClose();
   };
 
@@ -165,6 +222,45 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
           
           <div className={styles.mainContent}>
             {renderContent()}
+            
+            {/* Botão de salvar - só aparece quando há alterações */}
+            {hasChanges() && (
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  className={styles.cancelButton}
+                  onClick={() => {
+                    // Resetar para dados originais
+                    if (activeMenu === 'conta') {
+                      setFormData(prev => ({
+                        ...prev,
+                        nome: originalData.nome,
+                        sobrenome: originalData.sobrenome,
+                        apelido: originalData.apelido,
+                        telefone: originalData.telefone,
+                        email: originalData.email,
+                      }));
+                    } else {
+                      setFormData(prev => ({
+                        ...prev,
+                        senhaAtual: '',
+                        novaSenha: '',
+                        confirmarSenha: '',
+                      }));
+                    }
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className={styles.saveButton}
+                  onClick={handleSubmit}
+                >
+                  Salvar Alterações
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

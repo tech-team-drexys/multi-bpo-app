@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório ERP - Multi BPO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #2463eb;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .logo {
+            width: 120px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 0 auto 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 150px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .card h3 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .cta-section {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #2463eb;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: #333;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .social-links {
+            margin: 20px 0;
+        }
+
+        .social-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            opacity: 0.8;
+        }
+
+        .social-links a:hover {
+            opacity: 1;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Bem-vindo Fulano de Tal!</h1>
+            <p>Confirme seu email e comece a usar nosso sistema ERP</p>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Olá, <strong>Fulano de Tal</strong>!
+            </div>
+
+            <p>Para começar a usar nosso sistema ERP, você precisa confirmar seu email clicando no botão abaixo.</p>
+
+            <div class="cta-section">
+                <a href="#" class="cta-button">Confirmar Email</a>
+            </div>
+
+            <p>Em caso de dúvidas, entre em contato conosco através do email <a href="mailto:suporte@multibpo.com"
+                    style="color: #667eea;">suporte@multibpo.com</a> ou pelo telefone <strong>(11) 99999-9999</strong>.
+            </p>
+        </div>
+        <div class="footer">
+            <p><strong>Multi BPO ERP System</strong></p>
+            <p>Rua das Empresas, 123 - São Paulo, SP</p>
+
+            <div class="social-links">
+                <a href="#">LinkedIn</a> |
+                <a href="#">Website</a> |
+                <a href="#">Suporte</a>
+            </div>
+
+            <p style="font-size: 12px; margin-top: 20px;">
+                Este é um email automático. Para cancelar o recebimento,
+                <a href="#" style="color: #ccc;">clique aqui</a>.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

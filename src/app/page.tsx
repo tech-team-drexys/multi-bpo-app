@@ -3,14 +3,24 @@ import { Button } from "@mui/material";
 import styles from "./page.module.scss";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/contexts/AuthProvider";
 
 export default function Home() {
+  const { userData, isLoggedIn } = useAuthContext();
   const router = useRouter();
 
   return (
     <div className={styles.page}>
       <div className={styles.content}>
-        <h1>Olá André, seja bem-vindo ao Multi BPO!</h1>
+        <h1>
+          Olá
+          {isLoggedIn
+            ? userData?.user?.full_name
+              ? ` ${userData.user.full_name.trim()}`
+              : ' usuário'
+            : ''}
+          , seja bem-vindo ao Multi BPO!
+        </h1>
         
         <section className={styles.section}>
           <h2>Novidades</h2>
