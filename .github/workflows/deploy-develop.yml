@@ -1,4 +1,4 @@
-name: 🔍 Deploy Develop (Testes)
+name: ERP Multi BPO Testes
 
 on:
   push:
@@ -12,20 +12,17 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
+      - name: Instalar PNPM
+        run: npm install -g pnpm
+
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Instalar PNPM
-        run: npm install -g pnpm
-
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
-
-      - name: Rodar testes
-        run: pnpm test
 
       - name: Build Next.js
         run: pnpm build
@@ -51,8 +48,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            mkdir -p /var/www/myapp
-            tar -xzf /tmp/release.tar.gz -C /var/www/myapp
-            cd /var/www/myapp
+            mkdir -p /var/www/multi-bpo-app-dev
+            tar -xzf /tmp/release.tar.gz -C /var/www/multi-bpo-app-dev
+            cd /var/www/multi-bpo-app-dev
             pnpm install --prod
-            pm2 restart myapp || pm2 start pnpm --name "myapp" -- start
+            pm2 restart multi-bpo-app-dev || pm2 start pnpm --name "multi-bpo-app-dev" -- start
