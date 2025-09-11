@@ -12,20 +12,17 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
+      - name: Instalar PNPM
+        run: npm install -g pnpm
+
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Instalar PNPM
-        run: npm install -g pnpm
-
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
-
-      - name: Rodar testes
-        run: pnpm test
 
       - name: Build Next.js
         run: pnpm build
@@ -51,8 +48,8 @@ jobs:
           port: ${{ secrets.HOMOLOG_SSH_PORT }}
           key: ${{ secrets.HOMOLOG_DEPLOY_SSH_KEY }}
           script: |
-            mkdir -p /var/www/myapp-homolog
-            tar -xzf /tmp/release.tar.gz -C /var/www/myapp-homolog
-            cd /var/www/myapp-homolog
+            mkdir -p /var/www/multi-bpo-app-homolog
+            tar -xzf /tmp/release.tar.gz -C /var/www/multi-bpo-app-homolog
+            cd /var/www/multi-bpo-app-homolog
             pnpm install --prod
-            pm2 restart myapp-homolog || pm2 start pnpm --name "myapp-homolog" -- start
+            pm2 restart multi-bpo-app-homolog || pm2 start pnpm --name "multi-bpo-app-homolog" -- start

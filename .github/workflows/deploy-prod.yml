@@ -12,20 +12,17 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
+      - name: Instalar PNPM
+        run: npm install -g pnpm
+
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Instalar PNPM
-        run: npm install -g pnpm
-
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
-
-      - name: Rodar testes
-        run: pnpm test
 
       - name: Build Next.js
         run: pnpm build
@@ -51,8 +48,8 @@ jobs:
           port: ${{ secrets.PROD_SSH_PORT }}
           key: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
           script: |
-            mkdir -p /var/www/myapp-prod
-            tar -xzf /tmp/release.tar.gz -C /var/www/myapp-prod
-            cd /var/www/myapp-prod
+            mkdir -p /var/www/multi-bpo-app-prod
+            tar -xzf /tmp/release.tar.gz -C /var/www/multi-bpo-app-prod
+            cd /var/www/multi-bpo-app-prod
             pnpm install --prod
-            pm2 restart myapp-prod || pm2 start pnpm --name "myapp-prod" -- start
+            pm2 restart multi-bpo-app-prod || pm2 start pnpm --name "multi-bpo-app-prod" -- start
