@@ -171,7 +171,6 @@ export default function Drive() {
   };
 
   const handleDownload = (file: FileItem) => {
-    console.log('Baixar arquivo:', file.name);
     const link = document.createElement('a');
     link.href = `#download-${file.id}`;
     link.download = file.name;

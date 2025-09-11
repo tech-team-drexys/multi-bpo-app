@@ -185,7 +185,7 @@ export default function Agenda() {
     }
     return null;
   };
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cellRender = (current: Dayjs, info: any) => {
     if (info.type === 'date') {
       return dateCellRender(current);

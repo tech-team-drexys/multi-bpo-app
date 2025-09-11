@@ -137,7 +137,6 @@ export const registerUser = async (userData: RegisterUserData) => {
 export const checkEmailStatus = async (email: string) => {
     try {
         const response = await api.get(`/auth/email-status/?email=${email}`);
-        console.log("Response:", response.data);
         return response.data;
     } catch (error) {
         console.error("Erro ao verificar status de email:", error);

@@ -64,7 +64,6 @@ export const Turnstile: React.FC<TurnstileProps> = ({
             'error-callback': handleError,
             'expired-callback': handleExpire,
           });
-          console.log('Turnstile renderizado com sucesso');
         } catch (error) {
           console.error('Erro ao renderizar Turnstile:', error);
           isRenderedRef.current = false;
@@ -79,13 +78,11 @@ export const Turnstile: React.FC<TurnstileProps> = ({
       const existingScript = document.querySelector('script[src="https://challenges.cloudflare.com/turnstile/v0/api.js"]');
       
       if (!existingScript) {
-        console.log('Carregando script do Turnstile...');
         const script = document.createElement('script');
         script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
         script.async = true;
         script.defer = true;
         script.onload = () => {
-          console.log('Script do Turnstile carregado');
           loadTurnstile();
         };
         script.onerror = () => {
