@@ -216,7 +216,7 @@ export const loginWithGoogle = async (idToken: string) => {
         try {
           response = await api.post("/auth/google-login/", payload);
           break;
-        } catch (err: any) {
+        } catch (err: unknown) {
           lastError = err;
           continue;
         }

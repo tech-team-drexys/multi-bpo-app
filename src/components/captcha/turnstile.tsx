@@ -15,7 +15,7 @@ interface TurnstileProps {
 declare global {
   interface Window {
     turnstile: {
-      render: (container: HTMLElement, options: any) => string;
+      render: (container: HTMLElement, options: Record<string, unknown>) => string;
       reset: (widgetId: string) => void;
       remove: (widgetId: string) => void;
     };

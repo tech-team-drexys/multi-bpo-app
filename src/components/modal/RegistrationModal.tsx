@@ -290,7 +290,7 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
         return;
       }
 
-      (window as any).FB.login((response: any) => {
+      (window as any).FB.login((response: { authResponse?: { accessToken: string } }) => {
         if (response.authResponse) {
           handleFacebookResponse(response.authResponse.accessToken);
         } else {

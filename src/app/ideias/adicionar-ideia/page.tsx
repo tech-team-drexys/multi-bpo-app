@@ -287,7 +287,7 @@ const AdicionarIdeia = () => {
                     <div className={styles.formRight}>
                         <div className={styles.tipBox}>
                             <h4>Dica:</h4>
-                            <p>Inclua o módulo específico seguido da solução proposta para facilitar a análise da equipe. Por exemplo: "Módulo Multiempresa: Transferência automática de pedidos"</p>
+                            <p>Inclua o módulo específico seguido da solução proposta para facilitar a análise da equipe. Por exemplo: &quot;Módulo Multiempresa: Transferência automática de pedidos&quot;</p>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-import { Badge, Select, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, MenuItem } from "@mui/material";
+import { Badge, Select, Dialog, DialogTitle, DialogContent, FormControl, InputLabel, MenuItem } from "@mui/material";
 import {
     Building2,
     Calendar,
@@ -6,11 +6,8 @@ import {
     Globe,
     FolderOpen,
     Building,
-    Image,
     BarChart3,
-    Palette,
     Download,
-    X,
     ExternalLink,
     Landmark,
     Map,
