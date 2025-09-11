@@ -245,7 +245,18 @@ export const loginWithGoogle = async (idToken: string) => {
 
   export const loginWithFacebook = async (accessToken: string) => {
     try {
-      const response = await api.post("/auth/facebook-login/", { access_token: accessToken });
+      const response = await authApi.post("/auth/social-login/", { access_token: accessToken });
+      
+      if (response.data.access && response.data.refresh) {
+        const tokens = {
+          access: response.data.access,
+          refresh: response.data.refresh,
+        };
+        localStorage.setItem("multibpo_tokens", JSON.stringify(tokens));
+        localStorage.setItem("multibpo_user", JSON.stringify(response.data.user || {}));
+        localStorage.setItem("lucaIA_loggedIn", "true");
+      }
+      
       return response.data;
     } catch (error) {
       console.error("Erro no login com Facebook:", error);

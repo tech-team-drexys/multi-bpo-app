@@ -24,7 +24,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
+      <head>
+        <script 
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.fbAsyncInit = function() {
+                FB.init({
+                  appId: '${process.env.NEXT_PUBLIC_FACEBOOK_APP_ID}',
+                  cookie: true,
+                  xfbml: false,
+                  version: 'v20.0'
+                });
+              };
+            `
+          }}
+        />
+        <script async defer crossOrigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js"></script>
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <LayoutClient>
           {children}

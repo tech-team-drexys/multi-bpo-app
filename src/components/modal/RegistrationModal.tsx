@@ -8,9 +8,9 @@ import styles from './RegistrationModal.module.scss';
 import { usePhoneMask } from '@/hooks';
 import { useAuthContext } from '@/contexts/AuthProvider';
 import { GoogleLogin } from '@react-oauth/google';
-import { Facebook } from '@/icons/facebook';
 import { Turnstile } from '@/components/captcha/turnstile';
-import { registerUser, RegisterUserData, loginWithCredentials, LoginCredentials, checkEmailStatus, loginWithGoogle, getUserProfile } from '@/services/api';
+import { registerUser, RegisterUserData, loginWithCredentials, LoginCredentials, checkEmailStatus, loginWithGoogle, getUserProfile, loginWithFacebook } from '@/services/api';
+import { FacebookButton } from '@/components/social-buttons/FacebookButton';
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -105,6 +105,9 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
       }
     }
   }, [isOpen, isLoginMode]);
+
+  // O SDK do Facebook agora é carregado no layout.tsx
+
 
   const isStep2Valid = () => {
     return formData.email && formData.password && formData.acceptTerms && captchaVerified;
@@ -280,6 +283,51 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
     }
   };
 
+  const handleFacebookLogin = async () => {
+    try {
+      if (typeof window === 'undefined' || !(window as any).FB) {
+        showMessage("SDK do Facebook não carregado", "error");
+        return;
+      }
+
+      (window as any).FB.login((response: any) => {
+        if (response.authResponse) {
+          handleFacebookResponse(response.authResponse.accessToken);
+        } else {
+          showMessage("Login com Facebook cancelado", "info");
+        }
+      }, { scope: 'email,public_profile' });
+    } catch (error) {
+      showMessage("Erro ao inicializar login do Facebook", "error");
+    }
+  };
+
+  const handleFacebookResponse = async (accessToken: string) => {
+    try {
+      await loginWithFacebook(accessToken);
+
+      showMessage("Login com Facebook realizado com sucesso!", "success");
+      await login(true);
+
+      try {
+        await getUserProfile();
+      } catch (error) {
+        showMessage("Tivemos um problema ao buscar seu perfil, tente novamente mais tarde.");
+      }
+
+      onClose();
+    } catch (err: any) {
+      let errorMessage = "Erro ao fazer login com Facebook";
+      if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      }
+      showMessage(errorMessage, "error");
+    }
+  };
+
+
   const handleCloseModal = () => {
     setCurrentStep(1);
     setIsLoginMode(false);
@@ -439,16 +487,11 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                             useOneTap={false}
                           />
 
-                          <Button
-                            className={styles.socialButton}
-                            size="small"
-                            fullWidth
-                            // onClick={() => handleSocialLogin('Facebook')}
-                            variant="outlined"
-                          >
-                            <Facebook className={styles.socialIcon} width={24} height={24} />
-                            Cadastro com Facebook
-                          </Button>
+
+                          <FacebookButton
+                            onClick={handleFacebookLogin}
+                            text="Cadastro com Facebook"
+                          />
                         </div>
 
                         <Divider plain>ou</Divider>
@@ -501,17 +544,17 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                             />
                           </div>
 
-                            {isOpen && currentStep === 1 && !isLoginMode && (
-                                <Turnstile
-                                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
-                                  onVerify={handleCaptchaVerify}
-                                  onError={handleCaptchaError}
-                                  onExpire={handleCaptchaExpire}
-                                  theme="light"
-                                  size="normal"
-                                  className={styles.captcha}
-                                />
-                            )}
+                          {isOpen && currentStep === 1 && !isLoginMode && (
+                            <Turnstile
+                              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+                              onVerify={handleCaptchaVerify}
+                              onError={handleCaptchaError}
+                              onExpire={handleCaptchaExpire}
+                              theme="light"
+                              size="normal"
+                              className={styles.captcha}
+                            />
+                          )}
 
                           <Button
                             variant="contained"
@@ -698,6 +741,57 @@ export const RegistrationModal = ({ isOpen, onClose, openedFromSidebar, setIsReg
                       <h1 className={styles.title}>Faça login na sua conta</h1>
                       <p className={styles.subtitle}>Acesse sua conta e aproveite todas as funcionalidades</p>
                     </div>
+
+                    <div className={styles.socialButtons}>
+                      <GoogleLogin
+                        onSuccess={async (credentialResponse) => {
+                          if (!credentialResponse.credential) {
+                            showMessage('Token não fornecido pelo Google', 'error');
+                            return;
+                          }
+
+                          const idToken = credentialResponse.credential;
+
+                          try {
+                            await loginWithGoogle(idToken);
+
+                            showMessage('Login com Google realizado com sucesso!', 'success');
+                            await login(true);
+
+                            try {
+                              await getUserProfile();
+                            } catch (error) {
+                              showMessage('Tivemos um problema ao buscar seu perfil, tente novamente mais tarde.');
+                            }
+
+                            onClose();
+                          } catch (err: any) {
+                            showMessage('Erro ao fazer login com Google');
+
+                            let errorMessage = 'Erro ao fazer login com Google';
+                            if (err.response?.data?.detail) {
+                              errorMessage = err.response.data.detail;
+                            } else if (err.response?.data?.error) {
+                              errorMessage = err.response.data.error;
+                            }
+
+                            showMessage(errorMessage, 'error');
+                          }
+                        }}
+                        onError={() => {
+                          showMessage('Erro ao autenticar com Google', 'error');
+                        }}
+                        text="signin_with"
+                        useOneTap={false}
+                      />
+
+                      <FacebookButton
+                        onClick={handleFacebookLogin}
+                        text="Login com Facebook"
+                      />
+                    </div>
+
+                    <Divider plain>ou</Divider>
 
                     <form onSubmit={handleLoginSubmit} className={styles.form}>
                       <label className={styles.label}>E-mail *</label>
