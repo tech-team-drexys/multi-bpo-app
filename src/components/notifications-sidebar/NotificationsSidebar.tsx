@@ -22,6 +22,7 @@ export const NotificationsSidebar = ({ isOpen, onClose }: NotificationsSidebarPr
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
       markAsRead(notification.id);
@@ -84,7 +85,7 @@ export const NotificationsSidebar = ({ isOpen, onClose }: NotificationsSidebarPr
                           </Typography>
                           <Chip 
                             label={notification.type}
-                            color={getTypeColor(notification.type) as any}
+                            color={getTypeColor(notification.type)}
                             size="small"
                           />
                         </div>
