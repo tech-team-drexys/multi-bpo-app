@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 name: CI/CD Node.js Docker
-=======
-name: ERP Multi BPO Testes
->>>>>>> develop
 
 on:
   push:
