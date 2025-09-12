@@ -6,8 +6,8 @@ on:
       - develop
 
 env:
-  DEPLOY_PATH: /home/deploy/deploy-erp
-  CONTAINER_NAME: erp_multibpo_frontend
+  DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+  CONTAINER_NAME: ${{ vars.APP_NAME }}
 
 jobs:
   deploy:
@@ -17,23 +17,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Copy project files
+      - name: Copy project files to server
         uses: appleboy/scp-action@v0.1.6
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           source: "."
           target: ${{ env.DEPLOY_PATH }}
 
       - name: Build and deploy Docker container
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             cd $DEPLOY_PATH
-            docker-compose up -d --build $CONTAINER_NAME
+            # Parar e remover container antigo, se existir
+            if docker ps -a --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}\$"; then
+              docker rm -f $CONTAINER_NAME
+            fi
+            # Build e start do container
+            docker-compose up -d --build
