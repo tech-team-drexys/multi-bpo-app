@@ -1,55 +1,43 @@
+<<<<<<< HEAD
+name: CI/CD Node.js Docker
+=======
 name: ERP Multi BPO Testes
+>>>>>>> develop
 
 on:
   push:
     branches:
       - develop
 
+env:
+  DEPLOY_PATH: /home/deploy/deploy-erp
+  CONTAINER_NAME: erp_multibpo_frontend
+
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Instalar PNPM
-        run: npm install -g pnpm
-
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
+      - name: Copy project files
+        uses: appleboy/scp-action@v0.1.6
         with:
-          node-version: 20
-          cache: pnpm
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "."
+          target: ${{ env.DEPLOY_PATH }}
 
-      - name: Instalar dependências
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Next.js
-        run: pnpm build
-
-      - name: Empacotar build
-        run: tar -czf release.tar.gz .next public package.json pnpm-lock.yaml
-
-      - name: Copiar arquivos para servidor
-        uses: appleboy/scp-action@master
+      - name: Build and deploy Docker container
+        uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "release.tar.gz"
-          target: "/tmp/"
-
-      - name: Deploy remoto
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
           script: |
-            mkdir -p /var/www/multi-bpo-app-dev
-            tar -xzf /tmp/release.tar.gz -C /var/www/multi-bpo-app-dev
-            cd /var/www/multi-bpo-app-dev
-            pnpm install --prod
-            pm2 restart multi-bpo-app-dev || pm2 start pnpm --name "multi-bpo-app-dev" -- start
+            cd $DEPLOY_PATH
+            docker-compose up -d --build $CONTAINER_NAME
