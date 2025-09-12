@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import styles from './contratos.module.scss';
-import { ArrowDownToLine, Calendar, Check, ChevronDown, Clock, DollarSign, Eye, FileText, Plus, Search, User, X } from 'lucide-react';
+import { ArrowDownToLine, Calendar, Check, ChevronDown, Clock, Eye, FileText, Plus, Search, User, X } from 'lucide-react';
 
 interface Contract {
   id: string;

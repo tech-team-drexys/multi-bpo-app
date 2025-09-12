@@ -75,10 +75,6 @@ export default function Ideias() {
   const [activeFilter, setActiveFilter] = useState('todas');
   const [filteredIdeas, setFilteredIdeas] = useState<Idea[]>(mockIdeas);
 
-  useEffect(() => {
-    handleSearch();
-  }, [activeFilter, searchTerm]);
-
   const handleSearch = () => {
     let filtered = ideas;
     
@@ -106,9 +102,13 @@ export default function Ideias() {
         idea.author.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
+    
     setFilteredIdeas(filtered);
   };
+
+  useEffect(() => {
+    handleSearch();
+  }, [activeFilter, searchTerm, handleSearch]);
 
   const handleLike = (ideaId: number) => {
     setIdeas(prev => prev.map(idea => 

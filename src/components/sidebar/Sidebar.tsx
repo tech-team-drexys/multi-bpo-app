@@ -223,7 +223,6 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
                 </Avatar>
                 {shouldShowExpanded && (
                   <span>
-                    {console.log("userData", userData)}
                     {isLoading
                       ? "Carregando..."
                       : isLoggedIn && userData

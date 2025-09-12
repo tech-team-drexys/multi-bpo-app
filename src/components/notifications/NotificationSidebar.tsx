@@ -119,7 +119,7 @@ export const NotificationSidebar = ({ open, onClose }: NotificationSidebarProps)
                         </Typography>
                         <Chip 
                           label={notification.type}
-                          color={getTypeColor(notification.type) as any}
+                          color={getTypeColor(notification.type)}
                           size="small"
                         />
                       </div>

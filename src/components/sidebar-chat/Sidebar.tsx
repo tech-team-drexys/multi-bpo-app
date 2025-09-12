@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { ChevronDown } from "lucide-react";
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './sidebar.module.scss';
-import { Button, Popover } from '@mui/material';
+import { Popover } from '@mui/material';
 import { HistoryModal } from '../modal/HistoryModal';
 
 interface SidebarProps {

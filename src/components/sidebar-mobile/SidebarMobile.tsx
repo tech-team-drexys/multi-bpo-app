@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./sidebarMobile.module.scss";
-import { X, House, ChartNoAxesCombined, Archive, Headset, BotMessageSquare, LayoutGrid, Newspaper, CalendarDays, Store, Bell, User, Lightbulb, ShieldCheck, FileText } from "lucide-react";
+import { X, House, ChartNoAxesCombined, Archive, Headset, BotMessageSquare, LayoutGrid, Newspaper, CalendarDays, Store, User, Lightbulb, ShieldCheck, FileText } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthContext } from '@/contexts/AuthProvider';
 import Image from "next/image";

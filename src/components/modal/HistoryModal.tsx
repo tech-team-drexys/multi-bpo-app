@@ -65,7 +65,6 @@ export const HistoryModal = ({ isOpen, onClose }: HistoryModalProps) => {
 
   const handleActionClick = (e: React.MouseEvent, action: string, conversationId: number) => {
     e.stopPropagation();
-    console.log(`${action} conversa:`, conversationId);
   };
 
   if (!isOpen) return null;

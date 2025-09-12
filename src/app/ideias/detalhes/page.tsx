@@ -160,7 +160,7 @@ export default function DetalhesIdeia() {
                         <h3>situação</h3>
                         <Chip 
                             label={idea.status} 
-                            color={getStatusColor(idea.status) as any}
+                            color={getStatusColor(idea.status)}
                             variant="outlined"
                         />
                     </div>

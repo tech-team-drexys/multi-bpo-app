@@ -6,7 +6,7 @@ import styles from './CertificateModal.module.scss';
 interface CertificateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (certificateData: any) => void;
+  onSubmit: (certificateData: { file: File; title: string; description: string }) => void;
 }
 
 const CertificateModal = ({ isOpen, onClose, onSubmit }: CertificateModalProps) => {
@@ -42,8 +42,9 @@ const CertificateModal = ({ isOpen, onClose, onSubmit }: CertificateModalProps) 
     }
 
     onSubmit({
-      ...formData,
-      arquivo: selectedFile
+      file: selectedFile,
+      title: formData.cliente,
+      description: `CNPJ: ${formData.cnpj} | Vencimento: ${formData.vencimento}`
     });
 
     // Reset form
