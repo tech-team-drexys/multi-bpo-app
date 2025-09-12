@@ -31,9 +31,9 @@ jobs:
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
+          username: deploy
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          port: 2222
           script: |
             cd $DEPLOY_PATH
             # Parar e remover container antigo, se existir
