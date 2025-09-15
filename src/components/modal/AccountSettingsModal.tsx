@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { X, User, Shield } from 'lucide-react';
+import { X, User, Shield, Gem, ChevronDown, ArrowDownToLine } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthProvider';
 import styles from './AccountSettingsModal.module.scss';
 
@@ -9,7 +9,7 @@ interface AccountSettingsModalProps {
   onClose: () => void;
 }
 
-type MenuOption = 'conta' | 'seguranca';
+type MenuOption = 'conta' | 'seguranca' | 'assinaturas';
 
 export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalProps) => {
   const { userData, refreshUserData } = useAuthContext();
@@ -32,7 +32,6 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
     email: '',
   });
 
-  // Carregar dados do usuário quando o modal abrir
   useEffect(() => {
     if (isOpen && userData) {
       const initialData = {
@@ -96,6 +95,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
   const menuOptions = [
     { id: 'conta', label: 'Conta', icon: User },
     { id: 'seguranca', label: 'Segurança', icon: Shield },
+    { id: 'assinaturas', label: 'Assinaturas', icon: Gem },
   ];
 
   const renderContent = () => {
@@ -148,6 +148,114 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
                 onChange={(e) => handleInputChange('telefone', e.target.value)}
                 className={styles.input}
               />
+            </div>
+          </div>
+        );
+      case 'assinaturas':
+        return (
+          <div className={styles.content}>
+            <h2>{menuOptions.find(opt => opt.id === activeMenu)?.label}</h2>
+            <div className={styles.subscriptionSection}>
+              <h3>ASSINATURA ATUAL</h3>
+              <div className={styles.currentSubscription}>
+                <div className={styles.planInfo}>
+                  <h4>Plano Premium</h4>
+                  <div className={styles.price}>
+                    <span className={styles.amount}>R$ 59,90</span>
+                    <span className={styles.period}>por mês</span>
+                  </div>
+                  <a href="#" className={styles.detailsLink}>Ver detalhes</a>
+                  <p className={styles.renewalDate}>Sua assinatura renova em 30 de Janeiro, 2025.</p>
+                </div>
+                <div className={styles.subscriptionActions}>
+                  <button className={styles.updateButton}>Atualizar assinatura</button>
+                  <button className={styles.cancelButton}>Cancelar assinatura</button>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.subscriptionSection}>
+              <h3>MÉTODO DE PAGAMENTO</h3>
+              <div className={styles.paymentMethod}>
+                <div className={styles.cardInfo}>
+                  <div className={styles.cardIcon}>
+                    <div className={styles.mastercardIcon}>MC</div>
+                  </div>
+                  <div className={styles.cardDetails}>
+                    <span className={styles.cardNumber}>Mastercard ****0608</span>
+                    <span className={styles.cardStatus}>Padrão • Expira 07/2034</span>
+                  </div>
+                  <button className={styles.removeCard}>×</button>
+                </div>
+                <button className={styles.addPaymentButton}>
+                  <span>+</span>
+                  Adicionar método de pagamento
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.subscriptionSection}>
+              <h3>INFORMAÇÕES DE COBRANÇA</h3>
+              <div className={styles.billingInfo}>
+                <div className={styles.billingColumn}>
+                  <div className={styles.billingField}>
+                    <label>Nome</label>
+                    <span className={styles.billingValue}>JOÃO SILVA</span>
+                  </div>
+                  <div className={styles.billingField}>
+                    <label>Endereço de cobrança</label>
+                    <div className={styles.address}>
+                      <span>Rua das Flores, 123</span>
+                      <span>Centro, São Paulo-SP</span>
+                      <span>01234-567</span>
+                      <span>BR</span>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.billingColumn}>
+                  <div className={styles.billingField}>
+                    <label>Email</label>
+                    <span className={styles.billingValue}>joao@email.com</span>
+                  </div>
+                </div>
+              </div>
+              <button className={styles.updateInfoButton}>Atualizar informações</button>
+            </div>
+
+            <div className={styles.subscriptionSection}>
+              <div className={styles.historyHeader}>
+                <h3>HISTÓRICO DE FATURAS</h3>
+              </div>
+              <div className={styles.invoiceHistory}>
+                <div className={styles.invoiceRow}>
+                  <span className={styles.invoiceDate}>30 Ago, 2025</span>
+                  <span className={styles.invoiceAmount}>R$ 59,90</span>
+                  <span className={styles.invoiceStatus}>Pendente</span>
+                  <span className={styles.invoicePlan}>Plano Premium</span>
+                  <button className={styles.expandButton}>
+                    <ArrowDownToLine width={16} height={16} />
+                  </button>
+                </div>
+                <div className={styles.invoiceRow}>
+                  <span className={styles.invoiceDate}>30 Jul, 2025</span>
+                  <span className={styles.invoiceAmount}>R$ 59,90</span>
+                  <span className={styles.invoiceStatus}>Pago</span>
+                  <span className={styles.invoicePlan}>Plano Premium</span>
+                  <button className={styles.expandButton}>
+                    <ArrowDownToLine width={16} height={16} />
+                  </button>
+                </div>
+                <div className={styles.invoiceRow}>
+                  <span className={styles.invoiceDate}>30 Jun, 2025</span>
+                  <span className={styles.invoiceAmount}>R$ 59,90</span>
+                  <span className={styles.invoiceStatus}>Pago</span>
+                  <span className={styles.invoicePlan}>Plano Premium</span>
+                  <button className={styles.expandButton}>
+                    <ArrowDownToLine width={16} height={16} />
+                  </button>
+                </div>
+              </div>
+              <a href="#" className={styles.viewMoreLink}>Ver mais</a>
             </div>
           </div>
         );
