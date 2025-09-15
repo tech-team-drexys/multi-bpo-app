@@ -13,14 +13,13 @@ export default function Home() {
     <div className={styles.page}>
       <div className={styles.content}>
         <h1>
-          {/* Olá
+          Olá
           {isLoggedIn
             ? userData?.user?.full_name
               ? ` ${userData.user.full_name.trim()}`
               : ' usuário'
             : ''}
-          , seja bem-vindo ao Multi BPO! */}
-          testeeeeeeeeeeeeeeee de CI/CD
+          , seja bem-vindo ao Multi BPO!
         </h1>
         
         <section className={styles.section}>

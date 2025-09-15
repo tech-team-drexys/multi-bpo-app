@@ -1,8 +1,9 @@
 'use client';
 import { useState } from "react";
-import { ArrowRightIcon, ShoppingBagIcon, Trash2Icon } from "lucide-react";
+import { ArrowRightIcon, ShoppingBagIcon, ShoppingCart, Trash2Icon } from "lucide-react";
 import styles from "./page.module.scss";
 import { Button, RadioGroup, FormControlLabel, Radio, Drawer, List, ListItem, ListItemText, Typography, Box, Snackbar, Alert } from "@mui/material";
+import PurchaseModal from "../../components/modal/PurchaseModal";
 
 interface Service {
   id: string;
@@ -144,6 +145,8 @@ export default function Loja() {
   const [value, setValue] = useState("todos");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -170,7 +173,7 @@ export default function Loja() {
       }
       return [...prevCart, { ...service, quantity: 1 }];
     });
-    
+
     setSnackbar({
       open: true,
       message: `${service.title} foi adicionado ao seu carrinho`,
@@ -206,6 +209,25 @@ export default function Loja() {
     setCartDrawerOpen(false);
   };
 
+  const handleBuyNow = (service: Service) => {
+    setSelectedService(service);
+    setPurchaseModalOpen(true);
+  };
+
+  const handleConfirmPurchase = (couponCode?: string) => {
+    if (selectedService) {
+      const message = couponCode 
+        ? `Compra de "${selectedService.title}" finalizada com sucesso! Cupom aplicado: ${couponCode}`
+        : `Compra de "${selectedService.title}" finalizada com sucesso!`;
+      
+      setSnackbar({
+        open: true,
+        message,
+        severity: 'success'
+      });
+    }
+  };
+
   const getFilteredServices = () => {
     if (value === "todos") {
       return services;
@@ -235,12 +257,20 @@ export default function Loja() {
             <span className={styles.oldPrice}>R$ 150,00</span>
           </div>
         </div>
-        <button
-          className={styles.learnMoreBtn}
-          onClick={() => addToCart(service)}
-        >
-          Adicionar ao Carrinho <ArrowRightIcon size={16} className={styles.arrowIcon} />
-        </button>
+        <div className={styles.buttons}>
+          <button
+            className={styles.addCartBtn}
+            onClick={() => addToCart(service)}
+          >
+            <ShoppingCart size={16} className={styles.arrowIcon} /> Adicionar ao Carrinho
+          </button>
+          <button
+            className={styles.buyNowBtn}
+            onClick={() => handleBuyNow(service)}
+          >
+            Comprar Agora
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -304,9 +334,9 @@ export default function Loja() {
           style: { width: 400 }
         }}
       >
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
           height: '100%',
           overflow: 'hidden'
         }}>
@@ -332,8 +362,8 @@ export default function Loja() {
             </Button>
           </Box>
 
-          <Box sx={{ 
-            flex: 1, 
+          <Box sx={{
+            flex: 1,
             overflowY: 'auto',
             padding: '1rem'
           }}>
@@ -393,20 +423,20 @@ export default function Loja() {
               </>
             )}
           </Box>
-          
+
           {cart.length > 0 && (
-            <Box sx={{ 
+            <Box sx={{
               flexShrink: 0,
               backgroundColor: 'white',
-              borderTop: 1, 
-              borderColor: 'divider', 
+              borderTop: 1,
+              borderColor: 'divider',
               padding: '1rem',
               boxShadow: '0 -2px 8px rgba(0,0,0,0.1)'
             }}>
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
                 marginBottom: '1rem'
               }}>
                 <Typography variant="h6" fontWeight="bold">Total:</Typography>
@@ -427,6 +457,13 @@ export default function Loja() {
           )}
         </Box>
       </Drawer>
+
+      <PurchaseModal
+        open={purchaseModalOpen}
+        onClose={() => setPurchaseModalOpen(false)}
+        service={selectedService}
+        onConfirmPurchase={handleConfirmPurchase}
+      />
 
       <Snackbar
         open={snackbar.open}
