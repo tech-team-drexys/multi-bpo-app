@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { X, User, Shield, Gem, ChevronDown, ArrowDownToLine } from 'lucide-react';
+import { X, User, Shield, Gem, ChevronDown, ArrowDownToLine, Wallet, Banknote, Filter, Search, MoreVertical, Download, AlertTriangle, Eye, CreditCard } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthProvider';
 import styles from './AccountSettingsModal.module.scss';
 
@@ -9,7 +9,21 @@ interface AccountSettingsModalProps {
   onClose: () => void;
 }
 
-type MenuOption = 'conta' | 'seguranca' | 'assinaturas';
+type MenuOption = 'conta' | 'seguranca' | 'assinaturas' | 'historico-compras' | 'financeiro';
+
+interface Purchase {
+  id: string;
+  title: string;
+  orderId: string;
+  type: 'subscription' | 'one-time';
+  purchaseDate: string;
+  value: number;
+  paymentType: 'Pagamento Único' | 'Recorrente';
+  frequency: 'Único' | 'Mensal' | 'Anual';
+  status: 'pending' | 'paid' | 'active' | 'cancelled';
+  nextCharge?: string;
+  cancelledDate?: string;
+}
 
 export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalProps) => {
   const { userData, refreshUserData } = useAuthContext();
@@ -31,6 +45,84 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
     telefone: '',
     email: '',
   });
+
+  // Estados para a seção de compras
+  const [purchases] = useState<Purchase[]>([
+    {
+      id: '1',
+      title: 'Consultoria Técnica',
+      orderId: 'ORD-003',
+      type: 'one-time',
+      purchaseDate: '19/01/2024',
+      value: 499.99,
+      paymentType: 'Pagamento Único',
+      frequency: 'Único',
+      status: 'pending'
+    },
+    {
+      id: '2',
+      title: 'Certificado SSL Premium',
+      orderId: 'ORD-001',
+      type: 'one-time',
+      purchaseDate: '14/01/2024',
+      value: 299.99,
+      paymentType: 'Pagamento Único',
+      frequency: 'Único',
+      status: 'paid'
+    },
+    {
+      id: '3',
+      title: 'Auditoria de Segurança',
+      orderId: 'ORD-005',
+      type: 'one-time',
+      purchaseDate: '11/01/2024',
+      value: 1299.99,
+      paymentType: 'Pagamento Único',
+      frequency: 'Único',
+      status: 'paid'
+    },
+    {
+      id: '4',
+      title: 'Backup Automático',
+      orderId: 'ORD-006',
+      type: 'subscription',
+      purchaseDate: '04/01/2024',
+      value: 49.99,
+      paymentType: 'Recorrente',
+      frequency: 'Mensal',
+      status: 'active',
+      nextCharge: '04/02/2024'
+    },
+    {
+      id: '5',
+      title: 'Plano Premium Mensal',
+      orderId: 'ORD-002',
+      type: 'subscription',
+      purchaseDate: '31/12/2023',
+      value: 99.99,
+      paymentType: 'Recorrente',
+      frequency: 'Mensal',
+      status: 'active',
+      nextCharge: '31/01/2024'
+    },
+    {
+      id: '6',
+      title: 'Plano Enterprise Anual',
+      orderId: 'ORD-007',
+      type: 'subscription',
+      purchaseDate: '15/12/2023',
+      value: 999.99,
+      paymentType: 'Recorrente',
+      frequency: 'Anual',
+      status: 'cancelled',
+      cancelledDate: '10/01/2024'
+    }
+  ]);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('Todos');
+  const [typeFilter, setTypeFilter] = useState('Todos');
+  const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && userData) {
@@ -61,7 +153,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
       [field]: value
     }));
   };
-  
+
   const hasChanges = () => {
     if (activeMenu === 'conta') {
       return (
@@ -87,65 +179,114 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
         email: formData.email,
       });
     }
-    
+
     await refreshUserData();
     onClose();
   };
+
+  // Funções para a seção de compras
+  const getStatusInfo = (status: Purchase['status']) => {
+    switch (status) {
+      case 'paid':
+        return { text: 'Pago', className: styles.statusPaid };
+      case 'active':
+        return { text: 'Ativo', className: styles.statusActive };
+      case 'pending':
+        return { text: 'Pendente', className: styles.statusPending };
+      case 'cancelled':
+        return { text: 'Cancelado', className: styles.statusCancelled };
+      default:
+        return { text: 'Desconhecido', className: styles.statusUnknown };
+    }
+  };
+
+  const getIcon = (type: Purchase['type']) => {
+    return type === 'subscription' ? '🔄' : '📦';
+  };
+
+  const handleViewDetails = (purchaseId: string) => {
+    console.log('Ver detalhes da compra:', purchaseId);
+    setOpenActionMenu(null);
+  };
+
+  const handlePayNow = (purchaseId: string) => {
+    console.log('Pagar agora:', purchaseId);
+    setOpenActionMenu(null);
+  };
+
+  const handleDownloadReceipt = (purchaseId: string) => {
+    console.log('Baixar comprovante:', purchaseId);
+    setOpenActionMenu(null);
+  };
+
+  const handleReportProblem = (purchaseId: string) => {
+    console.log('Reportar problema:', purchaseId);
+    setOpenActionMenu(null);
+  };
+
+  const toggleActionMenu = (purchaseId: string) => {
+    setOpenActionMenu(openActionMenu === purchaseId ? null : purchaseId);
+  };
+
+  const filteredPurchases = purchases.filter(purchase => {
+    const matchesSearch = purchase.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         purchase.orderId.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'Todos' || 
+                         (statusFilter === 'Pago' && purchase.status === 'paid') ||
+                         (statusFilter === 'Pendente' && purchase.status === 'pending') ||
+                         (statusFilter === 'Ativo' && purchase.status === 'active') ||
+                         (statusFilter === 'Cancelado' && purchase.status === 'cancelled');
+    
+    const matchesType = typeFilter === 'Todos' ||
+                       (typeFilter === 'Pagamento Único' && purchase.paymentType === 'Pagamento Único') ||
+                       (typeFilter === 'Recorrente' && purchase.paymentType === 'Recorrente');
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   const menuOptions = [
     { id: 'conta', label: 'Conta', icon: User },
     { id: 'seguranca', label: 'Segurança', icon: Shield },
     { id: 'assinaturas', label: 'Assinaturas', icon: Gem },
+    { id: 'historico-compras', label: 'Minhas Compras', icon: Banknote },
+    { id: 'financeiro', label: 'Financeiro', icon: Wallet }
   ];
 
   const renderContent = () => {
     switch (activeMenu) {
-      case 'conta':
+      case 'seguranca':
         return (
           <div className={styles.content}>
-            <h2>Conta</h2>
+            <h2>{menuOptions.find(opt => opt.id === activeMenu)?.label}</h2>
+
             <div className={styles.settingItem}>
-              <label>Nome</label>
+              <label>Senha Atual</label>
               <input
-                type="text"
-                value={formData.nome}
-                onChange={(e) => handleInputChange('nome', e.target.value)}
+                type="password"
+                value={formData.senhaAtual}
+                onChange={(e) => handleInputChange('senhaAtual', e.target.value)}
+                placeholder="Senha atual"
                 className={styles.input}
               />
             </div>
             <div className={styles.settingItem}>
-              <label>Sobrenome</label>
+              <label>Nova Senha</label>
               <input
-                type="text"
-                value={formData.sobrenome}
-                onChange={(e) => handleInputChange('sobrenome', e.target.value)}
+                type="password"
+                value={formData.novaSenha}
+                onChange={(e) => handleInputChange('novaSenha', e.target.value)}
+                placeholder="Nova senha"
                 className={styles.input}
               />
             </div>
             <div className={styles.settingItem}>
-              <label>Como gostaria de ser chamado?</label>
+              <label>Confirmar Nova Senha</label>
               <input
-                type="text"
-                value={formData.apelido}
-                onChange={(e) => handleInputChange('apelido', e.target.value)}
-                className={styles.input}
-              />
-            </div>
-            <div className={styles.settingItem}>
-              <label>Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className={styles.input}
-              />
-            </div>
-            <div className={styles.settingItem}>
-              <label>Telefone</label>
-              <input
-                type="tel"
-                value={formData.telefone}
-                onChange={(e) => handleInputChange('telefone', e.target.value)}
+                type="password"
+                value={formData.confirmarSenha}
+                onChange={(e) => handleInputChange('confirmarSenha', e.target.value)}
+                placeholder="Confirmar nova senha"
                 className={styles.input}
               />
             </div>
@@ -259,38 +400,212 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
             </div>
           </div>
         );
-      default:
+      case 'historico-compras':
+        return (
+          <div className={styles.content}>
+            <h2>Extrato de Pedidos</h2>
+            <p className={styles.subtitle}>Histórico completo das suas transações e assinaturas</p>
+
+            <div className={styles.filtersBar}>
+              <button className={styles.filtersButton}>
+                <Filter size={16} />
+                Filtros
+              </button>
+              
+              <div className={styles.searchSection}>
+                <div className={styles.searchInput}>
+                  <Search size={16} />
+                  <input 
+                    type="text" 
+                    placeholder="Buscar transação..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                
+                <div className={styles.dropdowns}>
+                  <select 
+                    className={styles.dropdown}
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option>Todos</option>
+                    <option>Pago</option>
+                    <option>Pendente</option>
+                    <option>Ativo</option>
+                    <option>Cancelado</option>
+                  </select>
+                  
+                  <select 
+                    className={styles.dropdown}
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                  >
+                    <option>Todos</option>
+                    <option>Pagamento Único</option>
+                    <option>Recorrente</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.purchasesList}>
+              {filteredPurchases.map((purchase) => {
+                const statusInfo = getStatusInfo(purchase.status);
+                const isActionMenuOpen = openActionMenu === purchase.id;
+                
+                return (
+                  <div key={purchase.id} className={styles.purchaseCard}>
+                    <div className={styles.cardLeft}>
+                      <div className={styles.iconContainer}>
+                        <span className={styles.typeIcon}>{getIcon(purchase.type)}</span>
+                      </div>
+                      
+                      <div className={styles.purchaseInfo}>
+                        <h3>{purchase.title}</h3>
+                        <div className={styles.orderDetails}>
+                          <span className={styles.orderId}>#{purchase.orderId}</span>
+                          <span className={styles.purchaseDate}>{purchase.purchaseDate}</span>
+                          <span className={styles.paymentType}>{purchase.paymentType}</span>
+                        </div>
+                        {purchase.nextCharge && (
+                          <div className={styles.nextCharge}>
+                            Próxima cobrança: {purchase.nextCharge}
+                          </div>
+                        )}
+                        {purchase.cancelledDate && (
+                          <div className={styles.cancelledInfo}>
+                            Cancelado em: {purchase.cancelledDate}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={styles.cardRight}>
+                      <div className={styles.priceInfo}>
+                        <div className={styles.price}>R$ {purchase.value.toFixed(2).replace('.', ',')}</div>
+                        <div className={styles.frequency}>{purchase.frequency}</div>
+                      </div>
+                      
+                      <div className={styles.statusBadge}>
+                        <div className={`${styles.status} ${statusInfo.className}`}>
+                          {statusInfo.text}
+                        </div>
+                      </div>
+                      
+                      <div className={styles.actionMenu}>
+                        <button 
+                          className={styles.actionButton}
+                          onClick={() => toggleActionMenu(purchase.id)}
+                        >
+                          <MoreVertical size={16} />
+                        </button>
+                        
+                        {isActionMenuOpen && (
+                          <div className={styles.actionDropdown}>
+                            <button 
+                              className={styles.actionItem}
+                              onClick={() => handleViewDetails(purchase.id)}
+                            >
+                              <Eye size={16} />
+                              Ver Detalhes
+                            </button>
+                            
+                            {purchase.status === 'pending' && (
+                              <button 
+                                className={`${styles.actionItem} ${styles.actionItemGreen}`}
+                                onClick={() => handlePayNow(purchase.id)}
+                              >
+                                <CreditCard size={16} />
+                                Pagar Agora
+                              </button>
+                            )}
+                            
+                            {purchase.status === 'paid' && (
+                              <button 
+                                className={styles.actionItem}
+                                onClick={() => handleDownloadReceipt(purchase.id)}
+                              >
+                                <Download size={16} />
+                                Baixar Comprovante
+                              </button>
+                            )}
+                            
+                            <button 
+                              className={`${styles.actionItem} ${styles.actionItemRed}`}
+                              onClick={() => handleReportProblem(purchase.id)}
+                            >
+                              <AlertTriangle size={16} />
+                              Reportar Problema
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {filteredPurchases.length === 0 && (
+              <div className={styles.emptyState}>
+                <p>Nenhuma transação encontrada com os filtros aplicados.</p>
+              </div>
+            )}
+          </div>
+        );
+      case 'financeiro':
         return (
           <div className={styles.content}>
             <h2>{menuOptions.find(opt => opt.id === activeMenu)?.label}</h2>
-            
+          </div>
+        );
+      default:
+        return (
+          <div className={styles.content}>
+            <h2>Conta</h2>
             <div className={styles.settingItem}>
-              <label>Senha Atual</label>
+              <label>Nome</label>
               <input
-                type="password"
-                value={formData.senhaAtual}
-                onChange={(e) => handleInputChange('senhaAtual', e.target.value)}
-                placeholder="Senha atual"
+                type="text"
+                value={formData.nome}
+                onChange={(e) => handleInputChange('nome', e.target.value)}
                 className={styles.input}
               />
             </div>
             <div className={styles.settingItem}>
-              <label>Nova Senha</label>
+              <label>Sobrenome</label>
               <input
-                type="password"
-                value={formData.novaSenha}
-                onChange={(e) => handleInputChange('novaSenha', e.target.value)}
-                placeholder="Nova senha"
+                type="text"
+                value={formData.sobrenome}
+                onChange={(e) => handleInputChange('sobrenome', e.target.value)}
                 className={styles.input}
               />
             </div>
             <div className={styles.settingItem}>
-              <label>Confirmar Nova Senha</label>
+              <label>Como gostaria de ser chamado?</label>
               <input
-                type="password"
-                value={formData.confirmarSenha}
-                onChange={(e) => handleInputChange('confirmarSenha', e.target.value)}
-                placeholder="Confirmar nova senha"
+                type="text"
+                value={formData.apelido}
+                onChange={(e) => handleInputChange('apelido', e.target.value)}
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.settingItem}>
+              <label>Email</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.settingItem}>
+              <label>Telefone</label>
+              <input
+                type="tel"
+                value={formData.telefone}
+                onChange={(e) => handleInputChange('telefone', e.target.value)}
                 className={styles.input}
               />
             </div>
@@ -310,7 +625,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
             <X size={20} />
           </button>
         </div>
-        
+
         <div className={styles.modalContent}>
           <nav className={styles.sidebar}>
             {menuOptions.map((option) => {
@@ -327,10 +642,10 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
               );
             })}
           </nav>
-          
+
           <div className={styles.mainContent}>
             {renderContent()}
-            
+
             {/* Botão de salvar - só aparece quando há alterações */}
             {hasChanges() && (
               <div className={styles.actions}>

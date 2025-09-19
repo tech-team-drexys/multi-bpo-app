@@ -141,7 +141,7 @@
       padding: 0.5rem 1rem;
 
       &.active {
-        border-color: var(--background);
+        border-color: var(--secondary);
         background-color: var(--background);
         color: var(--text-color);
       }
@@ -157,6 +157,7 @@
 }
 
 .planCard {
+  max-width: 350px;
   background: var(--background);
   border: 1px solid var(--border-color);
   border-radius: 1rem;

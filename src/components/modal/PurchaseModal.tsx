@@ -1,10 +1,24 @@
 'use client';
 import { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography, Box, Divider } from '@mui/material';
-import { XIcon, ShoppingCartIcon } from 'lucide-react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography, Box, Divider, Snackbar, Alert, Chip } from '@mui/material';
+import { XIcon, ChevronUp, ChevronDown } from 'lucide-react';
+import { ProductCategoryLabels } from '../../enums/index ';
+import { applyCoupon as applyCouponAPI, createOrder } from '../../services/api';
 import styles from './PurchaseModal.module.scss';
+import { useRouter } from 'next/navigation';
 
 interface Service {
+  id: number;
+  name: string;
+  description: string;
+  product_type: string;
+  price: string;
+  access_duration_days: number;
+  active: boolean;
+  created_at: string;
+}
+
+interface StaticService {
   id: string;
   title: string;
   description: string;
@@ -14,46 +28,151 @@ interface Service {
 interface PurchaseModalProps {
   open: boolean;
   onClose: () => void;
-  service: Service | null;
+  service: Service | StaticService | null;
   onConfirmPurchase: (couponCode?: string) => void;
 }
 
 export default function PurchaseModal({ open, onClose, service, onConfirmPurchase }: PurchaseModalProps) {
+  const router = useRouter();
   const [couponCode, setCouponCode] = useState('');
-  const [discount, setDiscount] = useState(0);
-  const [message, setMessage] = useState<{ message: string, type: string }>({
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
+    open: false,
     message: '',
-    type: ''
+    severity: 'success'
   });
+  const [couponExpanded, setCouponExpanded] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
 
-  const handleCouponApply = () => {
-    if (couponCode.toLowerCase() === 'desconto10') {
-      setDiscount(10);
-      setMessage({ message: 'Cupom aplicado com sucesso, você economizou 10%', type: 'success' });
-    } else if (couponCode.toLowerCase() === 'desconto20') {
-      setDiscount(20);
-      setMessage({ message: 'Cupom aplicado com sucesso, você economizou 20%', type: 'success' });
-    } else {
-      setDiscount(0);
-      setMessage({ message: 'Cupom inválido, tente novamente', type: 'error' });
-    }
+  const getSubtotal = () => {
+    if (!service || !('price' in service)) return 100;
+    return parseFloat(service.price);
+  };
+
+  const getTotalDiscount = () => {
+    if (!appliedCoupon) return 0;
+    const subtotal = getSubtotal();
+    return subtotal * appliedCoupon.discount / 100;
   };
 
   const getFinalPrice = () => {
-    if (!service) return 0;
-    const basePrice = 100;
-    const discountAmount = (basePrice * discount) / 100;
-    return basePrice - discountAmount;
+    return getSubtotal() - getTotalDiscount();
   };
 
-  const handleConfirm = () => {
-    onConfirmPurchase(couponCode || undefined);
-    setCouponCode('');
-    setDiscount(0);
-    setMessage({ message: '', type: '' });
-    onClose();
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+
+    if (appliedCoupon) {
+      setSnackbar({
+        open: true,
+        message: 'Apenas um cupom pode ser aplicado por vez. Remova o cupom atual primeiro.',
+        severity: 'error'
+      });
+      return;
+    }
+
+    if (!service || !('id' in service)) {
+      setSnackbar({
+        open: true,
+        message: 'Erro: produto não encontrado.',
+        severity: 'error'
+      });
+      return;
+    }
+
+    setCouponLoading(true);
+
+    try {
+      const planId = Number(service.id);
+      const response = await applyCouponAPI(planId, couponCode.trim());
+
+      if (response.valid) {
+        setAppliedCoupon({
+          code: couponCode.toUpperCase(),
+          discount: response.discount?.discount_percent || 0
+        });
+
+        setSnackbar({
+          open: true,
+          message: response.message || 'Cupom aplicado com sucesso!',
+          severity: 'success'
+        });
+
+        setCouponCode('');
+      } else {
+        setSnackbar({
+          open: true,
+          message: 'Cupom inválido ou expirado!',
+          severity: 'error'
+        });
+      }
+    } catch (error: any) {
+      console.error('Erro ao aplicar cupom:', error);
+
+      const errorMessage = error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        'Erro ao validar cupom. Tente novamente.';
+
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error'
+      });
+    } finally {
+      setCouponLoading(false);
+    }
   };
 
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setSnackbar({
+      open: true,
+      message: 'Cupom removido!',
+      severity: 'info'
+    });
+  };
+
+  const handleConfirm = async () => {
+    try {
+      if (!service || !('id' in service)) {
+        setSnackbar({
+          open: true,
+          message: 'Erro: produto não encontrado.',
+          severity: 'error'
+        });
+        return;
+      }
+
+      const response = await createOrder(Number(service.id));
+      console.log(response);
+
+      if (response.success) {
+        window.open(response.checkout_url, '_blank');
+
+        setInterval(() => {
+          router.push('/historico-compras');
+        }, 1500);
+      } else {
+        setSnackbar({
+          open: true,
+          message: 'Erro ao finalizar compra. Tente novamente.',
+          severity: 'error'
+        });
+      }
+
+
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (error) {
+      console.error('Erro ao finalizar compra:', error);
+      setSnackbar({
+        open: true,
+        message: 'Erro ao finalizar compra. Tente novamente.',
+        severity: 'error'
+      });
+    }
+  };
   if (!service) return null;
 
   return (
@@ -72,10 +191,7 @@ export default function PurchaseModal({ open, onClose, service, onConfirmPurchas
             </Typography>
           </Box>
           <Button
-            onClick={() => {
-              setMessage({ message: '', type: '' });
-              onClose();
-            }}
+            onClick={onClose}
             className={styles.closeButton}
             size="small"
           >
@@ -85,30 +201,32 @@ export default function PurchaseModal({ open, onClose, service, onConfirmPurchas
       </DialogTitle>
 
       <DialogContent className={styles.modalContent}>
-        <Box className={styles.itemSection}>          
+        <Box className={styles.itemSection}>
           <Box className={styles.itemCard}>
             <Typography variant="h6" className={styles.itemTitle}>
-              {service.title}
+              {'price' in service ? service.name : service.title}
             </Typography>
             <Typography variant="body2" className={styles.itemDescription}>
               {service.description}
             </Typography>
             <Typography variant="body2" className={styles.itemCategory}>
-              Categoria: {service.category}
+              Categoria: {'product_type' in service
+                ? ProductCategoryLabels[service.product_type as keyof typeof ProductCategoryLabels] || service.product_type
+                : service.category}
             </Typography>
-            
+
             <Box className={styles.priceSection}>
               <Box className={styles.pricing}>
                 <Typography variant="h6" className={styles.currentPrice}>
                   R$ {getFinalPrice().toFixed(2).replace('.', ',')}
                 </Typography>
-                {discount > 0 && (
+                {appliedCoupon && (
                   <>
                     <Typography variant="body2" className={styles.oldPrice}>
-                      R$ 100,00
+                      R$ {getSubtotal().toFixed(2).replace('.', ',')}
                     </Typography>
                     <Typography variant="body2" className={styles.discountTag}>
-                      {discount}% de desconto
+                      {appliedCoupon.discount}% de desconto
                     </Typography>
                   </>
                 )}
@@ -119,66 +237,91 @@ export default function PurchaseModal({ open, onClose, service, onConfirmPurchas
 
         <Divider className={styles.divider} />
 
+        {/* Seção de Cupom */}
         <Box className={styles.couponSection}>
-          <Typography variant="h6" className={styles.sectionTitle}>
-            Cupom de Desconto
-          </Typography>
-          
-          <Box className={styles.couponInput}>
-            <TextField
-              fullWidth
-              label="Código do cupom"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              variant="outlined"
-              size="small"
-              placeholder="Digite seu cupom aqui"
-            />
-            <Button
-              variant="outlined"
-              onClick={handleCouponApply}
-              className={styles.applyButton}
-              disabled={!couponCode.trim()}
-            >
-              Aplicar
-            </Button>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              padding: '0.5rem 0',
+              borderBottom: couponExpanded ? '1px solid #e0e0e0' : 'none'
+            }}
+            onClick={() => setCouponExpanded(!couponExpanded)}
+          >
+            <Typography variant="h6" className={styles.sectionTitle}>
+              Cupom de Desconto
+            </Typography>
+            {couponExpanded ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
           </Box>
-          
-          {message.message && (
-            <Box className={styles.discountInfo}>
-              <Typography variant="body2" className={`${message.type === 'success' ? styles.success : styles.error}`}>
-                {message.message}
-              </Typography>
+
+          {couponExpanded && (
+            <Box sx={{ padding: '1rem 0 0.5rem 0' }}>
+              <Box sx={{ display: 'flex', gap: 1, marginBottom: '0.5rem' }}>
+                <TextField
+                  size="small"
+                  placeholder="Digite o código do cupom"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && applyCoupon()}
+                  sx={{ flex: 1 }}
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={applyCoupon}
+                  disabled={!couponCode.trim() || couponLoading || !!appliedCoupon}
+                >
+                  {couponLoading ? 'Aplicando...' : 'Aplicar'}
+                </Button>
+              </Box>
+            </Box>
+          )}
+
+          {/* Cupom aplicado */}
+          {appliedCoupon && (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, marginTop: couponExpanded ? 0 : '0.5rem' }}>
+              <Chip
+                label={`${appliedCoupon.code} (-${appliedCoupon.discount}%)`}
+                size="small"
+                onDelete={removeCoupon}
+                color="success"
+                variant="outlined"
+              />
             </Box>
           )}
         </Box>
 
         <Divider className={styles.divider} />
 
+        {/* Resumo de valores */}
         <Box className={styles.summarySection}>
           <Typography variant="h6" className={styles.sectionTitle}>
             Resumo da Compra
           </Typography>
-          
+
           <Box className={styles.summaryDetails}>
             <Box className={styles.summaryRow}>
               <Typography variant="body2">Subtotal:</Typography>
-              <Typography variant="body2">R$ 100,00</Typography>
+              <Typography variant="body2">
+                R$ {getSubtotal().toFixed(2).replace('.', ',')}
+              </Typography>
             </Box>
-            
-            {discount > 0 && (
+
+            {appliedCoupon && (
               <Box className={styles.summaryRow}>
-                <Typography variant="body2" className={styles.discountLabel}>
-                  Desconto ({discount}%):
+                <Typography variant="body2" className={styles.discountLabel} sx={{ color: 'success.main' }}>
+                  Desconto ({appliedCoupon.discount}%):
                 </Typography>
-                <Typography variant="body2" className={styles.discountValue}>
-                  -R$ {(100 - getFinalPrice()).toFixed(2).replace('.', ',')}
+                <Typography variant="body2" className={styles.discountValue} sx={{ color: 'success.main' }}>
+                  -R$ {getTotalDiscount().toFixed(2).replace('.', ',')}
                 </Typography>
               </Box>
             )}
-            
+
             <Divider className={styles.summaryDivider} />
-            
+
             <Box className={styles.summaryRow}>
               <Typography variant="h6" className={styles.totalLabel}>
                 Total:
@@ -207,6 +350,17 @@ export default function PurchaseModal({ open, onClose, service, onConfirmPurchas
           Confirmar Compra
         </Button>
       </DialogActions>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 }
