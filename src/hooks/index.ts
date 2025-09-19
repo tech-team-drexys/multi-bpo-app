@@ -47,4 +47,19 @@ export const usePhoneMask = () => {
   };
 };
 
+export const usePlanColor = (planType: string) => {
+  switch (planType) {
+    case 'basic': return 'blue';
+    case 'premium': return 'purple';
+    case 'enterprise': return 'yellow';
+    default: return 'blue';
+  }
+};
+
+export const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
+};
+
+
+
 export { useAuth } from './useAuth';

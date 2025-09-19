@@ -118,7 +118,7 @@ export const registerUser = async (userData: RegisterUserData) => {
         };
 
         const response = await authApi.post('/auth/register/', data);
-        
+
         if (response.data.access && response.data.refresh) {
             const tokens = {
                 access: response.data.access,
@@ -126,7 +126,7 @@ export const registerUser = async (userData: RegisterUserData) => {
             };
             localStorage.setItem('multibpo_tokens', JSON.stringify(tokens));
         }
-        
+
         return response.data;
     } catch (error) {
         console.error("Erro no registro:", error);
@@ -153,7 +153,7 @@ export const loginWithCredentials = async (credentials: LoginCredentials) => {
         };
 
         const response = await authApi.post('/auth/login/', data);
-        
+
         if (response.data.access && response.data.refresh) {
             const tokens = {
                 access: response.data.access,
@@ -200,75 +200,158 @@ export const logoutUser = async () => {
 
 export const loginWithGoogle = async (idToken: string) => {
     try {
-      const payloads = [
-        { idToken },
-        { token: idToken },
-        { access_token: idToken },
-        { google_token: idToken },
-        { credential: idToken }
-      ];
-      
-      let response;
-      let lastError;
-      
-      for (const payload of payloads) {
-        try {
-          response = await api.post("/auth/google-login/", payload);
-          break;
-        } catch (err: unknown) {
-          lastError = err;
-          continue;
+        const payloads = [
+            { idToken },
+            { token: idToken },
+            { access_token: idToken },
+            { google_token: idToken },
+            { credential: idToken }
+        ];
+
+        let response;
+        let lastError;
+
+        for (const payload of payloads) {
+            try {
+                response = await api.post("/auth/google-login/", payload);
+                break;
+            } catch (err: unknown) {
+                lastError = err;
+                continue;
+            }
         }
-      }
-      
-      if (!response) {
-        throw lastError;
-      }
-  
-      if (response.data.access && response.data.refresh) {
-        const tokens = {
-          access: response.data.access,
-          refresh: response.data.refresh,
-        };
-        localStorage.setItem("multibpo_tokens", JSON.stringify(tokens));
-        localStorage.setItem("multibpo_user", JSON.stringify(response.data.user || {}));
-        localStorage.setItem("lucaIA_loggedIn", "true");
-      }
-  
-      return response.data;
-    } catch (error) {
-      console.error("Erro no login com Google:", error);
-      throw error;
-    }
-  };
 
-  export const loginWithFacebook = async (accessToken: string) => {
-    try {
-      const response = await authApi.post("/auth/social-login/", { access_token: accessToken });
-      
-      if (response.data.access && response.data.refresh) {
-        const tokens = {
-          access: response.data.access,
-          refresh: response.data.refresh,
-        };
-        localStorage.setItem("multibpo_tokens", JSON.stringify(tokens));
-        localStorage.setItem("multibpo_user", JSON.stringify(response.data.user || {}));
-        localStorage.setItem("lucaIA_loggedIn", "true");
-      }
-      
-      return response.data;
-    } catch (error) {
-      console.error("Erro no login com Facebook:", error);
-      throw error;
-    }
-  };
+        if (!response) {
+            throw lastError;
+        }
 
-  export const captchaVerify = async (userToken: string, captchaToken: string) => {
-    try {
-      const response = await api.post("/auth/confirm-email/", { token: userToken, captcha_token: captchaToken });
-      return response.data;
+        if (response.data.access && response.data.refresh) {
+            const tokens = {
+                access: response.data.access,
+                refresh: response.data.refresh,
+            };
+            localStorage.setItem("multibpo_tokens", JSON.stringify(tokens));
+            localStorage.setItem("multibpo_user", JSON.stringify(response.data.user || {}));
+            localStorage.setItem("lucaIA_loggedIn", "true");
+        }
+
+        return response.data;
     } catch (error) {
-      console.error("Erro no captcha verify:", error);
-      throw error;
+        console.error("Erro no login com Google:", error);
+        throw error;
     }
-  };
+};
+
+export const loginWithFacebook = async (accessToken: string) => {
+    try {
+        const response = await authApi.post("/auth/social-login/", { access_token: accessToken });
+
+        if (response.data.access && response.data.refresh) {
+            const tokens = {
+                access: response.data.access,
+                refresh: response.data.refresh,
+            };
+            localStorage.setItem("multibpo_tokens", JSON.stringify(tokens));
+            localStorage.setItem("multibpo_user", JSON.stringify(response.data.user || {}));
+            localStorage.setItem("lucaIA_loggedIn", "true");
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error("Erro no login com Facebook:", error);
+        throw error;
+    }
+};
+
+export const captchaVerify = async (userToken: string, captchaToken: string) => {
+    try {
+        const response = await api.post("/auth/confirm-email/", { token: userToken, captcha_token: captchaToken });
+        return response.data;
+    } catch (error) {
+        console.error("Erro no captcha verify:", error);
+        throw error;
+    }
+};
+
+export const createSubscription = async (id: number) => {
+    try {
+        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
+        const accessToken = tokens?.access;
+
+        const response = await authApi.post(`/payments/subscriptions/create/`, { plan_id: id }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+        return response;
+    } catch (error) {
+        console.error("Erro na criação da assinatura:", error);
+        throw error;
+    }
+};
+
+export const getProducts = async () => {
+    try {
+        const response = await api.get("/payments/products/");
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar produtos:", error);
+        throw error;
+    }
+};
+
+export const createOrder = async (id: number) => {
+    try {
+        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
+        const accessToken = tokens?.access;
+        const response = await api.post("/payments/orders/create/", { product_id: id }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao criar pedido:", error);
+        throw error;
+    }
+};
+
+export const applyCoupon = async (id: number, couponCode: string) => {
+    try {
+        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
+        const accessToken = tokens?.access;
+        const response = await api.post(`/payments/validate-coupon/`, { coupon_code: couponCode, plan_id: id }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao aplicar cupom:", error);
+        throw error;
+    }
+};
+
+export const getPlans = async () => {
+    try {
+        const response = await api.get("/payments/plans/");
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar planos:", error);
+        throw error;
+    }
+};
+
+export const createListOrder = async (items: { product_id: string; quantity: number }[]) => {
+    try {
+        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
+        const accessToken = tokens?.access;
+        const response = await api.post("/payments/orders/create-multiple/", { items }, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao criar pedido:", error);
+        throw error;
+    }
+};

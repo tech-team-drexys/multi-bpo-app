@@ -22,3 +22,15 @@ export enum IdeaType {
     FEATURE = 'feature',
     BUG = 'bug',
 }
+
+export enum ProductCategory {
+    TERCEIRIZACAO = 'outsource',
+    PREMIUM_FEATURE = 'premium_feature', 
+    SERVICOS_DIGITAIS = 'digital_services',
+}
+
+export const ProductCategoryLabels = {
+    [ProductCategory.TERCEIRIZACAO]: 'Terceirização',
+    [ProductCategory.PREMIUM_FEATURE]: 'Consultoria & Assessoria',
+    [ProductCategory.SERVICOS_DIGITAIS]: 'Serviços Digitais',
+} as const;
