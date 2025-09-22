@@ -21,6 +21,11 @@ export const simulateN8NResponse = async (userMessage: string): Promise<string> 
 //API
 import axios from "axios";
 
+const getAccessToken = () => {
+    const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
+    return tokens?.access;
+};
+
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
@@ -29,12 +34,30 @@ const api = axios.create({
     }
 });
 
+// Interceptor para adicionar o token dinamicamente
+api.interceptors.request.use((config) => {
+    const token = getAccessToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
 // Instância autenticada (nova, para JWT)
 const authApi = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         "Content-Type": "application/json"
     }
+});
+
+// Interceptor para adicionar o token dinamicamente na authApi também
+authApi.interceptors.request.use((config) => {
+    const token = getAccessToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
 });
 
 export interface RegisterUserData {
@@ -171,15 +194,7 @@ export const loginWithCredentials = async (credentials: LoginCredentials) => {
 
 export const getUserProfile = async () => {
     try {
-        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
-        const accessToken = tokens?.access;
-
-        const response = await authApi.get("/auth/profile/", {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-
+        const response = await authApi.get("/auth/profile/");
         return response.data;
     } catch (error) {
         console.error("Erro ao buscar perfil:", error);
@@ -275,14 +290,7 @@ export const captchaVerify = async (userToken: string, captchaToken: string) => 
 
 export const createSubscription = async (id: number) => {
     try {
-        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
-        const accessToken = tokens?.access;
-
-        const response = await authApi.post(`/payments/subscriptions/create/`, { plan_id: id }, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
+        const response = await authApi.post(`/payments/subscriptions/create/`, { plan_id: id });
         return response;
     } catch (error) {
         console.error("Erro na criação da assinatura:", error);
@@ -302,13 +310,7 @@ export const getProducts = async () => {
 
 export const createOrder = async (id: number) => {
     try {
-        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
-        const accessToken = tokens?.access;
-        const response = await api.post("/payments/orders/create/", { product_id: id }, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
+        const response = await api.post("/payments/orders/create/", { product_id: id });
         return response.data;
     } catch (error) {
         console.error("Erro ao criar pedido:", error);
@@ -318,13 +320,7 @@ export const createOrder = async (id: number) => {
 
 export const applyCoupon = async (id: number, couponCode: string) => {
     try {
-        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
-        const accessToken = tokens?.access;
-        const response = await api.post(`/payments/validate-coupon/`, { coupon_code: couponCode, plan_id: id }, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
+        const response = await api.post(`/payments/validate-coupon/`, { coupon_code: couponCode, plan_id: id });
         return response.data;
     } catch (error) {
         console.error("Erro ao aplicar cupom:", error);
@@ -344,14 +340,40 @@ export const getPlans = async () => {
 
 export const createListOrder = async (items: { product_id: string; quantity: number }[]) => {
     try {
-        const tokens = JSON.parse(localStorage.getItem("multibpo_tokens") || "{}");
-        const accessToken = tokens?.access;
-        const response = await api.post("/payments/orders/create-multiple/", { items }, {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        });
+        const response = await api.post("/payments/orders/create-multiple/", { items });
         return response.data;
     } catch (error) {
         console.error("Erro ao criar pedido:", error);
+        throw error;
+    }
+};
+
+export const getMySubscriptions = async () => {
+    try {
+        const response = await api.get("/payments/subscriptions/current/");
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar pedidos:", error);
+        throw error;
+    }
+};
+
+export const cancelSubscription = async () => {
+    try {
+        const response = await api.post(`/payments/subscriptions/cancel/`);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao cancelar assinatura:", error);
+        throw error;
+    }
+};
+
+export const listMyOrders = async () => {
+    try {
+        const response = await api.get("/payments/orders/");
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar pedidos:", error);
         throw error;
     }
 };

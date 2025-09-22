@@ -104,6 +104,19 @@
   }
 }
 
+.upgradeButton {
+  background-color: var(--secondary) !important;
+  color: var(--background);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  margin-top: 1.5rem !important;
+}
+
+.upgradeButton:hover {
+  background-color: var(--secondary-hover);
+}
+
 .settingItem {
   margin-bottom: 1.5rem;
 
@@ -760,10 +773,6 @@
   flex-shrink: 0;
 }
 
-.typeIcon {
-  font-size: 16px;
-}
-
 .purchaseInfo {
   flex: 1;
   
@@ -1020,4 +1029,40 @@
     left: 0;
     min-width: 180px;
   }
+}
+
+// Estilos para lista de produtos dentro do pedido
+.productsList {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--muted);
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+}
+
+.productItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  font-size: 0.875rem;
+  
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
+.productName {
+  color: var(--text);
+  font-weight: 500;
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.productPrice {
+  color: var(--primary);
+  font-weight: 600;
+  white-space: nowrap;
 } 

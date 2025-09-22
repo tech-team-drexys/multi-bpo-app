@@ -1,8 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { X, User, Shield, Gem, ChevronDown, ArrowDownToLine, Wallet, Banknote, Filter, Search, MoreVertical, Download, AlertTriangle, Eye, CreditCard } from 'lucide-react';
+import { X, User, Shield, Gem, ChevronDown, ArrowDownToLine, Wallet, Banknote, Filter, Search, MoreVertical, Download, AlertTriangle, Eye, CreditCard, SquareArrowOutUpRight, Repeat, Package } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthProvider';
 import styles from './AccountSettingsModal.module.scss';
+import { cancelSubscription, getMySubscriptions, listMyOrders } from '@/services/api';
+import { Alert, Button, Snackbar } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { formatPrice, formatDate } from '@/hooks';
 
 interface AccountSettingsModalProps {
   isOpen: boolean;
@@ -23,9 +27,105 @@ interface Purchase {
   status: 'pending' | 'paid' | 'active' | 'cancelled';
   nextCharge?: string;
   cancelledDate?: string;
+  checkout_url?: string;
+  transaction_type?: string;
+  products?: Array<{
+    id: number;
+    name: string;
+    description: string;
+    price: string;
+    quantity?: number;
+    subtotal?: string;
+  }>;
+  totalAmount: string;
+  ordersCount: number;
+}
+
+interface ApiOrder {
+  group_id: string;
+  group_timestamp: string;
+  created_at: string;
+  expires_at: string;
+  checkout_url: string;
+  orders_count: number;
+  products: Array<{
+    id: number;
+    name: string;
+    description: string;
+    price: string;
+    product_type: string;
+    order_id: string;
+    order_status: string;
+    status: string;
+    total_amount: string;
+    access_duration_days?: number;
+    active?: boolean;
+    discount_percent?: number;
+    discount_percent_formatted?: string;
+    has_discount?: boolean;
+    old_price?: string;
+    quantity?: number;
+    unit_price?: string;
+    subtotal?: string;
+  }>;
+  transaction_type?: string;
+  status: string;
+  total_amount: string;
+}
+
+interface SubscriptionData {
+  subscription: {
+    asaas_subscription_id: string;
+    cancel_at_period_end: boolean;
+    created_at: string;
+    current_period_end: string;
+    current_period_start: string;
+    days_until_renewal: number;
+    id: string;
+    is_active: boolean;
+    plan: {
+      active: boolean;
+      billing_cycle: string;
+      created_at: string;
+      description: string;
+      features: string[];
+      id: number;
+      luca_questions_limit: number;
+      max_users: number;
+      name: string;
+      plan_type: string;
+      price: string;
+      yearly_price: number;
+    };
+    status: string;
+    user_email: string;
+  };
+  payment_info: {
+    billing_address: any;
+    billing_type: string;
+    cancellation: {
+      cancelled: boolean;
+      cancel_at_period_end: boolean;
+    };
+    credit_card: {
+      brand: string;
+      has_card: boolean;
+      last_digits: string;
+    };
+    latest_payment: {
+      status: string;
+      value: number;
+      due_date: string;
+      invoice_url: string;
+      bank_slip_url: string | null;
+    };
+    payment_method: string;
+  };
+  success: boolean;
 }
 
 export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalProps) => {
+  const router = useRouter();
   const { userData, refreshUserData } = useAuthContext();
   const [activeMenu, setActiveMenu] = useState<MenuOption>('conta');
   const [formData, setFormData] = useState({
@@ -45,84 +145,18 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
     telefone: '',
     email: '',
   });
-
-  // Estados para a seção de compras
-  const [purchases] = useState<Purchase[]>([
-    {
-      id: '1',
-      title: 'Consultoria Técnica',
-      orderId: 'ORD-003',
-      type: 'one-time',
-      purchaseDate: '19/01/2024',
-      value: 499.99,
-      paymentType: 'Pagamento Único',
-      frequency: 'Único',
-      status: 'pending'
-    },
-    {
-      id: '2',
-      title: 'Certificado SSL Premium',
-      orderId: 'ORD-001',
-      type: 'one-time',
-      purchaseDate: '14/01/2024',
-      value: 299.99,
-      paymentType: 'Pagamento Único',
-      frequency: 'Único',
-      status: 'paid'
-    },
-    {
-      id: '3',
-      title: 'Auditoria de Segurança',
-      orderId: 'ORD-005',
-      type: 'one-time',
-      purchaseDate: '11/01/2024',
-      value: 1299.99,
-      paymentType: 'Pagamento Único',
-      frequency: 'Único',
-      status: 'paid'
-    },
-    {
-      id: '4',
-      title: 'Backup Automático',
-      orderId: 'ORD-006',
-      type: 'subscription',
-      purchaseDate: '04/01/2024',
-      value: 49.99,
-      paymentType: 'Recorrente',
-      frequency: 'Mensal',
-      status: 'active',
-      nextCharge: '04/02/2024'
-    },
-    {
-      id: '5',
-      title: 'Plano Premium Mensal',
-      orderId: 'ORD-002',
-      type: 'subscription',
-      purchaseDate: '31/12/2023',
-      value: 99.99,
-      paymentType: 'Recorrente',
-      frequency: 'Mensal',
-      status: 'active',
-      nextCharge: '31/01/2024'
-    },
-    {
-      id: '6',
-      title: 'Plano Enterprise Anual',
-      orderId: 'ORD-007',
-      type: 'subscription',
-      purchaseDate: '15/12/2023',
-      value: 999.99,
-      paymentType: 'Recorrente',
-      frequency: 'Anual',
-      status: 'cancelled',
-      cancelledDate: '10/01/2024'
-    }
-  ]);
-
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
+    open: false,
+    message: '',
+    severity: 'success'
+  })
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Todos');
   const [typeFilter, setTypeFilter] = useState('Todos');
   const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionData | null>(null);
+  const [orders, setOrders] = useState<ApiOrder[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
 
   useEffect(() => {
     if (isOpen && userData) {
@@ -146,6 +180,82 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
       });
     }
   }, [isOpen, userData]);
+
+  const convertApiOrdersToPurchases = (apiOrders: ApiOrder[]): Purchase[] => {
+    const purchases: Purchase[] = [];
+    
+    apiOrders.forEach((orderGroup) => {
+      const firstProduct = orderGroup.products[0];
+      if (!firstProduct) return;
+      
+      const hasSubscription = orderGroup.transaction_type === 'subscription';
+
+      const getStatus = (orderStatus: string) => {
+        if (orderStatus === 'pending') return 'pending';
+        if (orderStatus === 'paid' || orderStatus === 'completed') return 'paid';
+        if (orderStatus === 'active') return 'active';
+        if (orderStatus === 'cancelled') return 'cancelled';
+        return 'pending';
+      };
+
+      const title = orderGroup.products.length === 1
+        ? orderGroup.products[0].name
+        : `Pedido com ${orderGroup.products.length} produtos`;
+
+      const purchase: Purchase = {
+        id: orderGroup.group_id,
+        title: title,
+        orderId: orderGroup.group_id,
+        type: hasSubscription ? 'subscription' : 'one-time',
+        purchaseDate: new Date(orderGroup.created_at).toLocaleDateString('pt-BR'),
+        value: parseFloat(orderGroup.total_amount),
+        paymentType: hasSubscription ? 'Recorrente' : 'Pagamento Único',
+        frequency: hasSubscription ? 'Mensal' : 'Único',
+        status: getStatus(orderGroup.status),
+        checkout_url: orderGroup.checkout_url,
+        products: orderGroup.products.map(product => ({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          quantity: product.quantity || 1,
+          subtotal: product.subtotal || product.price
+        })),
+        transaction_type: orderGroup.transaction_type,
+        totalAmount: orderGroup.total_amount,
+        ordersCount: orderGroup.orders_count
+      };
+
+      purchases.push(purchase);
+    });
+
+    console.log("purchases", purchases);
+    
+    return purchases;
+  };
+
+  useEffect(() => {
+    Promise.all([getMySubscriptions(), listMyOrders()]).then(([subscriptions, orders]) => {
+      setSubscriptions(subscriptions);
+
+      const orderData = orders?.grouped_orders;
+      if (orderData && Array.isArray(orderData) && orderData.length > 0) {
+        console.log(orderData);
+        
+        setOrders(orderData);
+        const convertedPurchases = convertApiOrdersToPurchases(orderData);
+        setPurchases(convertedPurchases);
+      } else {
+        setOrders([]);
+        setPurchases([]);
+      }
+    }).catch(error => {
+      console.error('Erro ao carregar assinaturas:', error);
+      setSubscriptions(null);
+      setOrders([]);
+      setPurchases([]);
+    });
+  }, []);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({
@@ -184,7 +294,6 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
     onClose();
   };
 
-  // Funções para a seção de compras
   const getStatusInfo = (status: Purchase['status']) => {
     switch (status) {
       case 'paid':
@@ -201,7 +310,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
   };
 
   const getIcon = (type: Purchase['type']) => {
-    return type === 'subscription' ? '🔄' : '📦';
+    return type === 'subscription' ? <Repeat size={20} /> : <Package size={20} />;
   };
 
   const handleViewDetails = (purchaseId: string) => {
@@ -209,8 +318,11 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
     setOpenActionMenu(null);
   };
 
-  const handlePayNow = (purchaseId: string) => {
-    console.log('Pagar agora:', purchaseId);
+  const handlePayNow = (checkoutUrl: string | undefined) => {
+    if (checkoutUrl) {
+      window.open(checkoutUrl, '_blank');
+      console.log('Pagar agora:', checkoutUrl);
+    }
     setOpenActionMenu(null);
   };
 
@@ -219,29 +331,34 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
     setOpenActionMenu(null);
   };
 
-  const handleReportProblem = (purchaseId: string) => {
-    console.log('Reportar problema:', purchaseId);
-    setOpenActionMenu(null);
-  };
-
   const toggleActionMenu = (purchaseId: string) => {
     setOpenActionMenu(openActionMenu === purchaseId ? null : purchaseId);
   };
 
+  const handleCancelSubscription = async () => {
+    try {
+      await cancelSubscription();
+      setSnackbar({ open: true, message: 'Assinatura cancelada com sucesso', severity: 'success' });
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Erro ao cancelar assinatura', severity: 'error' });
+    }
+
+  };
+
   const filteredPurchases = purchases.filter(purchase => {
     const matchesSearch = purchase.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         purchase.orderId.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'Todos' || 
-                         (statusFilter === 'Pago' && purchase.status === 'paid') ||
-                         (statusFilter === 'Pendente' && purchase.status === 'pending') ||
-                         (statusFilter === 'Ativo' && purchase.status === 'active') ||
-                         (statusFilter === 'Cancelado' && purchase.status === 'cancelled');
-    
+      purchase.orderId.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === 'Todos' ||
+      (statusFilter === 'Pago' && purchase.status === 'paid') ||
+      (statusFilter === 'Pendente' && purchase.status === 'pending') ||
+      (statusFilter === 'Ativo' && purchase.status === 'active') ||
+      (statusFilter === 'Cancelado' && purchase.status === 'cancelled');
+
     const matchesType = typeFilter === 'Todos' ||
-                       (typeFilter === 'Pagamento Único' && purchase.paymentType === 'Pagamento Único') ||
-                       (typeFilter === 'Recorrente' && purchase.paymentType === 'Recorrente');
-    
+      (typeFilter === 'Pagamento Único' && purchase.transaction_type === 'purchase') ||
+      (typeFilter === 'Recorrente' && purchase.transaction_type === 'subscription');
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -296,108 +413,148 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
         return (
           <div className={styles.content}>
             <h2>{menuOptions.find(opt => opt.id === activeMenu)?.label}</h2>
-            <div className={styles.subscriptionSection}>
-              <h3>ASSINATURA ATUAL</h3>
-              <div className={styles.currentSubscription}>
-                <div className={styles.planInfo}>
-                  <h4>Plano Premium</h4>
-                  <div className={styles.price}>
-                    <span className={styles.amount}>R$ 59,90</span>
-                    <span className={styles.period}>por mês</span>
-                  </div>
-                  <a href="#" className={styles.detailsLink}>Ver detalhes</a>
-                  <p className={styles.renewalDate}>Sua assinatura renova em 30 de Janeiro, 2025.</p>
-                </div>
-                <div className={styles.subscriptionActions}>
-                  <button className={styles.updateButton}>Atualizar assinatura</button>
-                  <button className={styles.cancelButton}>Cancelar assinatura</button>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.subscriptionSection}>
-              <h3>MÉTODO DE PAGAMENTO</h3>
-              <div className={styles.paymentMethod}>
-                <div className={styles.cardInfo}>
-                  <div className={styles.cardIcon}>
-                    <div className={styles.mastercardIcon}>MC</div>
-                  </div>
-                  <div className={styles.cardDetails}>
-                    <span className={styles.cardNumber}>Mastercard ****0608</span>
-                    <span className={styles.cardStatus}>Padrão • Expira 07/2034</span>
-                  </div>
-                  <button className={styles.removeCard}>×</button>
-                </div>
-                <button className={styles.addPaymentButton}>
-                  <span>+</span>
-                  Adicionar método de pagamento
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.subscriptionSection}>
-              <h3>INFORMAÇÕES DE COBRANÇA</h3>
-              <div className={styles.billingInfo}>
-                <div className={styles.billingColumn}>
-                  <div className={styles.billingField}>
-                    <label>Nome</label>
-                    <span className={styles.billingValue}>JOÃO SILVA</span>
-                  </div>
-                  <div className={styles.billingField}>
-                    <label>Endereço de cobrança</label>
-                    <div className={styles.address}>
-                      <span>Rua das Flores, 123</span>
-                      <span>Centro, São Paulo-SP</span>
-                      <span>01234-567</span>
-                      <span>BR</span>
+            {subscriptions?.subscription?.plan?.active ? (
+              <>
+                <div className={styles.subscriptionSection}>
+                  <h3>ASSINATURA ATUAL</h3>
+                  <div className={styles.currentSubscription}>
+                    <div className={styles.planInfo}>
+                      <h4>{subscriptions.subscription.plan.name}</h4>
+                      <div className={styles.price}>
+                        <span className={styles.amount}>{formatPrice(parseFloat(subscriptions.subscription.plan.price))}</span>
+                        <span className={styles.period}>/{subscriptions.subscription.plan.billing_cycle === 'monthly' ? 'mês' : 'ano'}</span>
+                      </div>
+                      <a href="#" className={styles.detailsLink}>Ver detalhes</a>
+                      {subscriptions.subscription.cancel_at_period_end && (
+                        <p className={styles.renewalDate}>Sua assinatura será cancelada em {formatDate(subscriptions.subscription.current_period_end)}.</p>
+                      )}
+                      {!subscriptions.subscription.cancel_at_period_end && (
+                        <p className={styles.renewalDate}>Sua assinatura renova em {formatDate(subscriptions.subscription.current_period_end)}.</p>
+                      )}
+                    </div>
+                    <div className={styles.subscriptionActions}>
+                      <button className={styles.updateButton} onClick={() => router.push(`/plans`)}>Atualizar assinatura</button>
+                      {subscriptions.subscription.cancel_at_period_end && (
+                        <button className={styles.updateButton} onClick={() => router.push(`/plans`)}>Reativar assinatura</button>
+                      )}
+                      {!subscriptions.subscription.cancel_at_period_end && (
+                        <button className={styles.cancelButton} onClick={handleCancelSubscription}>Cancelar assinatura</button>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className={styles.billingColumn}>
-                  <div className={styles.billingField}>
-                    <label>Email</label>
-                    <span className={styles.billingValue}>joao@email.com</span>
+
+                <div className={styles.subscriptionSection}>
+                  <h3>MÉTODO DE PAGAMENTO</h3>
+                  <div className={styles.paymentMethod}>
+                    <div className={styles.cardInfo}>
+                      <div className={styles.cardIcon}>
+                        <div className={styles.mastercardIcon}>
+                          {subscriptions?.payment_info?.credit_card?.brand === 'VISA' ? 'V' :
+                            subscriptions?.payment_info?.credit_card?.brand === 'MASTERCARD' ? 'MC' :
+                              subscriptions?.payment_info?.credit_card?.brand === 'AMEX' ? 'AE' : 'CC'}
+                        </div>
+                      </div>
+                      <div className={styles.cardDetails}>
+                        <span className={styles.cardNumber}>
+                          {subscriptions?.payment_info?.credit_card?.brand || 'Cartão'} ****{subscriptions?.payment_info?.credit_card?.last_digits}
+                        </span>
+                        <span className={styles.cardStatus}>
+                          {subscriptions?.payment_info?.payment_method || 'Cartão de Crédito'}
+                        </span>
+                      </div>
+                      <button className={styles.removeCard}>×</button>
+                    </div>
+                    <button className={styles.addPaymentButton}>
+                      <span>+</span>
+                      Adicionar método de pagamento
+                    </button>
                   </div>
                 </div>
-              </div>
-              <button className={styles.updateInfoButton}>Atualizar informações</button>
-            </div>
 
-            <div className={styles.subscriptionSection}>
-              <div className={styles.historyHeader}>
-                <h3>HISTÓRICO DE FATURAS</h3>
+                <div className={styles.subscriptionSection}>
+                  <h3>INFORMAÇÕES DE COBRANÇA</h3>
+                  <div className={styles.billingInfo}>
+                    <div className={styles.billingColumn}>
+                      <div className={styles.billingField}>
+                        <label>Email</label>
+                        <span className={styles.billingValue}>{subscriptions.subscription.user_email}</span>
+                      </div>
+                      <div className={styles.billingField}>
+                        <label>Status da Assinatura</label>
+                        <span className={styles.billingValue}>
+                          {subscriptions.subscription.status === 'pending' ? 'Pendente' :
+                            subscriptions.subscription.status === 'active' ? 'Ativa' :
+                              subscriptions.subscription.status === 'cancelled' ? 'Cancelada' : 'Desconhecido'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.billingColumn}>
+                      <div className={styles.billingField}>
+                        <label>Data de Criação</label>
+                        <span className={styles.billingValue}>{formatDate(subscriptions.subscription.created_at)}</span>
+                      </div>
+                      <div className={styles.billingField}>
+                        <label>Próximo Pagamento</label>
+                        <span className={styles.billingValue}>
+                          {subscriptions.payment_info?.latest_payment?.due_date ?
+                            formatDate(subscriptions.payment_info.latest_payment.due_date) :
+                            'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* <button className={styles.updateInfoButton}>Atualizar informações</button> */}
+                </div>
+
+                <div className={styles.subscriptionSection}>
+                  <div className={styles.historyHeader}>
+                    <h3>HISTÓRICO DE FATURAS</h3>
+                  </div>
+                  <div className={styles.invoiceHistory}>
+                    {subscriptions.payment_info?.latest_payment && (
+                      <div className={styles.invoiceRow}>
+                        <span className={styles.invoiceDate}>
+                          {formatDate(subscriptions.payment_info.latest_payment.due_date)}
+                        </span>
+                        <span className={styles.invoiceAmount}>
+                          {formatPrice(subscriptions.payment_info.latest_payment.value)}
+                        </span>
+                        <span className={styles.invoiceStatus}>
+                          {subscriptions.payment_info.latest_payment.status === 'CONFIRMED' ? 'Pago' :
+                            subscriptions.payment_info.latest_payment.status === 'PENDING' ? 'Pendente' :
+                              subscriptions.payment_info.latest_payment.status === 'OVERDUE' ? 'Vencido' : 'Desconhecido'}
+                        </span>
+                        <span className={styles.invoicePlan}>{subscriptions.subscription.plan.name}</span>
+                        <button className={styles.expandButton} onClick={() => window.open(subscriptions.payment_info.latest_payment.invoice_url, '_blank')}>
+                          <SquareArrowOutUpRight width={16} height={16} />
+                        </button>
+                      </div>
+                    )}
+                    {subscriptions.payment_info?.latest_payment?.invoice_url && (
+                      <div className={styles.invoiceActions}>
+                        {subscriptions.payment_info.latest_payment.bank_slip_url && (
+                          <a
+                            href={subscriptions.payment_info.latest_payment.bank_slip_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.invoiceLink}
+                          >
+                            Boleto
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <a href="#" className={styles.viewMoreLink}>Ver mais</a>
+                </div>
+              </>
+            ) : (
+              <div className={styles.emptyState}>
+                <p>Você não possui nenhuma assinatura ativa.</p>
+                <Button variant="contained" color="primary" className={styles.upgradeButton} onClick={() => router.push('/plans')}>Assine agora</Button>
               </div>
-              <div className={styles.invoiceHistory}>
-                <div className={styles.invoiceRow}>
-                  <span className={styles.invoiceDate}>30 Ago, 2025</span>
-                  <span className={styles.invoiceAmount}>R$ 59,90</span>
-                  <span className={styles.invoiceStatus}>Pendente</span>
-                  <span className={styles.invoicePlan}>Plano Premium</span>
-                  <button className={styles.expandButton}>
-                    <ArrowDownToLine width={16} height={16} />
-                  </button>
-                </div>
-                <div className={styles.invoiceRow}>
-                  <span className={styles.invoiceDate}>30 Jul, 2025</span>
-                  <span className={styles.invoiceAmount}>R$ 59,90</span>
-                  <span className={styles.invoiceStatus}>Pago</span>
-                  <span className={styles.invoicePlan}>Plano Premium</span>
-                  <button className={styles.expandButton}>
-                    <ArrowDownToLine width={16} height={16} />
-                  </button>
-                </div>
-                <div className={styles.invoiceRow}>
-                  <span className={styles.invoiceDate}>30 Jun, 2025</span>
-                  <span className={styles.invoiceAmount}>R$ 59,90</span>
-                  <span className={styles.invoiceStatus}>Pago</span>
-                  <span className={styles.invoicePlan}>Plano Premium</span>
-                  <button className={styles.expandButton}>
-                    <ArrowDownToLine width={16} height={16} />
-                  </button>
-                </div>
-              </div>
-              <a href="#" className={styles.viewMoreLink}>Ver mais</a>
-            </div>
+            )}
           </div>
         );
       case 'historico-compras':
@@ -407,24 +564,20 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
             <p className={styles.subtitle}>Histórico completo das suas transações e assinaturas</p>
 
             <div className={styles.filtersBar}>
-              <button className={styles.filtersButton}>
-                <Filter size={16} />
-                Filtros
-              </button>
-              
+
               <div className={styles.searchSection}>
                 <div className={styles.searchInput}>
                   <Search size={16} />
-                  <input 
-                    type="text" 
-                    placeholder="Buscar transação..." 
+                  <input
+                    type="text"
+                    placeholder="Buscar transação..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                
+
                 <div className={styles.dropdowns}>
-                  <select 
+                  <select
                     className={styles.dropdown}
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
@@ -435,8 +588,8 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
                     <option>Ativo</option>
                     <option>Cancelado</option>
                   </select>
-                  
-                  <select 
+
+                  <select
                     className={styles.dropdown}
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
@@ -453,21 +606,34 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
               {filteredPurchases.map((purchase) => {
                 const statusInfo = getStatusInfo(purchase.status);
                 const isActionMenuOpen = openActionMenu === purchase.id;
-                
+
                 return (
                   <div key={purchase.id} className={styles.purchaseCard}>
                     <div className={styles.cardLeft}>
                       <div className={styles.iconContainer}>
                         <span className={styles.typeIcon}>{getIcon(purchase.type)}</span>
                       </div>
-                      
+
                       <div className={styles.purchaseInfo}>
                         <h3>{purchase.title}</h3>
                         <div className={styles.orderDetails}>
-                          <span className={styles.orderId}>#{purchase.orderId}</span>
+                          <span className={styles.orderId}>{purchase.orderId}</span>
                           <span className={styles.purchaseDate}>{purchase.purchaseDate}</span>
                           <span className={styles.paymentType}>{purchase.paymentType}</span>
                         </div>
+                        {purchase.products && purchase.products.length > 1 && (
+                          <div className={styles.productsList}>
+                            {purchase.products.map((product, index) => (
+                              <div key={product.id} className={styles.productItem}>
+                                <span className={styles.productName}>{product.name}</span>
+                                <span className={styles.productPrice}>
+                                  {product.quantity && product.quantity > 1 ? `${product.quantity}x ` : ''}
+                                  {formatPrice(parseFloat(product.price))}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                         {purchase.nextCharge && (
                           <div className={styles.nextCharge}>
                             Próxima cobrança: {purchase.nextCharge}
@@ -483,46 +649,46 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
 
                     <div className={styles.cardRight}>
                       <div className={styles.priceInfo}>
-                        <div className={styles.price}>R$ {purchase.value.toFixed(2).replace('.', ',')}</div>
+                        <div className={styles.price}>{formatPrice(purchase.value)}</div>
                         <div className={styles.frequency}>{purchase.frequency}</div>
                       </div>
-                      
+
                       <div className={styles.statusBadge}>
                         <div className={`${styles.status} ${statusInfo.className}`}>
                           {statusInfo.text}
                         </div>
                       </div>
-                      
+
                       <div className={styles.actionMenu}>
-                        <button 
+                        <button
                           className={styles.actionButton}
                           onClick={() => toggleActionMenu(purchase.id)}
                         >
                           <MoreVertical size={16} />
                         </button>
-                        
+
                         {isActionMenuOpen && (
                           <div className={styles.actionDropdown}>
-                            <button 
+                            <button
                               className={styles.actionItem}
                               onClick={() => handleViewDetails(purchase.id)}
                             >
                               <Eye size={16} />
                               Ver Detalhes
                             </button>
-                            
-                            {purchase.status === 'pending' && (
-                              <button 
+
+                            {purchase.status === 'pending' && purchase.checkout_url && (
+                              <button
                                 className={`${styles.actionItem} ${styles.actionItemGreen}`}
-                                onClick={() => handlePayNow(purchase.id)}
+                                onClick={() => purchase.checkout_url && handlePayNow(purchase.checkout_url)}
                               >
                                 <CreditCard size={16} />
                                 Pagar Agora
                               </button>
                             )}
-                            
+
                             {purchase.status === 'paid' && (
-                              <button 
+                              <button
                                 className={styles.actionItem}
                                 onClick={() => handleDownloadReceipt(purchase.id)}
                               >
@@ -530,14 +696,6 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
                                 Baixar Comprovante
                               </button>
                             )}
-                            
-                            <button 
-                              className={`${styles.actionItem} ${styles.actionItemRed}`}
-                              onClick={() => handleReportProblem(purchase.id)}
-                            >
-                              <AlertTriangle size={16} />
-                              Reportar Problema
-                            </button>
                           </div>
                         )}
                       </div>
@@ -687,6 +845,17 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
           </div>
         </div>
       </div>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }; 

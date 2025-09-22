@@ -5,8 +5,10 @@ import styles from './page.module.scss';
 import { createSubscription, getPlans } from '@/services/api';
 import { Alert, Snackbar } from '@mui/material';
 import { formatPrice, usePlanColor } from '@/hooks';
+import { useRouter } from 'next/navigation';
 
 export default function PlansPage() {
+  const router = useRouter();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
@@ -16,90 +18,14 @@ export default function PlansPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [filteredPlans, setFilteredPlans] = useState<any[]>([]);
 
-  // const plans = [
-  //   {
-  //     id: 0,
-  //     name: 'Básico',
-  //     subtitle: 'Ideal para pequenas empresas',
-  //     price: billingPeriod === 'monthly' ? 29 : 290,
-  //     period: billingPeriod === 'monthly' ? '/mês' : '/ano',
-  //     icon: Zap,
-  //     features: [
-  //       'Até 50 certificados',
-  //       '5 contratos por mês',
-  //       'Suporte por email',
-  //       'Armazenamento de 1GB',
-  //       'Relatórios básicos'
-  //     ],
-  //     buttonText: 'Fazer Upgrade',
-  //     popular: false,
-  //     color: 'blue'
-  //   },
-  //   {
-  //     id: 1,
-  //     name: 'Premium',
-  //     subtitle: 'Para empresas em crescimento',
-  //     price: billingPeriod === 'monthly' ? 79 : 790,
-  //     period: billingPeriod === 'monthly' ? '/mês' : '/ano',
-  //     icon: Star,
-  //     features: [
-  //       'Certificados ilimitados',
-  //       '50 contratos por mês',
-  //       'Suporte prioritário',
-  //       'Armazenamento de 10GB',
-  //       'Relatórios avançados',
-  //       'Integração D4Sign',
-  //       'API de terceiros'
-  //     ],
-  //     buttonText: 'Fazer Upgrade',
-  //     popular: true,
-  //     color: 'purple'
-  //   },
-  //   {
-  //     id: 2,
-  //     name: 'Enterprise',
-  //     subtitle: 'Para grandes organizações',
-  //     price: billingPeriod === 'monthly' ? 199 : 1990,
-  //     period: billingPeriod === 'monthly' ? '/mês' : '/ano',
-  //     icon: Crown,
-  //     features: [
-  //       'Recursos ilimitados',
-  //       'Contratos ilimitados',
-  //       'Suporte 24/7',
-  //       'Armazenamento ilimitado',
-  //       'Dashboard personalizado',
-  //       'White label',
-  //       'Gerente de conta dedicado',
-  //       'SLA garantido'
-  //     ],
-  //     buttonText: 'Fazer Upgrade',
-  //     popular: false,
-  //     color: 'yellow'
-  //   }
-  // ];
-
-  // Função para extrair recursos únicos de todos os planos
-  const extractUniqueFeatures = (plans: any[]) => {
-    const allFeatures = new Set<string>();
-    plans.forEach(plan => {
-      if (plan.features && Array.isArray(plan.features)) {
-        plan.features.forEach((feature: string) => allFeatures.add(feature));
-      }
-    });
-    return Array.from(allFeatures);
-  };
-
-  // Função para gerar tabela de comparação baseada apenas nas features do Enterprise
   const generateComparisonTable = (plans: any[]) => {
     if (!plans || plans.length === 0) return [];
 
     const monthlyPlans = plans.filter(plan => plan.billing_cycle === 'monthly');
     
-    // Encontrar o plano Enterprise para usar suas features como referência
     const enterprisePlan = monthlyPlans.find(plan => plan.plan_type === 'enterprise');
     if (!enterprisePlan || !enterprisePlan.features) return [];
     
-    // Usar apenas as features do Enterprise como base para comparação
     return enterprisePlan.features.map((feature: string) => {
       const comparison: any = { name: feature };
       
@@ -151,12 +77,6 @@ export default function PlansPage() {
 
   useEffect(() => {
     if (plans.length > 0) {
-      console.log('Todos os planos:', plans);
-      console.log('Período selecionado:', billingPeriod);
-      
-      const billingCycles = [...new Set(plans.map(plan => plan.billing_cycle))];
-      console.log('Tipos de billing_cycle encontrados:', billingCycles);
-      
       const filtered = plans.filter(plan => {
         if (billingPeriod === 'monthly') {
           return plan.billing_cycle === 'monthly' || plan.billing_cycle === 'month';
@@ -171,15 +91,12 @@ export default function PlansPage() {
                (planOrder[b.plan_type as keyof typeof planOrder] || 999);
       });
       
-      console.log('Planos filtrados e ordenados:', sortedPlans);
       setFilteredPlans(sortedPlans);
     }
   }, [plans, billingPeriod]);
 
   const handleUpgrade = async (planId: number) => {
-    console.log(`Upgrade para plano: ${planId}`);
     const response = await createSubscription(Number(planId));
-    console.log(response);
 
     if (response.data.success) {
       window.open(response.data.checkout_url, '_blank');
@@ -201,7 +118,7 @@ export default function PlansPage() {
           </div>
           <button
             className={styles.backButton}
-            onClick={() => window.history.back()}
+            onClick={() => router.back()}
           >
             <ArrowLeft size={16} /> Voltar
           </button>
