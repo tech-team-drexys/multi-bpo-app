@@ -1,114 +1,112 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, X, Zap, Star, Crown, ArrowRight, ArrowLeft } from 'lucide-react';
 import styles from './page.module.scss';
+import { createSubscription, getPlans } from '@/services/api';
+import { Alert, Snackbar } from '@mui/material';
+import { formatPrice, usePlanColor } from '@/hooks';
+import { useRouter } from 'next/navigation';
 
 export default function PlansPage() {
+  const router = useRouter();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const [plans, setPlans] = useState<any[]>([]);
+  const [filteredPlans, setFilteredPlans] = useState<any[]>([]);
 
-  const plans = [
-    {
-      id: 'basic',
-      name: 'Básico',
-      subtitle: 'Ideal para pequenas empresas',
-      price: billingPeriod === 'monthly' ? 29 : 290,
-      period: billingPeriod === 'monthly' ? '/mês' : '/ano',
-      icon: Zap,
-      features: [
-        'Até 50 certificados',
-        '5 contratos por mês',
-        'Suporte por email',
-        'Armazenamento de 1GB',
-        'Relatórios básicos'
-      ],
-      buttonText: 'Fazer Upgrade',
-      popular: false,
-      color: 'blue'
-    },
-    {
-      id: 'premium',
-      name: 'Premium',
-      subtitle: 'Para empresas em crescimento',
-      price: billingPeriod === 'monthly' ? 79 : 790,
-      period: billingPeriod === 'monthly' ? '/mês' : '/ano',
-      icon: Star,
-      features: [
-        'Certificados ilimitados',
-        '50 contratos por mês',
-        'Suporte prioritário',
-        'Armazenamento de 10GB',
-        'Relatórios avançados',
-        'Integração D4Sign',
-        'API de terceiros'
-      ],
-      buttonText: 'Fazer Upgrade',
-      popular: true,
-      color: 'purple'
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      subtitle: 'Para grandes organizações',
-      price: billingPeriod === 'monthly' ? 199 : 1990,
-      period: billingPeriod === 'monthly' ? '/mês' : '/ano',
-      icon: Crown,
-      features: [
-        'Recursos ilimitados',
-        'Contratos ilimitados',
-        'Suporte 24/7',
-        'Armazenamento ilimitado',
-        'Dashboard personalizado',
-        'White label',
-        'Gerente de conta dedicado',
-        'SLA garantido'
-      ],
-      buttonText: 'Fazer Upgrade',
-      popular: false,
-      color: 'yellow'
+  const generateComparisonTable = (plans: any[]) => {
+    if (!plans || plans.length === 0) return [];
+
+    const monthlyPlans = plans.filter(plan => plan.billing_cycle === 'monthly');
+    
+    const enterprisePlan = monthlyPlans.find(plan => plan.plan_type === 'enterprise');
+    if (!enterprisePlan || !enterprisePlan.features) return [];
+    
+    return enterprisePlan.features.map((feature: string) => {
+      const comparison: any = { name: feature };
+      
+      monthlyPlans.forEach(plan => {
+        const hasFeature = plan.features && plan.features.includes(feature);
+        comparison[plan.plan_type] = hasFeature;
+      });
+      
+      return comparison;
+    });
+  };
+
+  const getSpecificComparisons = (plans: any[]) => {
+    if (!plans || plans.length === 0) return [];
+
+    const monthlyPlans = plans.filter(plan => plan.billing_cycle === 'monthly');
+    const comparisons = [];
+
+    const lucaComparison: any = { name: 'Luca IA' };
+    monthlyPlans.forEach(plan => {
+      if (plan.luca_questions_limit) {
+        lucaComparison[plan.plan_type] = plan.luca_questions_limit === -1 ? 'Ilimitado' : plan.luca_questions_limit.toString();
+      } else {
+        lucaComparison[plan.plan_type] = 'Não especificado';
+      }
+    });
+    comparisons.push(lucaComparison);
+
+    const usersComparison: any = { name: 'Máximo de usuários' };
+    monthlyPlans.forEach(plan => {
+      if (plan.max_users) {
+        usersComparison[plan.plan_type] = plan.max_users === -1 ? 'Ilimitado' : plan.max_users.toString();
+      } else {
+        usersComparison[plan.plan_type] = 'Não especificado';
+      }
+    });
+    comparisons.push(usersComparison);
+
+    return comparisons;
+  };
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const response = await getPlans();
+      setPlans(response.plans);
+    };
+    fetchPlans();
+  }, []);
+
+  useEffect(() => {
+    if (plans.length > 0) {
+      const filtered = plans.filter(plan => {
+        if (billingPeriod === 'monthly') {
+          return plan.billing_cycle === 'monthly' || plan.billing_cycle === 'month';
+        } else {
+          return plan.billing_cycle === 'annual' || plan.billing_cycle === 'year' || plan.billing_cycle === 'yearly';
+        }
+      });
+      
+      const planOrder = { 'basic': 1, 'premium': 2, 'enterprise': 3 };
+      const sortedPlans = filtered.sort((a, b) => {
+        return (planOrder[a.plan_type as keyof typeof planOrder] || 999) - 
+               (planOrder[b.plan_type as keyof typeof planOrder] || 999);
+      });
+      
+      setFilteredPlans(sortedPlans);
     }
-  ];
+  }, [plans, billingPeriod]);
 
-  const comparisonFeatures = [
-    {
-      name: 'Certificados',
-      basic: 'Até 50',
-      premium: 'Ilimitados',
-      enterprise: 'Ilimitados'
-    },
-    {
-      name: 'Contratos/mês',
-      basic: '5',
-      premium: '50',
-      enterprise: 'Ilimitados'
-    },
-    {
-      name: 'Armazenamento',
-      basic: '1GB',
-      premium: '10GB',
-      enterprise: 'Ilimitado'
-    },
-    {
-      name: 'Suporte',
-      basic: 'Email',
-      premium: 'Prioritário',
-      enterprise: '24/7'
-    },
-    {
-      name: 'API de terceiros',
-      basic: false,
-      premium: true,
-      enterprise: true
-    },
-    {
-      name: 'White label',
-      basic: false,
-      premium: false,
-      enterprise: true
+  const handleUpgrade = async (planId: number) => {
+    const response = await createSubscription(Number(planId));
+
+    if (response.data.success) {
+      window.open(response.data.checkout_url, '_blank');
+    } else {
+      setSnackbar({
+        open: true,
+        message: response.data.message,
+        severity: 'error'
+      });
     }
-  ];
-
-  const handleUpgrade = (planId: string) => {
-    console.log(`Upgrade para plano: ${planId}`);
   };
 
   return (
@@ -120,7 +118,7 @@ export default function PlansPage() {
           </div>
           <button
             className={styles.backButton}
-            onClick={() => window.history.back()}
+            onClick={() => router.back()}
           >
             <ArrowLeft size={16} /> Voltar
           </button>
@@ -152,26 +150,34 @@ export default function PlansPage() {
         </div>
 
         <div className={styles.plansGrid}>
-          {plans.map((plan) => (
-            <div key={plan.id} className={`${styles.planCard} ${plan.popular ? styles.popular : ''}`}>
-              {plan.popular && (
+        {filteredPlans.map((plan) => (
+            <div key={plan.id} className={`${styles.planCard} ${plan.billing_cycle === 'monthly' && plan.plan_type === 'premium' ? styles.popular : ''}`}>
+              {plan.billing_cycle === 'monthly' && plan.plan_type === 'premium' && (
                 <div className={styles.popularBadge}>Mais Popular</div>
               )}
 
               <div className={styles.planIcon}>
-                <plan.icon className={`${styles.icon} ${styles[plan.color]}`} />
+                {plan.plan_type === 'basic' && (
+                  <Zap className={`${styles.icon} ${styles[usePlanColor(plan.plan_type)]}`} />
+                )}
+                {plan.plan_type === 'premium' && (
+                  <Star className={`${styles.icon} ${styles[usePlanColor(plan.plan_type)]}`} />
+                )}
+                {plan.plan_type === 'enterprise' && (
+                  <Crown className={`${styles.icon} ${styles[usePlanColor(plan.plan_type)]}`} />
+                )}
               </div>
 
-              <h3 className={styles.planName}>{plan.name}</h3>
-              <p className={styles.planSubtitle}>{plan.subtitle}</p>
+              <h3 className={styles.planName}>{plan.plan_type === 'basic' ? 'Básico' : plan.plan_type === 'premium' ? 'Premium' : plan.plan_type === 'enterprise' ? 'Enterprise' : plan.name}</h3>
+              <p className={styles.planSubtitle}>{plan.description}</p>
 
               <div className={styles.price}>
-                <span className={styles.priceValue}>R$ {plan.price}</span>
-                <span className={styles.pricePeriod}>{plan.period}</span>
+                <span className={styles.priceValue}>{formatPrice(plan.price)}</span>
+                <span className={styles.pricePeriod}>{plan.billing_cycle === 'monthly' ? '/mês' : '/ano'}</span>
               </div>
 
               <ul className={styles.features}>
-                {plan.features.map((feature, index) => (
+                {plan.features?.map((feature: string, index: number) => (
                   <li key={index} className={styles.feature}>
                     <Check className={styles.checkIcon} />
                     <span>{feature}</span>
@@ -180,10 +186,10 @@ export default function PlansPage() {
               </ul>
 
               <button
-                className={`${styles.upgradeButton} ${styles[plan.color]}`}
+                className={`${styles.upgradeButton} ${styles[usePlanColor(plan.plan_type)]}`}
                 onClick={() => handleUpgrade(plan.id)}
               >
-                {plan.buttonText}
+                Fazer Upgrade
               </button>
             </div>
           ))}
@@ -195,35 +201,59 @@ export default function PlansPage() {
           <div className={styles.comparisonTable}>
             <div className={styles.tableHeader}>
               <div className={styles.featureColumn}>Recursos</div>
-              <div className={styles.planColumn}>Básico</div>
-              <div className={styles.planColumn}>Premium</div>
-              <div className={styles.planColumn}>Enterprise</div>
+              {filteredPlans
+                .filter(plan => plan.billing_cycle === 'monthly')
+                .sort((a, b) => {
+                  const order = { 'basic': 1, 'premium': 2, 'enterprise': 3 };
+                  return (order[a.plan_type as keyof typeof order] || 999) - 
+                         (order[b.plan_type as keyof typeof order] || 999);
+                })
+                .map(plan => (
+                  <div key={plan.id} className={styles.planColumn}>
+                    {plan.plan_type === 'basic' ? 'Básico' : 
+                     plan.plan_type === 'premium' ? 'Premium' : 
+                     plan.plan_type === 'enterprise' ? 'Enterprise' : plan.name}
+                  </div>
+                ))}
             </div>
 
-            {comparisonFeatures.map((feature, index) => (
-              <div key={index} className={styles.tableRow}>
+            {getSpecificComparisons(filteredPlans).map((comparison, index) => (
+              <div key={`specific-${index}`} className={styles.tableRow}>
+                <div className={styles.featureColumn}>{comparison.name}</div>
+                {filteredPlans
+                  .filter(plan => plan.billing_cycle === 'monthly')
+                  .sort((a, b) => {
+                    const order = { 'basic': 1, 'premium': 2, 'enterprise': 3 };
+                    return (order[a.plan_type as keyof typeof order] || 999) - 
+                           (order[b.plan_type as keyof typeof order] || 999);
+                  })
+                  .map(plan => (
+                    <div key={plan.id} className={styles.planColumn}>
+                      {comparison[plan.plan_type] || 'N/A'}
+                    </div>
+                  ))}
+              </div>
+            ))}
+
+            {generateComparisonTable(filteredPlans).map((feature: any, index: number) => (
+              <div key={`feature-${index}`} className={styles.tableRow}>
                 <div className={styles.featureColumn}>{feature.name}</div>
-                <div className={styles.planColumn}>
-                  {typeof feature.basic === 'boolean' ? (
-                    feature.basic ? <Check className={styles.checkIcon} /> : <X className={styles.xIcon} />
-                  ) : (
-                    feature.basic
-                  )}
-                </div>
-                <div className={styles.planColumn}>
-                  {typeof feature.premium === 'boolean' ? (
-                    feature.premium ? <Check className={styles.checkIcon} /> : <X className={styles.xIcon} />
-                  ) : (
-                    feature.premium
-                  )}
-                </div>
-                <div className={styles.planColumn}>
-                  {typeof feature.enterprise === 'boolean' ? (
-                    feature.enterprise ? <Check className={styles.checkIcon} /> : <X className={styles.xIcon} />
-                  ) : (
-                    feature.enterprise
-                  )}
-                </div>
+                {filteredPlans
+                  .filter(plan => plan.billing_cycle === 'monthly')
+                  .sort((a, b) => {
+                    const order = { 'basic': 1, 'premium': 2, 'enterprise': 3 };
+                    return (order[a.plan_type as keyof typeof order] || 999) - 
+                           (order[b.plan_type as keyof typeof order] || 999);
+                  })
+                  .map(plan => (
+                    <div key={plan.id} className={styles.planColumn}>
+                      {typeof feature[plan.plan_type] === 'boolean' ? (
+                        feature[plan.plan_type] ? <Check className={styles.checkIcon} /> : <X className={styles.xIcon} />
+                      ) : (
+                        feature[plan.plan_type] || <X className={styles.xIcon} />
+                      )}
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
@@ -237,6 +267,17 @@ export default function PlansPage() {
           </button>
         </div>
       </div>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

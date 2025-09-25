@@ -72,7 +72,7 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
     { icon: Newspaper, label: 'Notícias', path: '/noticias' },
     { icon: Lightbulb, label: 'Ideias', path: '/ideias' },
     { icon: FileText, label: 'Contratos', path: '/contratos' },
-    { icon: Headset, label: 'Central de Atendimento', path: '/central-de-atendimento' },
+    { icon: Headset, label: 'Central de Atendimento', path: 'https://consultor.multibpo.com.br/' },
     { icon: Bell, label: 'Notificações', path: '/notificacoes' },
   ];
 
@@ -98,7 +98,10 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse, isHomePage = false, isM
   const handleMenuClick = (path: string) => {
     if (path === '/notificacoes') {
       setIsNotificationDrawerOpen(!isNotificationDrawerOpen);
-    } else {
+    } else if (path === 'https://consultor.multibpo.com.br/') {
+      window.open(path, '_blank');
+    }
+    else {
       router.push(path);
     }
   };

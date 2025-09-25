@@ -5,7 +5,7 @@ export default function CentralDeAtendimento() {
   return (
     <div className={styles.page}>
       <h1>Central de Atendimento</h1>
-      <p>Conteúdo da Central de Atendimento será exibido aqui.</p>
+      <iframe src="https://consultor.multibpo.com.br/" width="100%" height="100%"/>
     </div>
   );
 } 

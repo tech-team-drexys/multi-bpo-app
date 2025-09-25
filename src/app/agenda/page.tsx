@@ -17,7 +17,7 @@ import {
   Eye
 } from 'lucide-react';
 import styles from "./page.module.scss";
-import { TaskStatus } from '@/enums/index ';
+import { TaskStatus } from '@/enums';
 interface Task {
   id: number;
   title: string;
