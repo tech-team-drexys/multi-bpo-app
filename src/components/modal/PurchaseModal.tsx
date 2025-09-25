@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography, Box, Divider, Snackbar, Alert, Chip } from '@mui/material';
 import { XIcon, ChevronUp, ChevronDown } from 'lucide-react';
-import { ProductCategoryLabels } from '../../enums/index ';
-import { applyCoupon as applyCouponAPI, createOrder } from '../../services/api';
+import { ProductCategoryLabels } from "@/enums/index ";
+import { applyCoupon as applyCouponAPI, createOrder } from "@/services/api";
 import styles from './PurchaseModal.module.scss';
 import { useRouter } from 'next/navigation';
 
@@ -144,14 +144,8 @@ export default function PurchaseModal({ open, onClose, service, onConfirmPurchas
       }
 
       const response = await createOrder(Number(service.id));
-      console.log(response);
-
       if (response.success) {
         window.open(response.checkout_url, '_blank');
-
-        setInterval(() => {
-          router.push('/historico-compras');
-        }, 1500);
       } else {
         setSnackbar({
           open: true,

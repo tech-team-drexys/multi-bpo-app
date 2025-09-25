@@ -377,3 +377,13 @@ export const listMyOrders = async () => {
         throw error;
     }
 };
+
+export const updatePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+        const response = await api.post("/auth/password-reset/", { current_password: currentPassword, new_password: newPassword });
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao atualizar senha:", error);
+        throw error;
+    }
+};

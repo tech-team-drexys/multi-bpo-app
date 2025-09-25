@@ -5,8 +5,8 @@ import styles from "./page.module.scss";
 import { Button, RadioGroup, FormControlLabel, Radio, Drawer, List, ListItem, ListItemText, Typography, Box, Snackbar, Alert, TextField, Chip } from "@mui/material";
 import PurchaseModal from "../../components/modal/PurchaseModal";
 import { createOrder, getProducts, applyCoupon as applyCouponAPI, createListOrder } from "@/services/api";
-import { ProductCategoryLabels } from "../../enums/index ";
 import { formatPrice } from "@/hooks/index";
+import { ProductCategoryLabels } from "@/enums/index ";
 
 interface Service {
   id: number;
@@ -44,8 +44,6 @@ export default function Loja() {
 
   useEffect(() => {
     Promise.all([getProducts()]).then(([data]) => {
-      console.log(data.products);
-
       setProducts(data.products);
     }).catch(
       (error) => {
@@ -201,31 +199,25 @@ export default function Loja() {
     }
 
     try {
-      // Formatar itens do carrinho para o formato da API
       const items = cart.map(item => ({
         product_id: item.id.toString(),
         quantity: item.quantity
       }));
 
-      console.log('Enviando itens para API:', { items });
-
       const response = await createListOrder(items);
 
-      console.log('Resposta da API:', response);
 
       if (response.success) {
-        // Redirecionar para checkout se houver URL
         if (response.checkout_url) {
           window.open(response.checkout_url, '_blank');
         }
-        
+
         setSnackbar({
           open: true,
           message: 'Pedido criado com sucesso! Redirecionando para pagamento...',
           severity: 'success'
         });
 
-        // Limpar carrinho após sucesso
         setCart([]);
         setAppliedCoupon(null);
         setCouponExpanded(false);
@@ -240,11 +232,11 @@ export default function Loja() {
       }
     } catch (error: any) {
       console.error('Erro ao finalizar compra:', error);
-      
-      const errorMessage = error?.response?.data?.message || 
-                          error?.response?.data?.error || 
-                          'Erro ao finalizar compra. Tente novamente.';
-      
+
+      const errorMessage = error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        'Erro ao finalizar compra. Tente novamente.';
+
       setSnackbar({
         open: true,
         message: errorMessage,

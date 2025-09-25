@@ -4,7 +4,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Gauge } from '@mui/x-charts/Gauge';
 import styles from "./page.module.scss";
-import { TaskStatus } from '@/enums/index ';
+import { TaskStatus } from '@/enums';
 
 export default function Dashboard() {
   const router = useRouter();

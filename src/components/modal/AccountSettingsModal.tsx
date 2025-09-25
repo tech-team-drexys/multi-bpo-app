@@ -1,20 +1,20 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { X, User, Shield, Gem, ChevronDown, ArrowDownToLine, Wallet, Banknote, Filter, Search, MoreVertical, Download, AlertTriangle, Eye, CreditCard, SquareArrowOutUpRight, Repeat, Package } from 'lucide-react';
+import { X, User, Shield, Gem, Wallet, Banknote, Search, MoreVertical, Download, Eye, CreditCard, SquareArrowOutUpRight, Repeat, Package, QrCode, Barcode, EyeOff } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthProvider';
 import styles from './AccountSettingsModal.module.scss';
-import { cancelSubscription, getMySubscriptions, listMyOrders } from '@/services/api';
+import { cancelSubscription, getMySubscriptions, getUserProfile, listMyOrders, updatePassword } from '@/services/api';
 import { Alert, Button, Snackbar } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { formatPrice, formatDate } from '@/hooks';
+import Image from 'next/image';
+import { CreditCardBrand, MenuOption } from '@/enums/index ';
+import { Input } from 'antd';
 
 interface AccountSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-type MenuOption = 'conta' | 'seguranca' | 'assinaturas' | 'historico-compras' | 'financeiro';
-
 interface Purchase {
   id: string;
   title: string;
@@ -109,6 +109,7 @@ interface SubscriptionData {
     };
     credit_card: {
       brand: string;
+      credit_card_brand: string;
       has_card: boolean;
       last_digits: string;
     };
@@ -118,6 +119,7 @@ interface SubscriptionData {
       due_date: string;
       invoice_url: string;
       bank_slip_url: string | null;
+      pix_qr_code: string | null;
     };
     payment_method: string;
   };
@@ -127,24 +129,44 @@ interface SubscriptionData {
 export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalProps) => {
   const router = useRouter();
   const { userData, refreshUserData } = useAuthContext();
-  const [activeMenu, setActiveMenu] = useState<MenuOption>('conta');
+
+  const getCreditCardBrandImage = (brand: string): string => {
+    const brandMapping: Record<string, CreditCardBrand> = {
+      'VISA': CreditCardBrand.VISA,
+      'MASTERCARD': CreditCardBrand.MASTERCARD,
+      'AMERICAN_EXPRESS': CreditCardBrand.AMERICAN_EXPRESS,
+      'AMEX': CreditCardBrand.AMERICAN_EXPRESS,
+      'DINERS': CreditCardBrand.DINERS,
+      'ELO': CreditCardBrand.ELO,
+      'BANES_CARD': CreditCardBrand.BANES_CARD,
+      'CABAL': CreditCardBrand.CABAL,
+      'CREDSYSTEM': CreditCardBrand.CREDSYSTEM,
+      'CREDZ': CreditCardBrand.CREDZ,
+      'DISCOVER': CreditCardBrand.DISCOVER,
+      'SOROCRED': CreditCardBrand.SOROCRED,
+      'UCB': CreditCardBrand.UCB,
+    };
+
+    return brandMapping[brand?.toUpperCase()] || CreditCardBrand.VISA;
+  };
+  const [activeMenu, setActiveMenu] = useState<MenuOption>(MenuOption.CONTA);
   const [formData, setFormData] = useState({
-    nome: '',
-    sobrenome: '',
+    full_name: '',
     apelido: '',
     telefone: '',
-    email: '',
+    email: ''
+  });
+  const [securityFormData, setSecurityFormData] = useState({
     senhaAtual: '',
     novaSenha: '',
     confirmarSenha: '',
   });
-  const [originalData, setOriginalData] = useState({
-    nome: '',
-    sobrenome: '',
-    apelido: '',
-    telefone: '',
-    email: '',
-  });
+  // const [originalData, setOriginalData] = useState({
+  //   full_name: '',
+  //   apelido: '',
+  //   telefone: '',
+  //   email: '',
+  // });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -159,35 +181,28 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
   const [purchases, setPurchases] = useState<Purchase[]>([]);
 
   useEffect(() => {
-    if (isOpen && userData) {
-      const initialData = {
-        nome: userData.first_name || '',
-        sobrenome: userData.last_name || '',
-        apelido: '',
-        telefone: userData.whatsapp || '',
-        email: userData.email || '',
-        senhaAtual: '',
-        novaSenha: '',
-        confirmarSenha: '',
-      };
-      setFormData(initialData);
-      setOriginalData({
-        nome: userData.first_name || '',
-        sobrenome: userData.last_name || '',
-        apelido: '',
-        telefone: userData.whatsapp || '',
-        email: userData.email || '',
-      });
-    }
+    Promise.all([getUserProfile()]).then(([userData]) => {
+      if (isOpen && userData) {
+        const initialData = {
+          full_name: userData.user.full_name || '',
+          apelido: '',
+          telefone: userData.user.whatsapp || userData.user.phone || '',
+          email: userData.user.email || '',
+        };
+        setFormData(initialData);
+      }
+    }).catch(error => {
+      setSnackbar({ open: true, message: 'Erro ao carregar dados da conta', severity: 'error' });
+    });
   }, [isOpen, userData]);
 
   const convertApiOrdersToPurchases = (apiOrders: ApiOrder[]): Purchase[] => {
     const purchases: Purchase[] = [];
-    
+
     apiOrders.forEach((orderGroup) => {
       const firstProduct = orderGroup.products[0];
       if (!firstProduct) return;
-      
+
       const hasSubscription = orderGroup.transaction_type === 'subscription';
 
       const getStatus = (orderStatus: string) => {
@@ -229,8 +244,6 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
       purchases.push(purchase);
     });
 
-    console.log("purchases", purchases);
-    
     return purchases;
   };
 
@@ -240,8 +253,6 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
 
       const orderData = orders?.grouped_orders;
       if (orderData && Array.isArray(orderData) && orderData.length > 0) {
-        console.log(orderData);
-        
         setOrders(orderData);
         const convertedPurchases = convertApiOrdersToPurchases(orderData);
         setPurchases(convertedPurchases);
@@ -250,48 +261,69 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
         setPurchases([]);
       }
     }).catch(error => {
-      console.error('Erro ao carregar assinaturas:', error);
+      setSnackbar({ open: true, message: 'Erro ao carregar assinaturas', severity: 'error' });
       setSubscriptions(null);
       setOrders([]);
       setPurchases([]);
     });
-  }, []);
+  }, [cancelSubscription]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    if (activeMenu === MenuOption.SEGURANCA) {
+      setSecurityFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
-  const hasChanges = () => {
-    if (activeMenu === 'conta') {
-      return (
-        formData.nome !== originalData.nome ||
-        formData.sobrenome !== originalData.sobrenome ||
-        formData.apelido !== originalData.apelido ||
-        formData.telefone !== originalData.telefone ||
-        formData.email !== originalData.email
-      );
-    }
-    return formData.senhaAtual || formData.novaSenha || formData.confirmarSenha;
-  };
+  // const hasChanges = () => {
+  //   if (activeMenu === MenuOption.CONTA) {
+  //     return (
+  //       formData.full_name !== originalData.full_name ||
+  //       formData.apelido !== originalData.apelido ||
+  //       formData.telefone !== originalData.telefone ||
+  //       formData.email !== originalData.email
+  //     );
+  //   }
+  //   return formData.senhaAtual || formData.novaSenha || formData.confirmarSenha;
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (activeMenu === 'conta') {
-      setOriginalData({
-        nome: formData.nome,
-        sobrenome: formData.sobrenome,
-        apelido: formData.apelido,
-        telefone: formData.telefone,
-        email: formData.email,
-      });
-    }
+    if (activeMenu === MenuOption.SEGURANCA) {
+      if (securityFormData.senhaAtual === '' || securityFormData.novaSenha === '' || securityFormData.confirmarSenha === '') {
+        setSnackbar({ open: true, message: 'Por favor, preencha todos os campos', severity: 'error' });
+        return;
+      }
 
-    await refreshUserData();
-    onClose();
+      if (securityFormData.novaSenha !== securityFormData.confirmarSenha) {
+        setSnackbar({ open: true, message: 'As senhas não coincidem', severity: 'error' });
+        return;
+      }
+
+      const response = await updatePassword(securityFormData.senhaAtual, securityFormData.novaSenha);
+      if (response.success) {
+        setSnackbar({ open: true, message: 'Senha atualizada com sucesso', severity: 'success' });
+        setSecurityFormData({
+          senhaAtual: '',
+          novaSenha: '',
+          confirmarSenha: '',
+        });
+        await refreshUserData();
+      } else {
+        setSnackbar({ open: true, message: 'Erro ao atualizar senha', severity: 'error' });
+      }
+    } else if (activeMenu === MenuOption.CONTA) {
+      // Aqui você pode adicionar a lógica para salvar os dados da conta
+      setSnackbar({ open: true, message: 'Dados da conta atualizados com sucesso', severity: 'success' });
+    }
   };
 
   const getStatusInfo = (status: Purchase['status']) => {
@@ -321,7 +353,6 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
   const handlePayNow = (checkoutUrl: string | undefined) => {
     if (checkoutUrl) {
       window.open(checkoutUrl, '_blank');
-      console.log('Pagar agora:', checkoutUrl);
     }
     setOpenActionMenu(null);
   };
@@ -372,44 +403,26 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
 
   const renderContent = () => {
     switch (activeMenu) {
-      case 'seguranca':
+      case MenuOption.SEGURANCA:
         return (
           <div className={styles.content}>
             <h2>{menuOptions.find(opt => opt.id === activeMenu)?.label}</h2>
 
             <div className={styles.settingItem}>
               <label>Senha Atual</label>
-              <input
-                type="password"
-                value={formData.senhaAtual}
-                onChange={(e) => handleInputChange('senhaAtual', e.target.value)}
-                placeholder="Senha atual"
-                className={styles.input}
-              />
+              <Input.Password placeholder="Digite sua senha atual" className={styles.input} value={securityFormData.senhaAtual} onChange={(e) => handleInputChange('senhaAtual', e.target.value)} />
             </div>
             <div className={styles.settingItem}>
               <label>Nova Senha</label>
-              <input
-                type="password"
-                value={formData.novaSenha}
-                onChange={(e) => handleInputChange('novaSenha', e.target.value)}
-                placeholder="Nova senha"
-                className={styles.input}
-              />
+              <Input.Password placeholder="Digite sua nova senha" className={styles.input} value={securityFormData.novaSenha} onChange={(e) => handleInputChange('novaSenha', e.target.value)} />
             </div>
             <div className={styles.settingItem}>
               <label>Confirmar Nova Senha</label>
-              <input
-                type="password"
-                value={formData.confirmarSenha}
-                onChange={(e) => handleInputChange('confirmarSenha', e.target.value)}
-                placeholder="Confirmar nova senha"
-                className={styles.input}
-              />
+              <Input.Password placeholder="Digite sua nova senha novamente" className={styles.input} value={securityFormData.confirmarSenha} onChange={(e) => handleInputChange('confirmarSenha', e.target.value)} />
             </div>
           </div>
         );
-      case 'assinaturas':
+      case MenuOption.ASSINATURAS:
         return (
           <div className={styles.content}>
             <h2>{menuOptions.find(opt => opt.id === activeMenu)?.label}</h2>
@@ -433,12 +446,14 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
                       )}
                     </div>
                     <div className={styles.subscriptionActions}>
-                      <button className={styles.updateButton} onClick={() => router.push(`/plans`)}>Atualizar assinatura</button>
                       {subscriptions.subscription.cancel_at_period_end && (
                         <button className={styles.updateButton} onClick={() => router.push(`/plans`)}>Reativar assinatura</button>
                       )}
                       {!subscriptions.subscription.cancel_at_period_end && (
-                        <button className={styles.cancelButton} onClick={handleCancelSubscription}>Cancelar assinatura</button>
+                        <>
+                          <button className={styles.updateButton} onClick={() => router.push(`/plans`)}>Atualizar assinatura</button>
+                          <button className={styles.cancelButton} onClick={handleCancelSubscription}>Cancelar assinatura</button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -449,15 +464,23 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
                   <div className={styles.paymentMethod}>
                     <div className={styles.cardInfo}>
                       <div className={styles.cardIcon}>
-                        <div className={styles.mastercardIcon}>
-                          {subscriptions?.payment_info?.credit_card?.brand === 'VISA' ? 'V' :
-                            subscriptions?.payment_info?.credit_card?.brand === 'MASTERCARD' ? 'MC' :
-                              subscriptions?.payment_info?.credit_card?.brand === 'AMEX' ? 'AE' : 'CC'}
-                        </div>
+                        {subscriptions?.payment_info?.credit_card?.has_card && subscriptions?.payment_info?.credit_card?.credit_card_brand ? (
+                          <Image
+                            src={getCreditCardBrandImage(subscriptions.payment_info.credit_card.credit_card_brand)}
+                            alt={subscriptions.payment_info.credit_card.credit_card_brand}
+                            width={40}
+                            height={25}
+                            className={styles.cardBrandImage}
+                          />
+                        ) : (
+                          <div className={styles.defaultCardIcon}>
+                            <CreditCard size={24} />
+                          </div>
+                        )}
                       </div>
                       <div className={styles.cardDetails}>
                         <span className={styles.cardNumber}>
-                          {subscriptions?.payment_info?.credit_card?.brand || 'Cartão'} ****{subscriptions?.payment_info?.credit_card?.last_digits}
+                          {subscriptions?.payment_info?.credit_card?.credit_card_brand || 'Cartão'} ****{subscriptions?.payment_info?.credit_card?.last_digits}
                         </span>
                         <span className={styles.cardStatus}>
                           {subscriptions?.payment_info?.payment_method || 'Cartão de Crédito'}
@@ -483,9 +506,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
                       <div className={styles.billingField}>
                         <label>Status da Assinatura</label>
                         <span className={styles.billingValue}>
-                          {subscriptions.subscription.status === 'pending' ? 'Pendente' :
-                            subscriptions.subscription.status === 'active' ? 'Ativa' :
-                              subscriptions.subscription.status === 'cancelled' ? 'Cancelada' : 'Desconhecido'}
+                          {subscriptions.subscription.plan.active ? 'Ativa' : 'Cancelada'}
                         </span>
                       </div>
                     </div>
@@ -495,16 +516,15 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
                         <span className={styles.billingValue}>{formatDate(subscriptions.subscription.created_at)}</span>
                       </div>
                       <div className={styles.billingField}>
-                        <label>Próximo Pagamento</label>
+                        <label>{subscriptions.subscription.cancel_at_period_end ? `Ficará ativo até` : `Próximo Pagamento`}</label>
                         <span className={styles.billingValue}>
-                          {subscriptions.payment_info?.latest_payment?.due_date ?
-                            formatDate(subscriptions.payment_info.latest_payment.due_date) :
-                            'N/A'}
+                          {subscriptions.subscription.cancel_at_period_end ?
+                            formatDate(subscriptions.subscription.current_period_end) :
+                            formatDate(subscriptions.payment_info.latest_payment.due_date)}
                         </span>
                       </div>
                     </div>
                   </div>
-                  {/* <button className={styles.updateInfoButton}>Atualizar informações</button> */}
                 </div>
 
                 <div className={styles.subscriptionSection}>
@@ -527,22 +547,14 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
                         </span>
                         <span className={styles.invoicePlan}>{subscriptions.subscription.plan.name}</span>
                         <button className={styles.expandButton} onClick={() => window.open(subscriptions.payment_info.latest_payment.invoice_url, '_blank')}>
-                          <SquareArrowOutUpRight width={16} height={16} />
+                          {subscriptions.payment_info.payment_method === 'BOLETO' ? (
+                            <Barcode width={16} height={16} />
+                          ) : subscriptions.payment_info.payment_method === 'PIX' ? (
+                            <QrCode width={16} height={16} />
+                          ) : (
+                            <SquareArrowOutUpRight width={16} height={16} />
+                          )}
                         </button>
-                      </div>
-                    )}
-                    {subscriptions.payment_info?.latest_payment?.invoice_url && (
-                      <div className={styles.invoiceActions}>
-                        {subscriptions.payment_info.latest_payment.bank_slip_url && (
-                          <a
-                            href={subscriptions.payment_info.latest_payment.bank_slip_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.invoiceLink}
-                          >
-                            Boleto
-                          </a>
-                        )}
                       </div>
                     )}
                   </div>
@@ -557,7 +569,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
             )}
           </div>
         );
-      case 'historico-compras':
+      case MenuOption.HISTORICO_COMPRAS:
         return (
           <div className={styles.content}>
             <h2>Extrato de Pedidos</h2>
@@ -712,7 +724,7 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
             )}
           </div>
         );
-      case 'financeiro':
+      case MenuOption.FINANCEIRO:
         return (
           <div className={styles.content}>
             <h2>{menuOptions.find(opt => opt.id === activeMenu)?.label}</h2>
@@ -723,20 +735,11 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
           <div className={styles.content}>
             <h2>Conta</h2>
             <div className={styles.settingItem}>
-              <label>Nome</label>
+              <label>Nome completo</label>
               <input
                 type="text"
-                value={formData.nome}
-                onChange={(e) => handleInputChange('nome', e.target.value)}
-                className={styles.input}
-              />
-            </div>
-            <div className={styles.settingItem}>
-              <label>Sobrenome</label>
-              <input
-                type="text"
-                value={formData.sobrenome}
-                onChange={(e) => handleInputChange('sobrenome', e.target.value)}
+                value={formData.full_name}
+                onChange={(e) => handleInputChange('full_name', e.target.value)}
                 className={styles.input}
               />
             </div>
@@ -804,31 +807,20 @@ export const AccountSettingsModal = ({ isOpen, onClose }: AccountSettingsModalPr
           <div className={styles.mainContent}>
             {renderContent()}
 
-            {/* Botão de salvar - só aparece quando há alterações */}
-            {hasChanges() && (
+            {(activeMenu === MenuOption.CONTA || activeMenu === MenuOption.SEGURANCA) && (
               <div className={styles.actions}>
                 <button
                   type="button"
                   className={styles.cancelButton}
                   onClick={() => {
-                    // Resetar para dados originais
-                    if (activeMenu === 'conta') {
-                      setFormData(prev => ({
-                        ...prev,
-                        nome: originalData.nome,
-                        sobrenome: originalData.sobrenome,
-                        apelido: originalData.apelido,
-                        telefone: originalData.telefone,
-                        email: originalData.email,
-                      }));
-                    } else {
-                      setFormData(prev => ({
-                        ...prev,
+                    if (activeMenu === MenuOption.SEGURANCA) {
+                      setSecurityFormData({
                         senhaAtual: '',
                         novaSenha: '',
                         confirmarSenha: '',
-                      }));
+                      });
                     }
+                    // Para a aba conta, os dados já estão sendo editados em tempo real
                   }}
                 >
                   Cancelar
