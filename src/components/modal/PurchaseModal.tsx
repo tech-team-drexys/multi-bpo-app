@@ -25,6 +25,15 @@ interface StaticService {
   category: string;
 }
 
+interface ApiError extends Error {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+    };
+  };
+}
+
 interface PurchaseModalProps {
   open: boolean;
   onClose: () => void;
@@ -106,11 +115,12 @@ export default function PurchaseModal({ open, onClose, service, onConfirmPurchas
           severity: 'error'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao aplicar cupom:', error);
 
-      const errorMessage = error?.response?.data?.message ||
-        error?.response?.data?.error ||
+      const apiError = error as ApiError;
+      const errorMessage = apiError?.response?.data?.message ||
+        apiError?.response?.data?.error ||
         'Erro ao validar cupom. Tente novamente.';
 
       setSnackbar({

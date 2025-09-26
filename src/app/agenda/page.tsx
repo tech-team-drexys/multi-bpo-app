@@ -17,7 +17,7 @@ import {
   Eye
 } from 'lucide-react';
 import styles from "./page.module.scss";
-import { TaskStatus } from '@/enums';
+import { TaskStatus } from '@/enums/index ';
 interface Task {
   id: number;
   title: string;
@@ -166,7 +166,7 @@ export default function Agenda() {
       return (
         <ul className={styles.events}>
           {dayTasks.map((task) => {
-            const statusConfig = getStatusConfig(task.status);
+            getStatusConfig(task.status);
             let statusType: 'error' | 'warning' | 'success' | 'processing' = 'processing';
 
             if (task.status === TaskStatus.OVERDUE) statusType = 'error';

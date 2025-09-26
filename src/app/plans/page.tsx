@@ -4,8 +4,35 @@ import { Check, X, Zap, Star, Crown, ArrowRight, ArrowLeft } from 'lucide-react'
 import styles from './page.module.scss';
 import { createSubscription, getPlans } from '@/services/api';
 import { Alert, Snackbar } from '@mui/material';
-import { formatPrice, usePlanColor } from '@/hooks';
+import { formatPrice, getPlanColor } from '@/hooks';
 import { useRouter } from 'next/navigation';
+
+interface Plan {
+  id: number;
+  plan_type: string;
+  name: string;
+  description: string;
+  price: number;
+  billing_cycle: string;
+  features?: string[];
+  luca_questions_limit?: number;
+  max_users?: number;
+}
+
+interface FeatureComparison {
+  name: string;
+  [key: string]: string | boolean | undefined;
+}
+
+interface LucaComparison {
+  name: string;
+  [key: string]: string;
+}
+
+interface UsersComparison {
+  name: string;
+  [key: string]: string;
+}
 
 export default function PlansPage() {
   const router = useRouter();
@@ -15,10 +42,10 @@ export default function PlansPage() {
     message: '',
     severity: 'success'
   });
-  const [plans, setPlans] = useState<any[]>([]);
-  const [filteredPlans, setFilteredPlans] = useState<any[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [filteredPlans, setFilteredPlans] = useState<Plan[]>([]);
 
-  const generateComparisonTable = (plans: any[]) => {
+  const generateComparisonTable = (plans: Plan[]): FeatureComparison[] => {
     if (!plans || plans.length === 0) return [];
 
     const monthlyPlans = plans.filter(plan => plan.billing_cycle === 'monthly');
@@ -27,10 +54,10 @@ export default function PlansPage() {
     if (!enterprisePlan || !enterprisePlan.features) return [];
     
     return enterprisePlan.features.map((feature: string) => {
-      const comparison: any = { name: feature };
+      const comparison: FeatureComparison = { name: feature };
       
       monthlyPlans.forEach(plan => {
-        const hasFeature = plan.features && plan.features.includes(feature);
+        const hasFeature = Boolean(plan.features && plan.features.includes(feature));
         comparison[plan.plan_type] = hasFeature;
       });
       
@@ -38,13 +65,13 @@ export default function PlansPage() {
     });
   };
 
-  const getSpecificComparisons = (plans: any[]) => {
+  const getSpecificComparisons = (plans: Plan[]): (LucaComparison | UsersComparison)[] => {
     if (!plans || plans.length === 0) return [];
 
     const monthlyPlans = plans.filter(plan => plan.billing_cycle === 'monthly');
-    const comparisons = [];
+    const comparisons: (LucaComparison | UsersComparison)[] = [];
 
-    const lucaComparison: any = { name: 'Luca IA' };
+    const lucaComparison: LucaComparison = { name: 'Luca IA' };
     monthlyPlans.forEach(plan => {
       if (plan.luca_questions_limit) {
         lucaComparison[plan.plan_type] = plan.luca_questions_limit === -1 ? 'Ilimitado' : plan.luca_questions_limit.toString();
@@ -54,7 +81,7 @@ export default function PlansPage() {
     });
     comparisons.push(lucaComparison);
 
-    const usersComparison: any = { name: 'Máximo de usuários' };
+    const usersComparison: UsersComparison = { name: 'Máximo de usuários' };
     monthlyPlans.forEach(plan => {
       if (plan.max_users) {
         usersComparison[plan.plan_type] = plan.max_users === -1 ? 'Ilimitado' : plan.max_users.toString();
@@ -158,13 +185,13 @@ export default function PlansPage() {
 
               <div className={styles.planIcon}>
                 {plan.plan_type === 'basic' && (
-                  <Zap className={`${styles.icon} ${styles[usePlanColor(plan.plan_type)]}`} />
+                  <Zap className={`${styles.icon} ${styles[getPlanColor(plan.plan_type)]}`} />
                 )}
                 {plan.plan_type === 'premium' && (
-                  <Star className={`${styles.icon} ${styles[usePlanColor(plan.plan_type)]}`} />
+                  <Star className={`${styles.icon} ${styles[getPlanColor(plan.plan_type)]}`} />
                 )}
                 {plan.plan_type === 'enterprise' && (
-                  <Crown className={`${styles.icon} ${styles[usePlanColor(plan.plan_type)]}`} />
+                  <Crown className={`${styles.icon} ${styles[getPlanColor(plan.plan_type)]}`} />
                 )}
               </div>
 
@@ -186,7 +213,7 @@ export default function PlansPage() {
               </ul>
 
               <button
-                className={`${styles.upgradeButton} ${styles[usePlanColor(plan.plan_type)]}`}
+                className={`${styles.upgradeButton} ${styles[getPlanColor(plan.plan_type)]}`}
                 onClick={() => handleUpgrade(plan.id)}
               >
                 Fazer Upgrade
@@ -235,7 +262,7 @@ export default function PlansPage() {
               </div>
             ))}
 
-            {generateComparisonTable(filteredPlans).map((feature: any, index: number) => (
+            {generateComparisonTable(filteredPlans).map((feature: FeatureComparison, index: number) => (
               <div key={`feature-${index}`} className={styles.tableRow}>
                 <div className={styles.featureColumn}>{feature.name}</div>
                 {filteredPlans

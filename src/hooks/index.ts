@@ -47,7 +47,7 @@ export const usePhoneMask = () => {
   };
 };
 
-export const usePlanColor = (planType: string) => {
+export const getPlanColor = (planType: string) => {
   switch (planType) {
     case 'basic': return 'blue';
     case 'premium': return 'purple';

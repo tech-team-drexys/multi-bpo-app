@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import styles from "./page.module.scss";
-import { IdeaStatus } from '@/enums';
 import { useRouter } from 'next/navigation';
+import { IdeaStatus } from '@/enums/index ';
 
 interface Idea {
   id: number;

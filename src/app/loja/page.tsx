@@ -162,11 +162,13 @@ export default function Loja() {
           severity: 'error'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao aplicar cupom:', error);
 
-      const errorMessage = error?.response?.data?.message ||
-        error?.response?.data?.error ||
+      const errorMessage = (error as { response?: { data?: { message?: string; error?: string } } })
+        ?.response?.data?.message ||
+        (error as { response?: { data?: { message?: string; error?: string } } })
+        ?.response?.data?.error ||
         'Erro ao validar cupom. Tente novamente.';
 
       setSnackbar({
@@ -230,11 +232,13 @@ export default function Loja() {
           severity: 'error'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao finalizar compra:', error);
 
-      const errorMessage = error?.response?.data?.message ||
-        error?.response?.data?.error ||
+      const errorMessage = (error as { response?: { data?: { message?: string; error?: string } } })
+        ?.response?.data?.message ||
+        (error as { response?: { data?: { message?: string; error?: string } } })
+        ?.response?.data?.error ||
         'Erro ao finalizar compra. Tente novamente.';
 
       setSnackbar({
