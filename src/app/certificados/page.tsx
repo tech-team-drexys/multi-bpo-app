@@ -14,13 +14,6 @@ interface Certificado {
   vencimento: string;
 }
 
-interface PaginationResponse {
-  data: Certificado[];
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-}
-
 const Certificados = () => {
   const [allCertificados, setAllCertificados] = useState<Certificado[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,7 +78,7 @@ const Certificados = () => {
   }).length;
   const vencidos = allCertificados.filter(c => c.statusCertificado === "Vencido").length;
 
-  const handleAddCertificate = (certificateData: { file: File; title: string; description: string }) => {
+  const handleAddCertificate = () => {
     fetchCertificados();
   };
 

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { TextField, Button, LinearProgress, Breadcrumbs } from '@mui/material';
 import { Search, Upload, Folder, FileText, FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet, Presentation, Home, ChevronRight, Download } from 'lucide-react';
 import styles from "./page.module.scss";
-import { DriveItemType } from '@/enums';
+import { DriveItemType } from '@/enums/index ';
 
 interface FileItem {
   id: string;

@@ -73,6 +73,17 @@ interface ApiOrder {
   total_amount: string;
 }
 
+interface BillingAddress {
+  street?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+}
+
 interface SubscriptionData {
   subscription: {
     asaas_subscription_id: string;
@@ -101,7 +112,7 @@ interface SubscriptionData {
     user_email: string;
   };
   payment_info: {
-    billing_address: any;
+    billing_address: BillingAddress;
     billing_type: string;
     cancellation: {
       cancelled: boolean;
